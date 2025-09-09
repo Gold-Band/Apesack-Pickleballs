@@ -46,9 +46,22 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSoftObjectPtr<UInputAction> MoveAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TSoftObjectPtr<UInputAction> SprintAction;
+
 	UPROPERTY(VisibleAnywhere, meta=(AllowPrivateAccess=true))
 	TObjectPtr<UFloatingPawnMovement> MovementComp;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+    float SprintMultiplier = 2.0f;
     
+// Sprint handlers
+	void StartSprinting(const struct FInputActionInstance& Instance);
+void StopSprinting(const struct FInputActionInstance& Instance);
+
+	float DefaultSpeed = 2.0f;
+    private: bool bIsSprinting = false;
+
 	UFUNCTION()
 	void HandleMove(const FInputActionInstance& Instance);
 	
