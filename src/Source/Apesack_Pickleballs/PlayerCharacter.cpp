@@ -31,7 +31,18 @@ void APlayerCharacter::BeginDestroy() {
 	Super::BeginDestroy();
 }
 
-// Called every frame
+void APlayerCharacter::IncrementCoins() {
+	Coins++;
+	PrintCoins();
+}
+
+bool APlayerCharacter::SpendCoins(int requestedCoins) {
+	if(Coins < requestedCoins) return false;
+	Coins -= requestedCoins;
+	PrintCoins();
+	return true;
+}
+
 void APlayerCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 }
@@ -39,8 +50,8 @@ void APlayerCharacter::Tick(float DeltaTime) {
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		if (!MoveAction.IsNull()) {
+	if(UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		if(!MoveAction.IsNull()) {
 			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);
 		}
 	}
@@ -49,4 +60,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::HandleMove(const FInputActionInstance& Instance) {
 	const FVector Value = Instance.GetValue().Get<FVector>();
 	AddMovementInput(Value);
+}
+
+void APlayerCharacter::PrintCoins() const {
+	if(!LoggingEnabled || !GEngine) return;
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		1,
+		FColor::Emerald,
+		FString::Printf(TEXT("Coins: %i"), Coins)
+	);
 }

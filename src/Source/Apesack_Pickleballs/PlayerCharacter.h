@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "InputMappingContext.h"
+#include "Interactable.h"
 #include "PlayerCharacter.generated.h"
 
 class UCameraComponent;
@@ -13,20 +14,29 @@ class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	APlayerCharacter();
+	
+	UPROPERTY(BlueprintReadOnly)
+	int Coins;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	virtual void BeginDestroy() override;
-public:    
-	// Called every frame
+	UFUNCTION(BlueprintCallable)
+	void IncrementCoins();
+
+	UFUNCTION(BlueprintCallable)
+	bool SpendCoins(int requestedCoins);
+	
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool LoggingEnabled;
+	
+	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
+	
 private:
 	FVector CharacterLastPosition;
 
@@ -41,4 +51,6 @@ private:
     
 	UFUNCTION()
 	void HandleMove(const FInputActionInstance& Instance);
+	
+	void PrintCoins() const;
 };
