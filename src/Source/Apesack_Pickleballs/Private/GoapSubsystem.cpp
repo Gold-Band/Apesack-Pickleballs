@@ -54,21 +54,29 @@ FString FWorldState::ToString() const
 	return String;
 }
 
-void UGoapSubsystem::RequestPlan(FWorldState WorldState, FWorldState GoalState, TArray<FAction>& Actions)
+bool UGoapSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	
+	return Super::ShouldCreateSubsystem(Outer);
 }
 
-void UGoapSubsystem::GeneratePlan(FWorldState WorldState, FWorldState GoalState, const TArray<FAction>& Actions)
+void UGoapSubsystem::RequestPlan(FWorldState WorldState, FWorldState GoalState, TArray<FAction> Actions, TFunction<void(const FPlanResult&)> OnPlanCompletedCallback)
 {
-	TArray<FAction> AvailableActions = Actions;
-	TArray<FAction> NewPlan;
+	GeneratePlan(WorldState, GoalState, Actions, OnPlanCompletedCallback);
+}
 
-	while (!NewPlan.IsEmpty() && NewPlan.Top().Requirement == WorldState)
+void UGoapSubsystem::GeneratePlan(FWorldState WorldState, FWorldState GoalState, TArray<FAction> AvailableActions, TFunction<void(const FPlanResult&)> OnPlanCompletedCallback)
+{
+
+	TArray<FAction> NewPlan = {};
+	//UE_LOG(LogTemp, Log, TEXT("availableactions.count = %i"), AvailableActions.Num());
+	//UE_LOG(LogTemp, Log, TEXT("newplan.count = %i"), NewPlan.Num());
+
+	bool bSucess = false;
+	while (!bSucess)
 	{
 		
 		// is there an action that can satisfy the goal?
-		TArray<FAction> ValidActions;
+		TArray<FAction> ValidActions = {};
 		for (int i = 0; i < AvailableActions.Num(); i++)
 		{
 			if (AvailableActions[i].Effect == GoalState)
@@ -83,21 +91,29 @@ void UGoapSubsystem::GeneratePlan(FWorldState WorldState, FWorldState GoalState,
 			FPlanResult Result;
 			Result.Plan = NewPlan;
 			Result.bSuccess = false;
-			if (NewPlan.IsEmpty()) Result.Message = FString::Printf(L"No usable actions to satisfy goal state \"%s\"", *GoalState.ToString());
-			else Result.Message = FString::Printf(L"No actions can satisfy goal state \"%s\"", *GoalState.ToString());
-			if (OnPlanCompleted.IsBound()) OnPlanCompleted.Broadcast(Result);
+			if (NewPlan.IsEmpty()) Result.Message = FString::Printf(TEXT("No usable actions to satisfy goal state \"%s\""), *GoalState.ToString());
+			else Result.Message = FString::Printf(TEXT("Can't complete plan for goal state \"%s\""), *GoalState.ToString());
+			OnPlanCompletedCallback.CheckCallable();
+			OnPlanCompletedCallback(Result);
 			return;
 		}
 		
 		FAction ActionUsed;
-		ActionUsed.Cost = MAX_uint8;
 		for (int i = 0; i < ValidActions.Num(); i++)
 		{
 			if (ValidActions[i].Cost < ActionUsed.Cost) ActionUsed = ValidActions[i];
 		}
 
 		NewPlan.Add(ActionUsed);
+
+		if (!NewPlan.IsEmpty() && NewPlan.Last().Requirement == WorldState) bSucess = true;
 	}
 
+	FPlanResult Result;
+	Result.Plan = NewPlan;
+	Result.bSuccess = true;
+	Result.Message = FString("");
+	OnPlanCompletedCallback.CheckCallable();
+	OnPlanCompletedCallback(Result);
 	// factor in heuristics
 }

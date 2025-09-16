@@ -63,7 +63,7 @@ struct FAction
 	FWorldState Requirement;
 
 	UPROPERTY(EditAnywhere)
-	uint8 Cost;
+	uint8 Cost = MAX_uint8;
 };
 
 /**
@@ -76,7 +76,7 @@ struct FPlanResult
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	bool bSuccess;
+	bool bSuccess = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	FString Message;
@@ -99,9 +99,12 @@ class APESACK_PICKLEBALLS_API UGoapSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 
 public:
+
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	
 	/** Each requests gets a priority, and placed in a queue to be worked on asynchronously */
-	UFUNCTION(BlueprintCallable)
-	static void RequestPlan(FWorldState WorldState, FWorldState GoalState, TArray<FAction>& Actions);
+	//UFUNCTION(BlueprintCallable)
+	static void RequestPlan(FWorldState WorldState, FWorldState GoalState, TArray<FAction> Actions, TFunction<void(const FPlanResult&)> OnPlanCompletedCallback);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPlanCompletedDelegate OnPlanCompleted;
@@ -115,5 +118,5 @@ private:
 		TArray<FAction> Actions;
 	};
 
-	void GeneratePlan(FWorldState WorldState, FWorldState GoalState, const TArray<FAction>& Actions);
+	static void GeneratePlan(FWorldState WorldState, FWorldState GoalState, TArray<FAction> AvailableActions, TFunction<void(const FPlanResult&)> OnPlanCompletedCallback);
 };

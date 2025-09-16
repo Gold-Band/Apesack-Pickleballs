@@ -1,7 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "GoapAgent.h"
-
-#include "EditorCategoryUtils.h"
 #include "Npc.h"
 
 // Sets default values for this component's properties
@@ -9,7 +7,7 @@ UGoapAgent::UGoapAgent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 
@@ -42,8 +40,13 @@ void UGoapAgent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Warning, TEXT("UGoapAgent::BeginPlay"));
 	// ...
-	UGoapSubsystem::RequestPlan(CurrentState, Goals[0], Actions);
+	const TFunction<void(const FPlanResult&)> OnPlanComplete = [](const FPlanResult& Result)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnPlanComplete | Result:Sucess=%s | Message:%s"), Result.bSuccess? TEXT("True") : TEXT("False"), *Result.Message);
+	};
+	UGoapSubsystem::RequestPlan(CurrentState, Goals[0], Actions, OnPlanComplete);
 }
 
 
@@ -54,4 +57,3 @@ void UGoapAgent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 
 	// ...
 }
-
