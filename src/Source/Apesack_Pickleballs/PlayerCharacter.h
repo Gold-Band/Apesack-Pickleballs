@@ -3,18 +3,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "InputMappingContext.h"
-#include "Dude.generated.h"
+#include "PlayerCharacter.generated.h"
 
 class UCameraComponent;
 class UFloatingPawnMovement;
 
 UCLASS()
-class APESACK_PICKLEBALLS_API ADude : public APawn {
+class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	ADude();
+	APlayerCharacter();
 
 protected:
 	// Called when the game starts or when spawned

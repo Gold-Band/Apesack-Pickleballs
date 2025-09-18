@@ -1,4 +1,4 @@
-#include "Dude.h"
+#include "PlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
@@ -6,7 +6,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 
 // Sets default values
-ADude::ADude() {
+APlayerCharacter::APlayerCharacter() {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -14,7 +14,7 @@ ADude::ADude() {
 }
 
 // Called when the game starts or when spawned
-void ADude::BeginPlay() {
+void APlayerCharacter::BeginPlay() {
 	Super::BeginPlay();
 	if(const APlayerController* PC = Cast<APlayerController>(GetController())) {
 		if(const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PC->GetLocalPlayer())) {
@@ -27,26 +27,26 @@ void ADude::BeginPlay() {
 	}
 }
 
-void ADude::BeginDestroy() {
+void APlayerCharacter::BeginDestroy() {
 	Super::BeginDestroy();
 }
 
 // Called every frame
-void ADude::Tick(float DeltaTime) {
+void APlayerCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input
-void ADude::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		if (!MoveAction.IsNull()) {
-			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &ADude::HandleMove);
+			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);
 		}
 	}
 }
 
-void ADude::HandleMove(const FInputActionInstance& Instance) {
+void APlayerCharacter::HandleMove(const FInputActionInstance& Instance) {
 	const FVector Value = Instance.GetValue().Get<FVector>();
 	AddMovementInput(Value);
 }
