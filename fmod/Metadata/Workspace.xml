@@ -5,31 +5,31 @@
 			<value>../src/Content/FMOD</value>
 		</property>
 		<relationship name="masterEventFolder">
-			<destination>{bf4d0ab0-d818-412e-92e1-35a97aa67cb4}</destination>
+			<destination>{58166614-9748-4a3f-8aec-188ded421250}</destination>
 		</relationship>
 		<relationship name="masterTagFolder">
-			<destination>{b78eb7e9-9c64-4512-bef9-ffc38cea6fd4}</destination>
+			<destination>{a746b124-9a56-4a76-9b3c-abb11fbbff88}</destination>
 		</relationship>
 		<relationship name="masterEffectPresetFolder">
-			<destination>{b6771396-4ac6-40c3-84ed-941762a385c4}</destination>
+			<destination>{868c45b0-0a09-41d9-8377-42fd04f8c794}</destination>
 		</relationship>
 		<relationship name="masterParameterPresetFolder">
-			<destination>{73645b24-8fdb-4f0b-a23f-c25768173a8a}</destination>
+			<destination>{fe5ba1b5-9170-47b5-aed7-f79ca05ac47c}</destination>
 		</relationship>
 		<relationship name="masterBankFolder">
-			<destination>{5848fa54-c9df-4a2f-bc3c-1226397930c3}</destination>
+			<destination>{e830dbe5-191e-4dd9-949a-42ffeaf36e31}</destination>
 		</relationship>
 		<relationship name="masterSandboxFolder">
-			<destination>{d5f0fdf2-25d4-448c-beb4-26e4448397a8}</destination>
+			<destination>{e5a164ba-ce95-4f7c-86ab-abc6351966ac}</destination>
 		</relationship>
 		<relationship name="masterAssetFolder">
-			<destination>{01adcd65-1ffe-447d-b343-cbdda2be18d7}</destination>
+			<destination>{331af6e8-867d-4efe-9576-894b6fb57018}</destination>
 		</relationship>
 		<relationship name="mixer">
-			<destination>{efcf774c-5f12-464d-b0fb-21fa1d7a58e5}</destination>
+			<destination>{b4ae7ec8-6451-4837-bb20-6dfb223f962d}</destination>
 		</relationship>
 		<relationship name="profilerSessionFolder">
-			<destination>{7035edae-8346-47a3-9186-ef16f3ab52e0}</destination>
+			<destination>{491a77a9-e30e-41e4-8101-3513bea69534}</destination>
 		</relationship>
 		<relationship name="platforms">
 			<destination>{cce19332-e721-42cc-8873-5af5b4085e6b}</destination>
