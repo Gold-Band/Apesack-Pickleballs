@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractableLegacy.h"
 #include "GameFramework/Actor.h"
 #include "Tower.generated.h"
 
