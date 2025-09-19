@@ -114,10 +114,10 @@ public:
 	uint8 GetSeconds() const;
 
 private:
-	uint Day = 0;
-	uint Hour = 8;
-	uint Minute = 0;
-	uint Second = 0;
+	uint32 Day = 0;
+	uint32 Hour = 8;
+	uint32 Minute = 0;
+	uint32 Second = 0;
 	FTimestamp CurrentTime;
 
 	bool bAllowClockTicking = true;
