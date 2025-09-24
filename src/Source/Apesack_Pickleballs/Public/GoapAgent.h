@@ -10,6 +10,13 @@
 
 class ANpc;
 
+enum class EDirection2D : int8
+{
+	Stop = 0,
+	Left = -1,
+	Right = 1
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class APESACK_PICKLEBALLS_API UGoapAgent : public UActorComponent
 {
@@ -27,7 +34,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void Move(EDirection2D Direction);
+	
 private:
+	bool bIsPlanInProgress = false;
+	bool bIsEquipped = false;
+	
+	
+	
 	UPROPERTY(EditAnywhere)
 	TArray<FAction> Actions;
 
@@ -38,5 +52,9 @@ private:
 	FWorldState CurrentState;
 	
 	UPROPERTY()
-	ANpc* Npc;	
+	ANpc* Npc;
+
+	TQueue<TFunction<void()>> Plan;
+
+	friend class UGoapDisplayer;
 };

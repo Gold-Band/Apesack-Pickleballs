@@ -9,6 +9,8 @@
 #include "GoapSubsystem.generated.h"
 
 
+class UGoapAgent;
+
 UENUM()
 enum class EWorldStateOption : uint8
 {
@@ -23,7 +25,8 @@ enum class EWorldStateOption : uint8
 	IsArmed,	
 	WantsAnObject,
 	WantsToWander,
-	IsWorking	
+	IsWorking,
+	IsEquipped
 };
 
 
@@ -32,6 +35,9 @@ struct FWorldState
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FName Name;
+	
 	UPROPERTY(EditAnywhere)
 	TMap<EWorldStateOption, bool> Variables;
 	
@@ -45,6 +51,7 @@ struct FWorldState
 	}
 
 	FString ToString() const;
+	static FString WorldStateOptionAsString(const EWorldStateOption& WorldStateOption);
 };
 
 /**
@@ -55,6 +62,9 @@ USTRUCT(BlueprintType)
 struct FAction
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	FName Name;
 
 	UPROPERTY(EditAnywhere)
 	FWorldState Effect;
@@ -83,6 +93,9 @@ struct FPlanResult
 	
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FAction> Plan;
+
+	UPROPERTY(BlueprintReadOnly)
+	UGoapAgent* Agent;
 };
 
 
