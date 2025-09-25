@@ -8,7 +8,7 @@
 
 
 class UGoapDisplay;
-class UGoapAgent;
+class UHTNBrain;
 /**
  * 
  */
@@ -26,7 +26,7 @@ private:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY()
-	TObjectPtr<UGoapAgent> Agent;
+	TObjectPtr<UHTNBrain> Agent;
 
 	UPROPERTY()
 	TObjectPtr<UGoapDisplay> DisplayWidget;

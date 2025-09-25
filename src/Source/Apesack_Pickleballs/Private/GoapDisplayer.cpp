@@ -2,7 +2,7 @@
 
 
 #include "GoapDisplayer.h"
-#include "GoapAgent.h"
+#include "HTNBrain.h"
 #include "GoapDisplay.h"
 
 
@@ -28,14 +28,13 @@ void UGoapDisplayer::TickComponent(float DeltaTime, enum ELevelTick TickType,
 		//UE_LOG(LogTemp, Warning, TEXT("UGoapDisplayer::TickComponent"));	
 	if (DisplayWidget && Agent)
 	{
-		DisplayWidget->UpdateContent(Agent->CurrentState, Agent->Goals, Agent->Actions);
+		//DisplayWidget->UpdateContent(Agent->CurrentState, Agent->Goals, Agent->Actions);
 	}
 }
 
 void UGoapDisplayer::BeginPlay()
 {
 	Super::BeginPlay();
-
 	// cache the widget
 	DisplayWidget = Cast<UGoapDisplay>(GetWidget());
 
@@ -45,7 +44,7 @@ void UGoapDisplayer::BeginPlay()
 	}
 
 	// cache the agent
-	Agent = Cast<UGoapAgent>(GetOwner()->GetComponentByClass(UGoapAgent::StaticClass()));
+	Agent = Cast<UHTNBrain>(GetOwner()->GetComponentByClass(UHTNBrain::StaticClass()));
 	if (!Agent)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Can't find agent component!"));

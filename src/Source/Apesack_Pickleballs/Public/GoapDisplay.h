@@ -10,7 +10,7 @@ class UListItemObject;
 struct FAction;
 struct FWorldState;
 class UListView;
-class UGoapAgent;
+class UHTNBrain;
 /**
  * 
  */

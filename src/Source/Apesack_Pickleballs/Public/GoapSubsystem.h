@@ -2,33 +2,27 @@
 
 #pragma once
 
-#include <locale>
-
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "GoapSubsystem.generated.h"
 
 
-class UGoapAgent;
+struct FWorldStateVariable;
+class UHTNBrain;
 
 UENUM()
 enum class EWorldStateOption : uint8
 {
+	None,
 	CanMove,
 	CanAttack,
-	HasTarget,
 	CanPickup,
-	IsAfraid,
-	IsEnabled,
-	IsTargetAlive,
-	IsSafeFromDanger,
-	IsArmed,	
-	WantsAnObject,
-	WantsToWander,
-	IsWorking,
-	IsEquipped
+	HasTarget,
+	CanBuild,
+	CoinsExist,
+	ToolsExist,
+	AtTarget
 };
-
 
 USTRUCT(BlueprintType)
 struct FWorldState
@@ -38,7 +32,7 @@ struct FWorldState
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FName Name;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<EWorldStateOption, bool> Variables;
 	
 	bool operator == (const FWorldState& Other) const {
@@ -52,6 +46,27 @@ struct FWorldState
 
 	FString ToString() const;
 	static FString WorldStateOptionAsString(const EWorldStateOption& WorldStateOption);
+	void UpdateVariable(const FWorldStateVariable& NewWorldStateVariable);
+	void UpdateVariables(const FWorldState& NewWorldState);
+};
+
+USTRUCT(BlueprintType)
+struct FWorldStateVariable
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EWorldStateOption Option;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool Value;
+	
+	bool IsValid(const FWorldState& Context) const
+	{
+		if (Context.Variables.Contains(Option) && Context.Variables[Option] != Value) return false;
+		return true;
+	}
+	
 };
 
 /**
@@ -95,7 +110,7 @@ struct FPlanResult
 	TArray<FAction> Plan;
 
 	UPROPERTY(BlueprintReadOnly)
-	UGoapAgent* Agent;
+	UHTNBrain* Agent;
 };
 
 

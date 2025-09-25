@@ -18,34 +18,43 @@ FString FWorldState::WorldStateOptionAsString(const EWorldStateOption& WorldStat
 {
 	switch (WorldStateOption)
 	{
+	case EWorldStateOption::None:
+		return TEXT("None");
 	case EWorldStateOption::CanMove:
 		return FString("CanMove");
 	case EWorldStateOption::CanAttack:
 		return FString("CanAttack");
-	case EWorldStateOption::HasTarget:
-		return FString("HasTarget");
 	case EWorldStateOption::CanPickup:
 		return FString("CanPickup");
-	case EWorldStateOption::IsAfraid:
-		return FString("IsAfraid");
-	case EWorldStateOption::IsEnabled:
-		return FString("IsEnabled");
-	case EWorldStateOption::IsTargetAlive:
-		return FString("IsTargetAlive");
-	case EWorldStateOption::IsSafeFromDanger:
-		return FString("IsSafeFromDanger");
-	case EWorldStateOption::IsArmed:
-		return FString("IsArmed");
-	case EWorldStateOption::WantsAnObject:
-		return FString("WantsAnObject");
-	case EWorldStateOption::WantsToWander:
-		return FString("WantsToWander");
-	case EWorldStateOption::IsWorking:
-		return FString("IsWorking");
-	case EWorldStateOption::IsEquipped:
-		return FString("IsEquipped");
+	case EWorldStateOption::HasTarget:
+		return FString("HasTarget");
+	case EWorldStateOption::CanBuild:
+		return FString("CanBuild");
+	case EWorldStateOption::CoinsExist:
+		return FString("CoinsExist");
+	case EWorldStateOption::ToolsExist:
+		return FString("ToolsExist");
+	case EWorldStateOption::AtTarget:
+		return FString("AtTarget");
 	default:
 		return FString("Unknown");
+	}
+}
+
+void FWorldState::UpdateVariable(const FWorldStateVariable& NewWorldStateVariable)
+{
+	if (!Variables.Contains(NewWorldStateVariable.Option)) return;
+	Variables[NewWorldStateVariable.Option] = NewWorldStateVariable.Value;
+}
+
+void FWorldState::UpdateVariables(const FWorldState& NewWorldState)
+{
+	for (auto& Pair : NewWorldState.Variables)
+	{
+		if (Variables.Contains(Pair.Key))
+		{
+			Variables[Pair.Key] = Pair.Value;
+		}
 	}
 }
 
