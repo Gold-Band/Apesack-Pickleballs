@@ -3,6 +3,7 @@
 
 # Rider
 .idea/
+*.DotSettings.user
 
 # Compiled Object files
 *.slo
@@ -49,6 +50,9 @@
 SourceArt/**/*.png
 SourceArt/**/*.tga
 
+# Ignore all external plugins
+Plugins/*
+
 # Binary Files
 Binaries/*
 Plugins/**/Binaries/*
@@ -76,3 +80,8 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+Plugins/Developer/RiderLink/*
+
+# FMOD
+Content/FMOD/PrivateIntegrationData/

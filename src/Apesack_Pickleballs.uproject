@@ -7,7 +7,11 @@
 		{
 			"Name": "Apesack_Pickleballs",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"UMG"
+			]
 		},
 		{
 			"Name": "FCTween",
@@ -24,9 +28,12 @@
 			]
 		},
 		{
-			"Name": "PaperZD",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/c4b43502026047d89296cd7bffd92828"
+			"Name": "FMODStudio",
+			"Enabled": true
+		},
+		{
+			"Name": "FMODStudioNiagara",
+			"Enabled": true
 		}
 	]
 }
