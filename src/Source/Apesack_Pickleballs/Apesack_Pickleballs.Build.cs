@@ -13,7 +13,9 @@ public class Apesack_Pickleballs : ModuleRules {
 			"InputCore",
 			"EnhancedInput",
 			"FCTween",
-			"UMG"
+			"UMG",
+			"Paper2D",
+			"GameplayTags"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
