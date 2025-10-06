@@ -15,8 +15,8 @@ FPlanner::FPlanner(const TArray<TSoftObjectPtr<UTask>>& InTasks, const FWorldSta
 	TArray<FWorldStateMaker> Buffer;
 	for (const auto& Task: Tasks)
 	{
-		if (!Task) continue;
-		for (const auto& Method : Task->Methods)
+		if (!Task.LoadSynchronous()) continue;
+		for (const auto& Method : Task.LoadSynchronous()->Methods)
 		{
 			for (const auto& Step : Method.Steps)
 			{

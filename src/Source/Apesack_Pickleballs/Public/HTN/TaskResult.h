@@ -18,7 +18,7 @@ USTRUCT(Blueprintable)
 struct FTaskResult
 {
 	GENERATED_BODY()
-	FTaskResult() : EndState(ETaskState::InProgress), Effect(FWorldStateContainer()), TargetActor(nullptr), Message("") { }
+	FTaskResult() : EndState(ETaskState::InProgress), Effect(FWorldStateContainer()), TargetActor(nullptr), PointOfInterest(FVector::Zero()),Message("") { }
 	explicit FTaskResult(ETaskState State, const FWorldStateContainer& EffectResult, TObjectPtr<AActor> Target, const FString& ResultMessage): EndState(State), Effect(EffectResult), TargetActor(Target), Message(ResultMessage) {}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -30,6 +30,9 @@ struct FTaskResult
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<AActor> TargetActor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector PointOfInterest;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString Message;
 };
