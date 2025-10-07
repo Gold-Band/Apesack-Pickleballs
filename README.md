@@ -1,3 +1,7 @@
+# Unreal Engine
+
+A Fool's Reign uses **Unreal Engine 5.4.4**
+
 # Plugins
 
 This project uses external plugins which you **must install** or
@@ -9,4 +13,4 @@ Plugin list:
 
 ### [FMOD for Unreal](https://www.fmod.com/download#fmodforunreal)
 
-Version 2.03.09 is in use.
+Version 2.03.09 is in use. Be sure to install the correct integration version (**5.4**)
