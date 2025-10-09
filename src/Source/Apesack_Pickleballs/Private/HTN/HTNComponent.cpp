@@ -12,7 +12,6 @@ void UHTNComponent::SetTasks(const TArray<TSoftObjectPtr<UTask>>& NewTasks)
 {
 	PreTickEvent = [&]()
 	{
-		Tasks = NewTasks;
 		Plan.Reset();
 		if (CurrentTask)
 		{
@@ -20,6 +19,8 @@ void UHTNComponent::SetTasks(const TArray<TSoftObjectPtr<UTask>>& NewTasks)
 			CurrentTask = nullptr;
 		}
 
+		Tasks = NewTasks;
+		
 		Planner = MakeUnique<FPlanner>(Tasks, &WorldStateContainer);
 	};
 }
@@ -36,14 +37,16 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	}
 
 	
-	/*
 	for (auto Sensor : SensorInstances)
 	{
-		if (Sensor && Sensor->ShouldTick())
+		if (Sensor)
 		{
-			Sensor->Tick(DeltaTime); // causes crashes?
+			if (Sensor->ShouldTick())
+			{
+				Sensor->Tick(DeltaTime); // causes crashes?
+			}
 		}
-	}*/
+	}
 
 	if ((LastPlan+=DeltaTime) >= PlanningInterval)
 	{
@@ -93,6 +96,24 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	}
 }
 
+void UHTNComponent::CancelActivePlan()
+{
+	if (CurrentTask) CurrentTask->ForceComplete();
+	CurrentTask = nullptr;
+	Plan.Reset();
+	//UE_LOG(LogTemp, Warning, TEXT("Cancelled!"))
+}
+
+void UHTNComponent::RunTask(const TSoftObjectPtr<UTask> Task)
+{
+	const FPlanner TempPlanner{TArray{Task}, nullptr};
+	TempPlanner.NewPlan(Plan);
+	bGetNextTask = false;
+	CurrentTask = GetNextTaskInitialized(Plan);
+	if (CurrentTask) CurrentTask->Run();
+	//UE_LOG(LogTemp, Warning, TEXT("Ordered!"))
+}
+
 void UHTNComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -111,7 +132,6 @@ void UHTNComponent::InitializeComponent()
 			continue;
 		}
 		const int i = SensorInstances.Add(NewObject<USensor>(this, SensorInitializer.SensorClass.Get(), EName::None, RF_NoFlags, SensorInitializer.SensorClass.GetDefaultObject()));
-		//SensorInstances[i]->Initialize(GetOwner(), );
 		
 		auto Callback = [&](const FWorldState& SensedWorldState)
 		{

@@ -6,28 +6,44 @@
 #include "Blueprint/UserWidget.h"
 #include "OptionsWidget.generated.h"
 
+class UTask;
+class UImage;
 class UGridNode;
 class UVerticalBox;
-/**
- * 
- */
+
+struct FOptionsData
+{
+	explicit FOptionsData(const TObjectPtr<UTexture2D> OptionIcon, const int OptionCost, const TSoftObjectPtr<UTask>& OptionOrderTask): Icon(OptionIcon), Cost(OptionCost), OrderTask(OptionOrderTask) {}
+	
+	const TObjectPtr<UTexture2D> Icon;
+	const int Cost = 0;
+	const TSoftObjectPtr<UTask> OrderTask;
+};
+
+
 UCLASS()
 class APESACK_PICKLEBALLS_API UOptionsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	void SelectNext();
-	void ConfirmSelection();
-	
+	void Setup(const TArray<FOptionsData>& Data);
+
+	void Reset() const;
+
+	UGridNode* GetNode(const int Index);
+
 private:
-	//virtual bool Initialize() override;
 	
 	UPROPERTY(EditAnywhere, meta=(BindWidget))
 	TObjectPtr<UVerticalBox> Options;
 
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
+	TSubclassOf<UUserWidget> OptionNodeClass;
+	
+	// Node pool
 	UPROPERTY()
-	TArray<UGridNode*> OptionNodes;
+	TArray<TObjectPtr<UGridNode>> OptionNodes;
 	 
-	uint8 SelectedOptionIndex = 0;
+	int SelectedOptionIndex = 0;
 };

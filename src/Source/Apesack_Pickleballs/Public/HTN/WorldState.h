@@ -12,7 +12,7 @@ struct APESACK_PICKLEBALLS_API FWorldStateOptions : public FTableRowBase
     GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    bool bDefaultValue;
+    bool bDefaultValue = false;
     
 };
 
@@ -59,7 +59,7 @@ struct FWorldStateMaker
     FName StateName;
 	
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    bool bStateValue;
+    bool bStateValue = false;
 
     FWorldState ToWorldState() const { return FWorldState(StateName, bStateValue); }
 };
