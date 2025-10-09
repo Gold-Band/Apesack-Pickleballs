@@ -12,6 +12,8 @@ bool FHTNPlan::Dequeue(TSubclassOf<UPrimitiveTask>& OutElem)
 FPlanner::FPlanner(const TArray<TSoftObjectPtr<UTask>>& InTasks, const FWorldStateContainer* InWorldStates):
 	Tasks(InTasks), WorldStates(InWorldStates)
 {
+	if (InWorldStates == nullptr) return;
+	
 	TArray<FWorldStateMaker> Buffer;
 	for (const auto& Task: Tasks)
 	{
@@ -68,14 +70,14 @@ FPlanner::EPlanResult FPlanner::MakePlan(FHTNPlan& OutPlan) const
 	for (const auto& Task : Tasks) // highest priority == 0
 	{
 		OutPlan.Priority++;
-		if (!Task) continue;
+		if (Task.IsNull()) continue;
 
-		for (const auto& Method : Task->Methods)
+		for (const auto& Method : Task.LoadSynchronous()->Methods)
 		{
 			bool bIsValidMethod = true;
 
-			FWorldStateContainer Hypothetical = *WorldStates;
-			Hypothetical.MergeUnique(TasksStates);
+			FWorldStateContainer Hypothetical = WorldStates? *WorldStates: FWorldStateContainer();
+			if (WorldStates) Hypothetical.MergeUnique(TasksStates);
 
 			for (const auto& Step : Method.Steps)
 			{
@@ -89,18 +91,24 @@ FPlanner::EPlanResult FPlanner::MakePlan(FHTNPlan& OutPlan) const
 				
 				// can this step be performed? Is this step's requirement met?
 				// compare against world state
-				const FWorldStateContainer Req = FWorldStateContainer::FromArray(Step.GetDefaultObject()->Requirement);
-				if (Req != Hypothetical)
+				if (WorldStates)
 				{
-					//UE_LOG(LogTemp, Warning, TEXT("Requirement not met! %s->%s->%s"), *Task->Name.ToString(), *Method.Name.ToString(), *Step.GetDefaultObject()->Name)
-					bIsValidMethod = false;
-					break;
+					const FWorldStateContainer Req = FWorldStateContainer::FromArray(Step.GetDefaultObject()->Requirement);
+					if (Req != Hypothetical)
+					{
+						//UE_LOG(LogTemp, Warning, TEXT("Requirement not met! %s->%s->%s"), *Task->Name.ToString(), *Method.Name.ToString(), *Step.GetDefaultObject()->Name)
+						bIsValidMethod = false;
+						break;
+					}
 				}
 
 				// At this point, step is valid
 				// update hypothetical world state as if this action were to be executed successfully
-				const FWorldStateContainer Eff = FWorldStateContainer::FromArray(Step.GetDefaultObject()->Effect);
-				Hypothetical.SetToMatch(Eff);
+				if (WorldStates)
+				{
+					const FWorldStateContainer Eff = FWorldStateContainer::FromArray(Step.GetDefaultObject()->Effect);
+					Hypothetical.SetToMatch(Eff);
+				}
 			}
 			if (bIsValidMethod)
 			{

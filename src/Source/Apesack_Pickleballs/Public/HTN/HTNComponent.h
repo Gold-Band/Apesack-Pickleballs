@@ -27,6 +27,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void CancelActivePlan();
+	void RunTask(const TSoftObjectPtr<UTask> Task);
+	
 private:
 	virtual void BeginPlay() override;
 	virtual void InitializeComponent() override;
@@ -40,13 +43,14 @@ private:
 
 	
 	//** Task Stuff **//
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"))
+	/*UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"))
+	TArray<TSoftObjectPtr<UTask>> Tasks;*/
+
 	TArray<TSoftObjectPtr<UTask>> Tasks;
 	
 	TObjectPtr<UPrimitiveTask> CurrentTask;
 
 	bool bGetNextTask = false;
-
 
 	//** Plan Stuff **//
 	FHTNPlan Plan;

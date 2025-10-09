@@ -2,32 +2,47 @@
 
 
 #include "UI/OptionsWidget.h"
+
+#include "Components/Image.h"
 #include "Components/VerticalBox.h"
 #include "UI/GridNode.h"
 
-void UOptionsWidget::SelectNext()
+void UOptionsWidget::Setup(const TArray<FOptionsData>& Data)
 {
-	if (!OptionNodes.IsEmpty()) OptionNodes[SelectedOptionIndex]->SetSelected();
-	SelectedOptionIndex = (SelectedOptionIndex-1) % OptionNodes.Num();
-}
-
-void UOptionsWidget::ConfirmSelection()
-{
-	UE_LOG(LogTemp, Warning, TEXT("UOptionsWidget::ConfirmSelection %i"), SelectedOptionIndex)
-}
-
-/*
-bool UOptionsWidget::Initialize()
-{
-	if (Options)
+	for (int i = 0; i < Data.Num(); ++i)
 	{
-		for (auto Option : Options->GetAllChildren())
+		UGridNode* Node = nullptr;
+		
+		// if not enough nodes exist
+		if (!OptionNodes.IsValidIndex(i))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("UOptionsWidget::Initialize"))
-			OptionNodes.Add(Cast<UGridNode>(Option));
+			Node = CreateWidget<UGridNode>(this, OptionNodeClass);
+			OptionNodes.Add(Node);
 		}
-		SelectedOptionIndex = OptionNodes.Num()-1;
+
+		// initialize node
+		Node = OptionNodes[i];
+		Node->Icon->SetBrushFromTexture(Data[i].Icon);
+		Node->Cost = Data[i].Cost;
+		Node->OrderTask = Data[i].OrderTask;
+		
+		if (i > 0) Node->UpNode = OptionNodes[i-1];
+		if (i-1 >= 0) OptionNodes[i-1]->DownNode = Node;		
+		// add node to vertical box
+		Options->AddChildToVerticalBox(Node);
 	}
-	return Super::Initialize();
+	OptionNodes.Last()->DownNode = OptionNodes[0];
+	OptionNodes[0]->UpNode = OptionNodes.Last();
 }
-*/
+
+void UOptionsWidget::Reset() const
+{
+	Options->ClearChildren();
+}
+
+UGridNode* UOptionsWidget::GetNode(const int Index)
+{
+	if (OptionNodes.IsValidIndex(Index)) return OptionNodes[Index];
+	return nullptr;
+}
+

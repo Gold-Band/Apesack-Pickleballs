@@ -3,14 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
+//#include "GameplayTagContainer.h"
 #include "TaskResult.h"
 #include "WorldState.h"
 #include "Task.generated.h"
 
 class USensor;
 
-typedef TFunction<void(const FTaskResult&)> FTaskCallback;
+/*
+USTRUCT()
+struct FTaskInfo
+{
+	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	TSoftObjectPtr<UTask> Task;
+	UPROPERTY(EditAnywhere)
+	FGameplayTag TaskTag;
+};
+*/
+
+
+
+typedef TFunction<void(const FTaskResult&)> FTaskCallback;
 UCLASS(Blueprintable, BlueprintType)
 class APESACK_PICKLEBALLS_API UPrimitiveTask : public UObject
 {
@@ -48,6 +63,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void Pause();
+
+	void ForceComplete();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void OnTaskCompleted(FTaskResult ReturnedObjects);

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GridNode.generated.h"
 
+class UTask;
 class UImage;
 /**
  * 
@@ -17,9 +18,21 @@ class APESACK_PICKLEBALLS_API UGridNode : public UUserWidget
 
 public:
 	void SetSelected();
+	void SetUnselected();
+
+	UGridNode* GetUpNode() const {return UpNode;}
+	UGridNode* GetDownNode() const {return DownNode;}
+
+	TSoftObjectPtr<UTask> OrderTask;
 	
 private:
-	
 	UPROPERTY(EditAnywhere, meta=(BindWidget))
 	TObjectPtr<UImage> Icon;
+
+	int Cost = 0;
+
+	UGridNode* UpNode;
+	UGridNode* DownNode;
+
+	friend class UOptionsWidget;
 };

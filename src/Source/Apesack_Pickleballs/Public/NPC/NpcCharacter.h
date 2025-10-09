@@ -3,55 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NpcManager.h"
 #include "GameFramework/Pawn.h"
 #include "Engine/Texture.h"
 #include "Engine/DataTable.h"
 #include "NpcCharacter.generated.h"
 
-
+struct FRankInfo;
 class UOptionsWidget;
 class UInteractable;
 class UWidgetComponent;
-
-USTRUCT(BlueprintType)
-struct FRankInfo : public FTableRowBase // row name is rank name
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UTexture> RankIcon;
-};
-
-
-USTRUCT(BlueprintType)
-struct FClassInfo : public FTableRowBase // row name is class name
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TSoftObjectPtr<class UTask>> ClassTasks;
-};
+class UBoxComponent;
+class UPaperSpriteComponent;
+class UFloatingPawnMovement;
+class UHTNComponent;
 
 
 struct FNPCDescriptor
 {
 
 	FString Name;
-	TObjectPtr<UTexture> RankIcon;
-	TObjectPtr<UTexture> ClassIcon;
-	TArray<TSoftObjectPtr<class UTask>> ClassTasks;
+	TObjectPtr<UTexture2D> RankIcon;
+	TObjectPtr<UTexture2D> ClassIcon;
+	TArray<TSoftObjectPtr<UTask>> ClassTasks;
 	int KillCount;
 	// tool
 	// outfit
 };
-
-
-
-
-class UBoxComponent;
-class UPaperSpriteComponent;
-class UFloatingPawnMovement;
-class UHTNComponent;
 
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpcCharacter : public APawn
@@ -62,34 +40,29 @@ public:
 	// Sets default values for this pawn's properties
 	ANpcCharacter();
 
-	UFUNCTION(BlueprintPure)
-	bool AreOptionsVisible() const;
+	const FClassInfo* GetClassInfo() const;
+	//FRankInfo GetRankInfo() const;
+	const FToolInfo* GetTool() const;
 	
-	void OpenInteractionDialogue();
-	void CloseInteractionDialogue();
+	FString GetCharacterName() const {return CharacterName;}
 
-	UOptionsWidget* GetInteractionDialogue() const;
+	int GetKillCount() const {return KillCount;}
+
+	void ForceTask(const TSoftObjectPtr<UTask> Task);
 	
-	//void GetClass() const;
-	//void GetTool() const; research
-	//void GetRank() const;
-	//void GetName() const;
-	//void GetKillCount() const;
-
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
+	virtual void PostInitializeComponents() override;
+	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FString CharacterName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FDataTableRowHandle CharacterClass;
+	
+	FDataTableRowHandle CharacterTool;
+	
 	int KillCount;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<USceneComponent> SceneComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBoxComponent> BoxCollider;
@@ -105,8 +78,4 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UWidgetComponent> NameTag;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UWidgetComponent> InteractionOptions;
-	
 };

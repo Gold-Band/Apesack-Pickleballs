@@ -21,11 +21,15 @@ bool USensor::ShouldTick() const
 	if (TickInterval==0) return true;
 
 	// if no world, no GetTimeSeconds()
-	const UWorld* World = GEngine->GetWorldFromContextObject(Owner,EGetWorldErrorMode::LogAndReturnNull);
-	if (!World)
+	if (GEngine)
 	{
-		return false;
-	}
+		const UWorld* World = GEngine->GetWorldFromContextObject(Owner,EGetWorldErrorMode::LogAndReturnNull);
+		if (!World)
+		{
+			return false;
+		}
 	
-	return World->GetTimeSeconds() - LastTick >= TickInterval;
+		return World->GetTimeSeconds() - LastTick >= TickInterval;
+	}
+	return false;
 }

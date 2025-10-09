@@ -6,10 +6,12 @@
 #include "Components/ActorComponent.h"
 #include "NpcInteractionComponent.generated.h"
 
-class UOptionsWidget;
 class ANpcCharacter;
+class UNpcManager;
+class UTask;
+class UOptionsWidget;
 /**
- *  Add this to the player. Tells the player how to interact with an NPC
+ *  Add this to the player. Tells an NPC what to do through the NpcManager
  */
 UCLASS(classGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class APESACK_PICKLEBALLS_API UNpcInteractionComponent : public UActorComponent
@@ -18,38 +20,6 @@ class APESACK_PICKLEBALLS_API UNpcInteractionComponent : public UActorComponent
 public:
 	UNpcInteractionComponent();
 
-	UFUNCTION(BlueprintPure)
-	bool HasValidNpc() const {return SelectedNpc != nullptr;}
-
-	UFUNCTION(BlueprintPure)
-	bool IsInteracting() const;
-	
-	UFUNCTION(BlueprintCallable)
-	void StartInteraction();
-
-	UFUNCTION(BlueprintCallable)
-	void EndInteraction();
-
-	UFUNCTION(BlueprintCallable)
-	void SelectNpc(ANpcCharacter* OtherNpc);
-
-	UFUNCTION(BlueprintCallable)
-	void UnSelectNpc();
-
-	UFUNCTION(BlueprintCallable)
-	void SelectNextOption();
-
-	UFUNCTION(BlueprintCallable)
-	void ConfirmSelection();
-	
-protected:
-	virtual void BeginPlay() override;
-
-private:
-	UPROPERTY()
-	TObjectPtr<ANpcCharacter> SelectedNpc;
-
-	UPROPERTY()
-	TObjectPtr<UOptionsWidget> SelectedNpcOptions;
-	
+	UPROPERTY(BlueprintReadWrite)
+	TWeakObjectPtr<ANpcCharacter> SelectedNpc;
 };

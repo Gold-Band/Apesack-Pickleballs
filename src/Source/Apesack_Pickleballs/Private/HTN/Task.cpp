@@ -12,9 +12,23 @@ void UPrimitiveTask::Pause()
 	bShouldTick = false;
 }
 
+void UPrimitiveTask::ForceComplete()
+{
+	Pause();
+
+	if (SubsystemId < 0) return;
+	
+	if (!Instigator) UE_LOG(LogTemp, Error, TEXT("ForceComplete() - NO INSTIGATOR"));
+	UTaskSubsystem* Subsystem =  UTaskSubsystem::Get(Instigator);
+	if (Subsystem && Subsystem->UnRegisterPrimitiveTask(this)) SubsystemId = -1;
+}
+
 void UPrimitiveTask::OnTaskCompleted(FTaskResult ReturnedObjects)
 {
 	Pause();
+
+	if (SubsystemId < 0) return;
+	
 	if (UTaskSubsystem::Get(Instigator)->UnRegisterPrimitiveTask(this)) SubsystemId = -1;
 	if (OnTaskCompleteCallback)	OnTaskCompleteCallback(ReturnedObjects);
 }
@@ -90,7 +104,15 @@ void UTaskSubsystem::Deinitialize()
 
 UTaskSubsystem* UTaskSubsystem::Get(const UObject* WorldContextObject)
 {
-	if (WorldContextObject) return WorldContextObject->GetWorld()->GetGameInstance()->GetSubsystem<UTaskSubsystem>();
+	if (GEngine)
+	{
+		const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+		if (World)
+		{
+			const UGameInstance* GameInstance = World->GetGameInstance();
+			if (GameInstance) return GameInstance->GetSubsystem<UTaskSubsystem>();
+		}
+	}
 	return nullptr;
 }
 

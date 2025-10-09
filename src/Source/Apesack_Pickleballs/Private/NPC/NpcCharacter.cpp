@@ -7,26 +7,20 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "HTN/HTNComponent.h"
+#include "NPC/NpcManager.h"
 #include "NPC/NpcName.h"
-#include "UI/OptionsWidget.h"
 
 // Sets default values
 ANpcCharacter::ANpcCharacter()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	SetRootComponent(SceneComponent);
 	
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
-	BoxCollider->SetupAttachment(SceneComponent);
+	BoxCollider->SetupAttachment(RootComponent);
 
 	NameTag = CreateDefaultSubobject<UWidgetComponent>("Name");
-	NameTag->SetupAttachment(SceneComponent);
-	
-	InteractionOptions = CreateDefaultSubobject<UWidgetComponent>("Options");
-	InteractionOptions->SetupAttachment(SceneComponent);
+	NameTag->SetupAttachment(RootComponent);
 	
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(BoxCollider);
@@ -45,32 +39,31 @@ ANpcCharacter::ANpcCharacter()
 			CharacterName = *AllNames[FMath::RandRange(0, AllNames.Num() - 1)]->SampleName;
 		}
 	}
+}
+
+const FClassInfo* ANpcCharacter::GetClassInfo() const
+{
+	if (CharacterClass.IsNull()) return nullptr;
+	return CharacterClass.GetRow<FClassInfo>(TEXT("Class Getter"));
+}
+
+const FToolInfo* ANpcCharacter::GetTool() const
+{
+	if (CharacterTool.IsNull()) return nullptr;
+	return CharacterTool.GetRow<FToolInfo>(TEXT("Tool Getter"));
+}
+
+void ANpcCharacter::ForceTask(const TSoftObjectPtr<UTask> Task)
+{
+	HtnDomain->CancelActivePlan();
+	HtnDomain->RunTask(Task);
+}
+
+void ANpcCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (CharacterClass.IsNull()) return;
 	
-}
-
-bool ANpcCharacter::AreOptionsVisible() const
-{
-	return InteractionOptions->IsVisible();	
-}
-
-void ANpcCharacter::OpenInteractionDialogue()
-{
-	InteractionOptions->SetVisibility(true);
-}
-
-void ANpcCharacter::CloseInteractionDialogue()
-{
-	InteractionOptions->SetVisibility(false);
-}
-
-UOptionsWidget* ANpcCharacter::GetInteractionDialogue() const
-{
-	return Cast<UOptionsWidget>(InteractionOptions->GetUserWidgetObject());
-}
-
-// Called when the game starts or when spawned
-void ANpcCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
+	const FClassInfo* MyClass = CharacterClass.GetRow<FClassInfo>(TEXT("Getting Class Tasks"));
+	HtnDomain->SetTasks(MyClass->ClassTasks);
 }
