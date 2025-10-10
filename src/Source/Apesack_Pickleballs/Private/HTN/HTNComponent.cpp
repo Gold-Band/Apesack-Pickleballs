@@ -36,17 +36,18 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 		PreTickEvent = nullptr;
 	}
 
-	
+	/*
 	for (auto Sensor : SensorInstances)
+{
+	if (Sensor)
 	{
-		if (Sensor)
+		if (Sensor->ShouldTick())
 		{
-			if (Sensor->ShouldTick())
-			{
-				Sensor->Tick(DeltaTime); // causes crashes?
-			}
+			Sensor->Tick(DeltaTime); // causes crashes?
 		}
 	}
+}
+*/	
 
 	if ((LastPlan+=DeltaTime) >= PlanningInterval)
 	{

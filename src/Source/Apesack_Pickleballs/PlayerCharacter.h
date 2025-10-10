@@ -53,13 +53,13 @@ private:
 	TObjectPtr<UFloatingPawnMovement> MovementComp;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-    float SprintMultiplier = 2.0f;
+    float SprintMultiplier = 1.5f;
     
 // Sprint handlers
 	void StartSprinting(const struct FInputActionInstance& Instance);
 void StopSprinting(const struct FInputActionInstance& Instance);
 
-	float DefaultSpeed = 2.0f;
+	float DefaultSpeed = 0.5f;
     private: bool bIsSprinting = false;
 
 	UFUNCTION()
