@@ -7,12 +7,12 @@ UInteractor::UInteractor() {
 void UInteractor::BeginInteractOverlap(AActor* OtherActor) {
 	UInteractable* Interactable = IsInteractable(OtherActor);
 	if(!Interactable) return;
-	GEngine->AddOnScreenDebugMessage(
+	/*GEngine->AddOnScreenDebugMessage(
 		-1,
 		1,
 		FColor::Emerald,
 		TEXT("Found")
-	);
+	);*/
 	CurrentInteractable = Interactable;
 }
 

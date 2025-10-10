@@ -1,0 +1,150 @@
+#include "UI/InteractionMenuActor.h"
+
+#include "Components/WidgetComponent.h"
+#include "NPC/NpcCharacter.h"
+#include "NPC/NpcManager.h"
+#include "UI/OptionsWidget.h"
+
+AInteractionMenuActor::AInteractionMenuActor()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::World);
+	WidgetComponent->SetVisibility(false);
+	WidgetComponent->SetDrawAtDesiredSize(true);
+	WidgetComponent->SetCastShadow(false);
+	WidgetComponent->SetPivot(FVector2D(0.5f, 1.0f));
+
+	WidgetComponent->SetRelativeRotation(FRotator(0, 90, 0));
+	WidgetComponent->SetRelativeScale3D(FVector(0.1f, 0.1f, 0.1f));
+
+	ConstructorHelpers::FClassFinder<UUserWidget> WidgetFinder(TEXT("/Game/NPC/UI/WBP_NpcOptions.WBP_NpcOptions_C"));
+	if (WidgetFinder.Succeeded())
+	{
+		NpcInteractionWidgetClass = WidgetFinder.Class;
+	}
+}
+
+void AInteractionMenuActor::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	NpcManager = UNpcManager::Get(this);
+}
+
+void AInteractionMenuActor::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (FollowActor)
+	{
+		SetActorLocation(FollowActor->GetActorLocation() + FollowOffset);
+	}
+
+}
+
+void AInteractionMenuActor::SetInteractionContext(EInteractionContext Context)
+{
+	if (!NpcInteractionWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::SetInteractionContext - NpcInteractionWidgetClass is NULL!"));
+		return;
+	}
+	
+	switch (Context)
+	{
+	case EInteractionContext::NpcCharacter:
+		if (NpcInteractionWidget)
+		{
+			WidgetComponent->SetWidget(NpcInteractionWidget);
+		}
+		else
+		{
+			WidgetComponent->SetWidgetClass(NpcInteractionWidgetClass);
+			NpcInteractionWidget = Cast<UOptionsWidget>(WidgetComponent->GetWidget());
+		}
+		break;
+	case EInteractionContext::Building:
+		break;
+	}
+}
+
+void AInteractionMenuActor::SetFollowActor(AActor* Actor)
+{
+	FollowActor = Actor;
+}
+
+template <>
+void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor)
+{
+	// Prepare the widget
+	SetInteractionContext(EInteractionContext::NpcCharacter);
+	if (!NpcInteractionWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::OpenInteractionDialog - Failed to setup widget!"));
+		return;
+	}
+
+	
+	// Setup options widget to have the correct options based on the npc
+	TArray<FOptionsData> OptionInitializers;
+
+	const FClassInfo* ActorClass = Actor->GetClassInfo();
+	const FToolInfo* NpcTool = Actor->GetTool();
+
+	if (!ActorClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Actor Has No Class Assigned!"));
+	}
+	
+	if (NpcTool && !NpcTool->NextTool.IsNull()) // if theres an upgrade available
+	{
+		const FToolInfo* Upgrade = NpcTool->NextTool.GetRow<FToolInfo>(TEXT("Get Upgrade"));
+		check(Upgrade);
+		OptionInitializers.Add(FOptionsData(Upgrade->ToolIcon, Upgrade->PurchaseCost, NpcManager->GetUpgradeTaskForTool(Upgrade)));
+	}
+
+	// add all other base tools
+	if (ActorClass && !NpcManager.IsExplicitlyNull())
+	{
+		for (const auto Class : NpcManager->GetAllClasses())
+		{
+			if (Class != ActorClass && !Class->BaseTool.IsNull())
+			{
+				const FToolInfo* Tool = Class->BaseTool.GetRow<FToolInfo>(TEXT("Get Base Tool"));
+				check(Tool);
+				OptionInitializers.Add(FOptionsData(Tool->ToolIcon, Tool->PurchaseCost, NpcManager->GetPromotionTaskForClass(Class)));
+			}
+		}
+	}
+
+	
+	
+	NpcInteractionWidget->Setup(OptionInitializers);
+	
+	WidgetComponent->SetVisibility(true);
+	// Add npc's name to this list so it looks good
+	
+}
+
+void AInteractionMenuActor::CloseInteractionDialog()
+{
+	WidgetComponent->SetVisibility(false);
+	if (NpcInteractionWidget) NpcInteractionWidget->Reset();
+	
+}
+
+UGridNode* AInteractionMenuActor::GetMostRelevantNode()
+{
+	if (!NpcInteractionWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetMostRelevantNode - NpcInteractionWidget is Null!"));
+		return nullptr;
+	}
+
+	return NpcInteractionWidget->GetNode(0);
+}
+
+

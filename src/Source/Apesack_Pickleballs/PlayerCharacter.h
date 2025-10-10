@@ -16,7 +16,7 @@ class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
 public:
 	APlayerCharacter();
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int Coins;
 
 	UFUNCTION(BlueprintCallable)
