@@ -11,6 +11,9 @@ APlayerCharacter::APlayerCharacter() {
 	PrimaryActorTick.bCanEverTick = true;
 
 	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
+
+DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
+
 }
 
 // Called when the game starts or when spawned
@@ -54,13 +57,35 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		if(!MoveAction.IsNull()) {
 			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);
 		}
+if (!SprintAction.IsNull()) {
+	UInputAction* Sprint = SprintAction.LoadSynchronous();
+	Input->BindAction(Sprint, ETriggerEvent::Started, this, &APlayerCharacter::StartSprinting);
+	Input->BindAction(Sprint, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprinting);
+	Input->BindAction(Sprint, ETriggerEvent::Canceled, this, &APlayerCharacter::StopSprinting);
+}
+
+
+
 	}
 }
 
 void APlayerCharacter::HandleMove(const FInputActionInstance& Instance) {
-	const FVector Value = Instance.GetValue().Get<FVector>();
+	FVector Value = Instance.GetValue().Get<FVector>();
+
+	if (MovementComp) {
+		if (bIsSprinting) {
+			MovementComp->MaxSpeed = DefaultSpeed * SprintMultiplier;
+
+			
+		} else {
+			MovementComp->MaxSpeed = DefaultSpeed;
+		}
+	}
+
 	AddMovementInput(Value);
 }
+
+
 
 void APlayerCharacter::PrintCoins() const {
 	if(!LoggingEnabled || !GEngine) return;
@@ -71,3 +96,14 @@ void APlayerCharacter::PrintCoins() const {
 		FString::Printf(TEXT("Coins: %i"), Coins)
 	);
 }
+
+
+void APlayerCharacter::StartSprinting(const FInputActionInstance& Instance) {
+	bIsSprinting = true;
+}
+
+void APlayerCharacter::StopSprinting(const FInputActionInstance& Instance) {
+	bIsSprinting = false;
+}
+
+
