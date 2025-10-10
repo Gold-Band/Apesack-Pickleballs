@@ -3,32 +3,50 @@
 
 #include "Tools/LevelResizer.h"
 
+#include "Camera/CameraActor.h"
+#include "Engine/StaticMeshActor.h"
+
 // Sets default values for this component's properties
-ULevelResizer::ULevelResizer()
+ALevelResizer::ALevelResizer()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// ...
 }
 
-
-// Called when the game starts
-void ULevelResizer::BeginPlay()
+#if WITH_EDITOR
+void ALevelResizer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::BeginPlay();
+	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	// ...
-	
+	// Get the property name
+	FName PropertyName = PropertyChangedEvent.Property
+		? PropertyChangedEvent.Property->GetFName()
+		: NAME_None;
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ALevelResizer, Radius))
+	{
+		UpdatePositionsAndScales();
+	}
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ALevelResizer, PlayerOffset))
+	{
+		UpdatePositionsAndScales();
+	}
 }
 
-
-// Called every frame
-void ULevelResizer::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void ALevelResizer::UpdatePositionsAndScales()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	if (GroundCylinder) GroundCylinder->SetActorRelativeScale3D(FVector(Radius*2, Radius*2, GroundCylinder->GetActorRelativeScale3D().Z));
+	if (Player)
+	{
+		Player->SetActorLocation(FVector(0, Radius*100 - PlayerOffset*100, Player->GetActorLocation().Z));
+		if (PlayerCamera) PlayerCamera->SetActorLocation(Player->GetActorLocation() + CameraOffset);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Assign player!!"))
+	}
 }
-
+#endif

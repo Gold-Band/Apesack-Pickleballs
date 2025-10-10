@@ -3,26 +3,41 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
 #include "LevelResizer.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class APESACK_PICKLEBALLS_API ULevelResizer : public USceneComponent
+class AStaticMeshActor;
+
+UCLASS()
+class APESACK_PICKLEBALLS_API ALevelResizer : public AActor
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	ULevelResizer();
+	ALevelResizer();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	// scale 1 = diameter of 1m
+	UPROPERTY(EditAnywhere, meta=(Units="Meters"))
+	float Radius = 100;
 
-		
+	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Player Offset From Cylinder Edge"))
+	float PlayerOffset = 10;
+	
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+	void UpdatePositionsAndScales();
+	
+	UPROPERTY(EditAnywhere)
+	AStaticMeshActor* GroundCylinder;
+
+	UPROPERTY(EditAnywhere, meta=(DisplayName="BP_PlayerCharacterController"))
+	AActor* Player;
+
+	UPROPERTY(EditAnywhere)
+	ACameraActor* PlayerCamera;
+	
+	UPROPERTY(EditAnywhere, meta=(DisplayName="BP_CameraActor's Offset under Default"))
+	FVector CameraOffset;
 };
