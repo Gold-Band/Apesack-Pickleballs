@@ -20,7 +20,7 @@ public:
 protected:
 
 	// scale 1 = diameter of 1m
-	UPROPERTY(EditAnywhere, meta=(Units="Meters"))
+	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Level Radius"))
 	float Radius = 100;
 
 	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Player Offset From Cylinder Edge"))
