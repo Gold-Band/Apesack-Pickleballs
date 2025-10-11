@@ -6,6 +6,7 @@
 #include "LevelResizer.generated.h"
 
 
+class APlayerCharacter;
 class AStaticMeshActor;
 
 UCLASS()
@@ -33,7 +34,7 @@ protected:
 	AStaticMeshActor* GroundCylinder;
 
 	UPROPERTY(EditAnywhere, meta=(DisplayName="BP_PlayerCharacterController"))
-	AActor* Player;
+	APlayerCharacter* Player;
 
 	UPROPERTY(EditAnywhere)
 	ACameraActor* PlayerCamera;

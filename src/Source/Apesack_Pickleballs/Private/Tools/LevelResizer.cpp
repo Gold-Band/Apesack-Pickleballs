@@ -3,6 +3,7 @@
 
 #include "Tools/LevelResizer.h"
 
+#include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Camera/CameraActor.h"
 #include "Engine/StaticMeshActor.h"
 
@@ -41,7 +42,8 @@ void ALevelResizer::UpdatePositionsAndScales()
 	if (GroundCylinder) GroundCylinder->SetActorRelativeScale3D(FVector(Radius*2, Radius*2, GroundCylinder->GetActorRelativeScale3D().Z));
 	if (Player)
 	{
-		Player->SetActorLocation(FVector(0, Radius*100 - PlayerOffset*100, Player->GetActorLocation().Z));
+		const float PlayerRadius = Radius*100 - PlayerOffset*100;
+		Player->SetActorLocation(FVector(0, PlayerRadius, Player->GetActorLocation().Z));
 		if (PlayerCamera) PlayerCamera->SetActorLocation(Player->GetActorLocation() + CameraOffset);
 	}
 	else
