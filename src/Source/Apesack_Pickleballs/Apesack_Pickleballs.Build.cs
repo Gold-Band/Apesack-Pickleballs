@@ -15,10 +15,13 @@ public class Apesack_Pickleballs : ModuleRules {
 			"FCTween",
 			"UMG",
 			"Paper2D",
-			"GameplayTags"
+			"GameplayTags",
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"UnrealEd"
+		});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -26,7 +26,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Player Offset From Cylinder Edge"))
 	float PlayerOffset = 10;
-	
+
+	virtual void PostInitProperties() override;
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 	void UpdatePositionsAndScales();
 	
@@ -41,4 +42,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, meta=(DisplayName="BP_CameraActor's Offset under Default"))
 	FVector CameraOffset;
+
+	TArray<TPair<float ,AActor*>> LevelContentActors;
 };
