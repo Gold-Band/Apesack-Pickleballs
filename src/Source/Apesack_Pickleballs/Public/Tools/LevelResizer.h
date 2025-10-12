@@ -27,9 +27,12 @@ protected:
 	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Player Offset From Cylinder Edge"))
 	float PlayerOffset = 10;
 
-	virtual void PostInitProperties() override;
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 	void UpdatePositionsAndScales();
+	void OnLoad(const FString& Filename, bool bAsTemplate);
+	void OnSave(UWorld* World, FObjectPostSaveContext ObjectPostSaveContext);
+	void OnContentMoved(UObject* Object, FPropertyChangedEvent& Event);
+	void RegisterLevelContent(TMap<AActor*, float>& OutLevelContent);
 	
 	UPROPERTY(EditAnywhere)
 	AStaticMeshActor* GroundCylinder;
@@ -42,6 +45,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, meta=(DisplayName="BP_CameraActor's Offset under Default"))
 	FVector CameraOffset;
-
-	TArray<TPair<float ,AActor*>> LevelContentActors;
+	
+	TMap<AActor*, float> LevelContentActors;
 };

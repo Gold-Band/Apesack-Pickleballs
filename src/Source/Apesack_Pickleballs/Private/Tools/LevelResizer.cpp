@@ -1,43 +1,47 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Tools/LevelResizer.h"
 
 #include "Editor.h"
+#include "EditorActorFolders.h"
 #include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Camera/CameraActor.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/World.h"
 #include "EngineUtils.h"
+#include "UObject/ObjectSaveContext.h"
 
 // Sets default values for this component's properties
 ALevelResizer::ALevelResizer()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryActorTick.bCanEverTick = false;
-
-	// ...
+	FEditorDelegates::PostSaveWorldWithContext.AddUObject(this, &ALevelResizer::OnSave);
+	FCoreUObjectDelegates::OnObjectPropertyChanged.AddUObject(this, &ALevelResizer::OnContentMoved);
+	FEditorDelegates::OnMapOpened.AddUObject(this, &ALevelResizer::OnLoad);
 }
 
 #if WITH_EDITOR
-void ALevelResizer::PostInitProperties()
-{
-	Super::PostInitProperties();
-	UE_LOG(LogTemp, Warning, TEXT("ALevelResizer::PostInitProperties"));
 
+float GetActorOffsetFromLevelRadius(const AActor* Actor, float LevelRadius)
+{
+	return (LevelRadius*100.f) - FVector::DistXY(FVector::ZeroVector, Actor->GetActorLocation());
+}
+
+void ALevelResizer::RegisterLevelContent(TMap<AActor*, float>& OutLevelContent)
+{
 	if (GEditor)
 	{
-		const UWorld* TheWorld = GEditor->GetEditorWorldContext().World();
-		if (TheWorld)
+		UWorld* World = GEditor->GetEditorWorldContext().World();
+		if (World->WorldType == EWorldType::Editor)
 		{
-			LevelContentActors.Empty();
-			for (TActorIterator<AActor> It(TheWorld); It; ++It)
+			for (TActorIterator<AActor> It(World); It; ++It)
 			{
 				AActor* Actor = *It;
 				if (Actor && Actor->GetFolderPath() == "LevelContent")
 				{
-					//UE_LOG(LogTemp, Warning, TEXT("Actor %s is in folder LevelContent"), *Actor->GetName())
-					LevelContentActors.Add(TPair<float, AActor*>(Actor->GetActorLocation().Length(),Actor));
+					const float ActorOffset =  GetActorOffsetFromLevelRadius(Actor, Radius);
+					OutLevelContent.Add(Actor, ActorOffset);
+					//UE_LOG(LogTemp, Warning, TEXT("ActorOffset = %f   -   Location = %s"), ActorOffset, *Actor->GetActorLocation().ToString());
 				}
 			}
 		}
@@ -53,9 +57,7 @@ void ALevelResizer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	// Get the property name
-	FName PropertyName = PropertyChangedEvent.Property
-		? PropertyChangedEvent.Property->GetFName()
-		: NAME_None;
+	FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(ALevelResizer, Radius))
 	{
@@ -76,13 +78,43 @@ void ALevelResizer::UpdatePositionsAndScales()
 		Player->SetActorLocation(FVector(0, PlayerRadius, Player->GetActorLocation().Z));
 		if (PlayerCamera) PlayerCamera->SetActorLocation(Player->GetActorLocation() + CameraOffset);
 	}
-	
+
 	// all other objects
-	for (auto ActorPair : LevelContentActors)
+	for (auto It = LevelContentActors.CreateIterator(); It; ++It)
 	{
-		float Offset = Radius*100.f - ActorPair.Key;
-		FVector Dir = ActorPair.Value->GetActorLocation().GetSafeNormal2D();
-		ActorPair.Value->SetActorLocation(Dir * (Radius * 100 - Offset));
+		AActor* Actor = It.Key();
+		const float ActorOffset = It.Value();
+		if (!Actor || Actor->GetFolderPath() != "LevelContent")
+		{
+			continue;
+		}
+		
+		FVector Dir = Actor->GetActorLocation().GetSafeNormal2D();
+		FVector UpOffset = FVector::UpVector * Actor->GetActorLocation().Z;
+		Actor->SetActorLocation(Dir * (Radius*100.f - ActorOffset) + UpOffset);
 	}
 }
+
+void ALevelResizer::OnLoad(const FString& Filename, bool bAsTemplate)
+{
+	LevelContentActors.Empty();
+	RegisterLevelContent(LevelContentActors);
+}
+
+void ALevelResizer::OnSave(UWorld* World, FObjectPostSaveContext ObjectPostSaveContext)
+{
+	LevelContentActors.Empty();
+	RegisterLevelContent(LevelContentActors);
+}
+
+void ALevelResizer::OnContentMoved(UObject* Object, FPropertyChangedEvent& Event)	
+{
+	AActor* Actor = Cast<AActor>(Object);
+	if (Actor && LevelContentActors.Contains(Actor))
+	{
+		LevelContentActors[Actor] = GetActorOffsetFromLevelRadius(Actor, Radius);
+	}
+}
+
+
 #endif
