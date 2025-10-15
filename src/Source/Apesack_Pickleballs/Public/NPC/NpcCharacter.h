@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NpcManager.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Pawn.h"
 #include "Engine/Texture.h"
 #include "Engine/DataTable.h"
 #include "NpcCharacter.generated.h"
 
-struct FRankInfo;
 class UOptionsWidget;
 class UInteractable;
 class UWidgetComponent;
@@ -17,6 +16,57 @@ class UBoxComponent;
 class UPaperSpriteComponent;
 class UFloatingPawnMovement;
 class UHTNComponent;
+
+USTRUCT(BlueprintType)
+struct FRankInfo : public FTableRowBase // row name is rank name
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> RankIcon;
+};
+
+
+USTRUCT(BlueprintType)
+struct FToolInfo : public FTableRowBase // row name is tool name
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag ToolTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FDataTableRowHandle NextTool;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> ToolIcon;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> ToolTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int PurchaseCost = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ToolDamage = 1;
+};
+
+
+USTRUCT(BlueprintType)
+struct FClassInfo : public FTableRowBase // row name is class name
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftObjectPtr<class UTask>> ClassTasks;
+
+	// not used
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag ClassTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FDataTableRowHandle BaseTool;
+};
 
 
 struct FNPCDescriptor
@@ -30,6 +80,8 @@ struct FNPCDescriptor
 	// tool
 	// outfit
 };
+
+
 
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpcCharacter : public APawn

@@ -1,12 +1,12 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "InteractionMenuActor.generated.h"
 
-
+class UBuildingsManager;
+class APlot;
 class UGridNode;
-class UNpcManager;
+class UInteractionManager;
 class UOptionsWidget;
 class ANpcCharacter;
 struct FClassInfo;
@@ -45,6 +45,9 @@ public:
 	template <>
 	void OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor);
 
+	template <>
+	void OpenInteractionDialog<APlot>(APlot* Actor);
+
 	void CloseInteractionDialog();
 
 	UGridNode* GetMostRelevantNode();
@@ -54,7 +57,7 @@ private:
 	void SetInteractionContext(EInteractionContext Context);
 
 	UPROPERTY()
-	TWeakObjectPtr<UNpcManager> NpcManager;
+	TWeakObjectPtr<UInteractionManager> InteractionsManager;
 
 	UPROPERTY(EditAnywhere)
 	FVector FollowOffset = FVector(0, 50, 130);

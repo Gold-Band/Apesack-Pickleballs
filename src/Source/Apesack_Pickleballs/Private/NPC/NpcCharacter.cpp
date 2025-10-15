@@ -7,7 +7,6 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "HTN/HTNComponent.h"
-#include "NPC/NpcManager.h"
 #include "NPC/NpcName.h"
 
 // Sets default values

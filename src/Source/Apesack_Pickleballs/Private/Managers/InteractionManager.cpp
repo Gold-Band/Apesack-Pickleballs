@@ -1,12 +1,13 @@
-#include "NPC/NpcManager.h"
+#include "Managers/InteractionManager.h"
 
+#include "Buildings/Plot.h"
 #include "NPC/NpcCharacter.h"
 #include "UI/GridNode.h"
+#include "HTN/Task.h"
 #include "UI/InteractionMenuActor.h"
 
-UNpcManager::UNpcManager()
+UInteractionManager::UInteractionManager()
 {
-
 	{
 		ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinder(TEXT("/Game/NPC/DT_Classes.DT_Classes"));
 		if (DataTableFinder.Succeeded())
@@ -50,27 +51,35 @@ UNpcManager::UNpcManager()
 			PromoteRangedTask = TaskFinder.Object;
 		}
 	}
+	{
+		ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinder(TEXT("/Game/NPC/DT_Buildings.DT_Buildings"));
+		if (DataTableFinder.Succeeded())
+		{
+			// populate AllClasses
+			DataTableFinder.Object->GetAllRows<FBuildingInfo>(TEXT("Caching All Buildings"), AllBuildings);
+		}
+	}
 }
 
-UNpcManager* UNpcManager::Get(const UObject* WorldContextObject)
+UInteractionManager* UInteractionManager::Get(const UObject* WorldContextObject)
 {
 	if (GEngine)
 	{
 		const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 		if (World)
 		{
-			return World->GetSubsystem<UNpcManager>();
+			return World->GetSubsystem<UInteractionManager>();
 		}
 	}
 	return nullptr;
 }
 
-void UNpcManager::SetNpcClass(ANpcCharacter* NpcActor, FClassInfo* ClassInfo)
+void UInteractionManager::SetNpcClass(ANpcCharacter* NpcActor, FClassInfo* ClassInfo)
 {
 	
 }
 
-void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)
+void UInteractionManager::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
 
@@ -78,24 +87,33 @@ void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)
 	if (!InteractionMenuActor) UE_LOG(LogTemp, Error, TEXT("UNpcManager::OnWorldBeginPlay -> Failed to spawn InteractionMenuActor!"));
 }
 
-void UNpcManager::StartNpcInteraction(ANpcCharacter* NpcActor)
+void UInteractionManager::StartInteraction(AActor* Actor)
 {
-	if (bIsInteractingWithNpc || !InteractionMenuActor || !NpcActor) return;
-	bIsInteractingWithNpc = true;
-	
-	InteractionMenuActor->OpenInteractionDialog(NpcActor);
-	InteractionMenuActor->SetFollowActor(NpcActor);
+	if (bIsInteracting || !InteractionMenuActor || !Actor) return;
+	bIsInteracting = true;
+
+	if (ANpcCharacter* NpcActor = Cast<ANpcCharacter>(Actor))
+	{
+		// Order npc to wait (DA_Wait)
+		if (WaitTask.IsValid()) NpcActor->ForceTask(WaitTask);
+		// Save ref
+		CharacterWeAreInteractingWith = NpcActor;
+		// Make specialized dialogue
+		InteractionMenuActor->OpenInteractionDialog(NpcActor);
+		// Hide npc's nametag..?
+	}
+	else if (APlot* PlotActor = Cast<APlot>(Actor))
+	{
+		InteractionMenuActor->OpenInteractionDialog(PlotActor);
+	}
+
+	// generic
+	InteractionMenuActor->SetFollowActor(Actor);
 	SelectedOptionNode = InteractionMenuActor->GetMostRelevantNode();
 	if (SelectedOptionNode) SelectedOptionNode->SetSelected();
-	CharacterWeAreInteractingWith = NpcActor;
-	// Hide npc's nametag
-
-	// Order npc to wait (DA_Wait)
-	if (WaitTask.IsValid()) NpcActor->ForceTask(WaitTask);
-
 }
 
-void UNpcManager::EndNpcInteraction()
+void UInteractionManager::EndInteraction()
 {
 	if (InteractionMenuActor)
 	{
@@ -105,7 +123,7 @@ void UNpcManager::EndNpcInteraction()
 
 	if (CharacterWeAreInteractingWith) CharacterWeAreInteractingWith->ForceTask(EmptyTask);
 	
-	bIsInteractingWithNpc = false;
+	bIsInteracting = false;
 	/*
 	 *	un-hide npc's nametag
 	 *
@@ -114,7 +132,7 @@ void UNpcManager::EndNpcInteraction()
 	*/
 }
 
-void UNpcManager::CycleOptions(const int Direction)
+void UInteractionManager::CycleOptions(const int Direction)
 {
 	if (!SelectedOptionNode)
 	{
@@ -130,17 +148,17 @@ void UNpcManager::CycleOptions(const int Direction)
 	if (SelectedOptionNode) SelectedOptionNode->SetSelected();
 }
 
-void UNpcManager::ConfirmOption()
+void UInteractionManager::ConfirmOption()
 {
 	// run task associated with option
-	if (SelectedOptionNode && CharacterWeAreInteractingWith)
+	if (SelectedOptionNode && CharacterWeAreInteractingWith && SelectedOptionNode->OrderTask.IsValid())
 	{
 		CharacterWeAreInteractingWith->ForceTask(SelectedOptionNode->OrderTask);
 		CharacterWeAreInteractingWith = nullptr;
 	}
 }
 
-TSoftObjectPtr<UTask> UNpcManager::GetUpgradeTaskForTool(const FToolInfo* ToolInfo)
+TSoftObjectPtr<UTask> UInteractionManager::GetUpgradeTaskForTool(const FToolInfo* ToolInfo)
 {
 	if (ToolInfo->ToolTag.GetTagName() == "Tool.Melee")
 	{
@@ -153,7 +171,7 @@ TSoftObjectPtr<UTask> UNpcManager::GetUpgradeTaskForTool(const FToolInfo* ToolIn
 	return PromoteBuilderTask;
 }
 
-TSoftObjectPtr<UTask> UNpcManager::GetPromotionTaskForClass(const FClassInfo* ClassInfo)
+TSoftObjectPtr<UTask> UInteractionManager::GetPromotionTaskForClass(const FClassInfo* ClassInfo)
 {
 	const FToolInfo* BaseTool = ClassInfo->BaseTool.GetRow<FToolInfo>(TEXT("help ;|"));
 	return GetUpgradeTaskForTool(BaseTool);
