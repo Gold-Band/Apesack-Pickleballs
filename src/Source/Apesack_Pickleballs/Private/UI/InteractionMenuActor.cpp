@@ -90,7 +90,7 @@ void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* 
 
 	
 	// Setup options widget to have the correct options based on the npc
-	TArray<FOptionsData> OptionInitializers;
+	TArray<TOptionsData<FToolInfo>> OptionInitializers;
 
 	const FClassInfo* ActorClass = Actor->GetClassInfo();
 	const FToolInfo* NpcTool = Actor->GetTool();
@@ -104,7 +104,7 @@ void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* 
 	{
 		const FToolInfo* Upgrade = NpcTool->NextTool.GetRow<FToolInfo>(TEXT("Get Upgrade"));
 		check(Upgrade);
-		OptionInitializers.Add(FOptionsData(Upgrade->ToolIcon, Upgrade->PurchaseCost, InteractionsManager->GetUpgradeTaskForTool(Upgrade)));
+		OptionInitializers.Add(TOptionsData(Upgrade->ToolIcon, Upgrade->PurchaseCost, InteractionsManager->GetUpgradeTaskForTool(Upgrade), Upgrade));
 	}
 
 	// add all other base tools
@@ -116,14 +116,16 @@ void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* 
 			{
 				const FToolInfo* Tool = Class->BaseTool.GetRow<FToolInfo>(TEXT("Get Base Tool"));
 				check(Tool);
-				OptionInitializers.Add(FOptionsData(Tool->ToolIcon, Tool->PurchaseCost, InteractionsManager->GetPromotionTaskForClass(Class)));
+				OptionInitializers.Add(TOptionsData(Tool->ToolIcon, Tool->PurchaseCost, InteractionsManager->GetPromotionTaskForClass(Class), Tool));
 			}
 		}
 	}
 	
-	NpcInteractionWidget->Setup(OptionInitializers);
-	
-	WidgetComponent->SetVisibility(true);
+	if (OptionInitializers.Num() > 0)
+	{
+		NpcInteractionWidget->Setup(OptionInitializers);
+		WidgetComponent->SetVisibility(true);
+	}
 	// Add npc's name to this list so it looks good
 	
 }
@@ -131,6 +133,7 @@ void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* 
 template <>
 void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 {
+	//UE_LOG(LogTemp, Warning, TEXT("AInteractionMenuActor::OpenInteractionDialog - Plot"));
 	// Prepare the widget
 	SetInteractionContext(EInteractionContext::NpcCharacter);
 	if (!NpcInteractionWidget)
@@ -140,7 +143,7 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 	}
 
 	// Setup options widget to have the correct options based on the npc
-	TArray<FOptionsData> OptionInitializers;
+	TArray<TOptionsData<FBuildingInfo>> OptionInitializers;
 
 	if (!InteractionsManager.IsExplicitlyNull())
 	{
@@ -150,7 +153,7 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 			{
 				if (Building->CompatiblePlotTags.HasTag(Actor->PlotTag))
 				{
-					OptionInitializers.Add(FOptionsData(Building->BuildingIcon, Building->PurchaseCost, nullptr));
+					OptionInitializers.Add(TOptionsData(Building->BuildingIcon, Building->PurchaseCost, nullptr, Building));
 				}
 			}
 		}
@@ -163,9 +166,15 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 			{
 				const FBuildingInfo* Upgrade = Building->NextBuilding.GetRow<FBuildingInfo>(TEXT("Get Upgrade"));
 				check(Upgrade);
-				OptionInitializers.Add(FOptionsData(Upgrade->BuildingIcon, Upgrade->PurchaseCost, nullptr));
+				OptionInitializers.Add(TOptionsData(Upgrade->BuildingIcon, Upgrade->PurchaseCost, nullptr, Building));
 			}
 		}
+	}
+
+	if (OptionInitializers.Num() > 0)
+	{
+		NpcInteractionWidget->Setup(OptionInitializers);
+		WidgetComponent->SetVisibility(true);
 	}
 }
 

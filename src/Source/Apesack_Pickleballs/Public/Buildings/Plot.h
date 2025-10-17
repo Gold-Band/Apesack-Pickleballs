@@ -17,7 +17,7 @@ struct FBuildingInfo : public FTableRowBase
 	FDataTableRowHandle NextBuilding;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UStaticMeshComponent> BuildingMesh;
+	TSubclassOf<AActor> BuildingMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> BuildingIcon;
@@ -40,7 +40,13 @@ public:
 
 	FDataTableRowHandle Building;
 
+	void SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FDataTableRowHandle& RowHandle);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<AActor> BuildingActor;
 };

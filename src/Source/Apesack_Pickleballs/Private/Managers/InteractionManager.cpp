@@ -57,6 +57,7 @@ UInteractionManager::UInteractionManager()
 		{
 			// populate AllClasses
 			DataTableFinder.Object->GetAllRows<FBuildingInfo>(TEXT("Caching All Buildings"), AllBuildings);
+			//DataTableFinder.Object->GetAllRows<FDataTableRowHandle>(TEXT("Caching All Building Handles"), AllBuildingHandles);
 		}
 	}
 }
@@ -89,8 +90,11 @@ void UInteractionManager::OnWorldBeginPlay(UWorld& InWorld)
 
 void UInteractionManager::StartInteraction(AActor* Actor)
 {
+
 	if (bIsInteracting || !InteractionMenuActor || !Actor) return;
 	bIsInteracting = true;
+
+	//UE_LOG(LogTemp, Warning, TEXT("StartInteraction"));
 
 	if (ANpcCharacter* NpcActor = Cast<ANpcCharacter>(Actor))
 	{
@@ -105,6 +109,8 @@ void UInteractionManager::StartInteraction(AActor* Actor)
 	else if (APlot* PlotActor = Cast<APlot>(Actor))
 	{
 		InteractionMenuActor->OpenInteractionDialog(PlotActor);
+		// Save ref
+		PlotWeAreInteractingWith = PlotActor;
 	}
 
 	// generic
@@ -115,6 +121,8 @@ void UInteractionManager::StartInteraction(AActor* Actor)
 
 void UInteractionManager::EndInteraction()
 {
+	if (SelectedOptionNode) SelectedOptionNode->SetUnselected();
+	
 	if (InteractionMenuActor)
 	{
 		InteractionMenuActor->SetFollowActor(nullptr);
@@ -151,10 +159,17 @@ void UInteractionManager::CycleOptions(const int Direction)
 void UInteractionManager::ConfirmOption()
 {
 	// run task associated with option
-	if (SelectedOptionNode && CharacterWeAreInteractingWith && SelectedOptionNode->OrderTask.IsValid())
+	if (!SelectedOptionNode) return;
+	
+	if (CharacterWeAreInteractingWith && SelectedOptionNode->OrderTask.IsValid())
 	{
 		CharacterWeAreInteractingWith->ForceTask(SelectedOptionNode->OrderTask);
 		CharacterWeAreInteractingWith = nullptr;
+	}
+	else if (PlotWeAreInteractingWith)
+	{
+		//TSubclassOf<AActor> Actor = PlotWeAreInteractingWith->Building.GetRow<FBuildingInfo>(TEXT("Getting building info for stuff"))->BuildingMesh;
+		//PlotWeAreInteractingWith->SetBuilding(Actor, PlotWeAreInteractingWith->Building);
 	}
 }
 
