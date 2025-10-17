@@ -27,7 +27,7 @@ public:
 	//FDataTableRowHandle GetDataRowHandle() const {return DataRow;}
 
 	//template<typename T>
-	void* ObjectTypeInfo = nullptr;
+	const void* ObjectTypeInfo = nullptr;
 	
 	TSoftObjectPtr<UTask> OrderTask = nullptr;
 	

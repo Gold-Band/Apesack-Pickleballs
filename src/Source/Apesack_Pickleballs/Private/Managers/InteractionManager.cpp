@@ -129,7 +129,16 @@ void UInteractionManager::EndInteraction()
 		InteractionMenuActor->CloseInteractionDialog();
 	}
 
-	if (CharacterWeAreInteractingWith) CharacterWeAreInteractingWith->ForceTask(EmptyTask);
+	if (CharacterWeAreInteractingWith)
+	{
+		CharacterWeAreInteractingWith->ForceTask(EmptyTask);
+		CharacterWeAreInteractingWith = nullptr;
+	}
+	else if (PlotWeAreInteractingWith)
+	{
+		PlotWeAreInteractingWith = nullptr;
+	}
+
 	
 	bIsInteracting = false;
 	/*
@@ -168,8 +177,13 @@ void UInteractionManager::ConfirmOption()
 	}
 	else if (PlotWeAreInteractingWith)
 	{
-		//TSubclassOf<AActor> Actor = PlotWeAreInteractingWith->Building.GetRow<FBuildingInfo>(TEXT("Getting building info for stuff"))->BuildingMesh;
-		//PlotWeAreInteractingWith->SetBuilding(Actor, PlotWeAreInteractingWith->Building);
+		const FBuildingInfo* Info = static_cast<const FBuildingInfo*>(SelectedOptionNode->ObjectTypeInfo);
+		check(Info);
+		TSubclassOf<AActor> Actor = Info->BuildingMesh;
+		PlotWeAreInteractingWith->SetBuilding(Actor, Info);
+		AActor* TempActorRef = PlotWeAreInteractingWith;
+		EndInteraction();
+		StartInteraction(TempActorRef);
 	}
 }
 

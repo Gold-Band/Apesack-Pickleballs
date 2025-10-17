@@ -5,15 +5,17 @@ APlot::APlot()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void APlot::SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FDataTableRowHandle& RowHandle)
+void APlot::SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBuildingInfo* BuildingInfo)
 {
 	if (!BuildingActorClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("BuildingInfo is null!"))
 		return;
 	}
-	BuildingActor = GetWorld()->SpawnActor(BuildingActorClass);
-	Building = RowHandle;
+	if (BuildingActor) BuildingActor->Destroy();
+	BuildingActor = GetWorld()->SpawnActor(BuildingActorClass, &GetTransform());
+	Building = BuildingInfo;
+	
 }
 
 void APlot::BeginPlay()

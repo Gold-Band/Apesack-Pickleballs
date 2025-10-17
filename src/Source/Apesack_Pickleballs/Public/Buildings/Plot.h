@@ -25,6 +25,8 @@ struct FBuildingInfo : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int PurchaseCost = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Level = 0;
 };
 
 UCLASS()
@@ -38,15 +40,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag PlotTag;
 
-	FDataTableRowHandle Building;
+	const FBuildingInfo* Building;
 
-	void SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FDataTableRowHandle& RowHandle);
+	void SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBuildingInfo* BuildingInfo);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	TObjectPtr<AActor> BuildingActor;
 };

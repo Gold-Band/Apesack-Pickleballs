@@ -2,10 +2,16 @@
 
 
 #include "UI/OptionsWidget.h"
+
+#include "Buildings/Plot.h"
 #include "Components/Image.h"
 #include "Components/VerticalBox.h"
+#include "NPC/NpcCharacter.h"
 #include "UI/GridNode.h"
 
+
+template void UOptionsWidget::Setup<FToolInfo>(const TArray<TOptionsData<FToolInfo>>&);
+template void UOptionsWidget::Setup<FBuildingInfo>(const TArray<TOptionsData<FBuildingInfo>>&);
 
 template <typename T>
 void UOptionsWidget::Setup(const TArray<TOptionsData<T>>& Data)
@@ -26,7 +32,7 @@ void UOptionsWidget::Setup(const TArray<TOptionsData<T>>& Data)
 		Node->Icon->SetBrushFromTexture(Data[i].Icon);
 		Node->Cost = Data[i].Cost;
 		Node->OrderTask = Data[i].OrderTask;
-		Node->ObjectTypeInfo = Data[i].TypeInfo;
+		Node->ObjectTypeInfo = static_cast<const void*>(Data[i].TypeInfo);
 		if (i > 0) Node->UpNode = OptionNodes[i-1];
 		if (i-1 >= 0) OptionNodes[i-1]->DownNode = Node;		
 		// add node to vertical box

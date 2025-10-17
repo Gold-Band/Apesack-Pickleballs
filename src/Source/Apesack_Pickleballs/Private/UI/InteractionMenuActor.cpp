@@ -123,7 +123,7 @@ void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* 
 	
 	if (OptionInitializers.Num() > 0)
 	{
-		NpcInteractionWidget->Setup(OptionInitializers);
+		NpcInteractionWidget->Setup<FToolInfo>(OptionInitializers);
 		WidgetComponent->SetVisibility(true);
 	}
 	// Add npc's name to this list so it looks good
@@ -147,11 +147,11 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 
 	if (!InteractionsManager.IsExplicitlyNull())
 	{
-		if (Actor->Building.IsNull()) // if is empty plot
+		if (!Actor->Building) // if is empty plot
 		{
 			for (const auto Building : InteractionsManager->GetAllBuildings())
 			{
-				if (Building->CompatiblePlotTags.HasTag(Actor->PlotTag))
+				if (Building->CompatiblePlotTags.HasTag(Actor->PlotTag) && Building->Level == 0)
 				{
 					OptionInitializers.Add(TOptionsData(Building->BuildingIcon, Building->PurchaseCost, nullptr, Building));
 				}
@@ -160,22 +160,21 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 		else
 		{
 			// get current building's upgrade
-			const FBuildingInfo* Building = Actor->Building.GetRow<FBuildingInfo>(TEXT("Get Building Info"));
-			check(Building);
-			if (!Building->NextBuilding.IsNull())
-			{
-				const FBuildingInfo* Upgrade = Building->NextBuilding.GetRow<FBuildingInfo>(TEXT("Get Upgrade"));
-				check(Upgrade);
-				OptionInitializers.Add(TOptionsData(Upgrade->BuildingIcon, Upgrade->PurchaseCost, nullptr, Building));
-			}
+			check(Actor->Building);
+			if (Actor->Building->NextBuilding.IsNull()) return;
+
+			const FBuildingInfo* Upgrade = Actor->Building->NextBuilding.GetRow<FBuildingInfo>(TEXT("Get Upgrade"));
+			check(Upgrade);
+			OptionInitializers.Add(TOptionsData(Upgrade->BuildingIcon, Upgrade->PurchaseCost, nullptr, Upgrade));
 		}
 	}
-
+	
 	if (OptionInitializers.Num() > 0)
 	{
 		NpcInteractionWidget->Setup(OptionInitializers);
 		WidgetComponent->SetVisibility(true);
 	}
+	
 }
 
 void AInteractionMenuActor::CloseInteractionDialog()
