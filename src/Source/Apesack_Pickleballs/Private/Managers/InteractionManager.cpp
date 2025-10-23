@@ -100,17 +100,24 @@ void UInteractionManager::StartInteraction(AActor* Actor)
 	{
 		// Order npc to wait (DA_Wait)
 		if (WaitTask.IsValid()) NpcActor->ForceTask(WaitTask);
-		// Save ref
-		CharacterWeAreInteractingWith = NpcActor;
-		// Make specialized dialogue
-		InteractionMenuActor->OpenInteractionDialog(NpcActor);
+		
+		// // Try to open an interaction dialogue
+		if (InteractionMenuActor->OpenInteractionDialog(NpcActor))
+		{
+			// Save ref
+			CharacterWeAreInteractingWith = NpcActor;
+		}
+
 		// Hide npc's nametag..?
 	}
 	else if (APlot* PlotActor = Cast<APlot>(Actor))
 	{
-		InteractionMenuActor->OpenInteractionDialog(PlotActor);
-		// Save ref
-		PlotWeAreInteractingWith = PlotActor;
+		// Try to open an interaction dialogue
+		if (InteractionMenuActor->OpenInteractionDialog(PlotActor))
+		{
+			// Save ref
+			PlotWeAreInteractingWith = PlotActor;
+		}
 	}
 
 	// generic
@@ -121,7 +128,11 @@ void UInteractionManager::StartInteraction(AActor* Actor)
 
 void UInteractionManager::EndInteraction()
 {
-	if (SelectedOptionNode) SelectedOptionNode->SetUnselected();
+	if (SelectedOptionNode)
+	{
+		SelectedOptionNode->SetUnselected();
+		SelectedOptionNode = nullptr;
+	}
 	
 	if (InteractionMenuActor)
 	{
@@ -153,7 +164,6 @@ void UInteractionManager::CycleOptions(const int Direction)
 {
 	if (!SelectedOptionNode)
 	{
-		UE_LOG(LogTemp, Error, TEXT("CycleOptions - No Selected Node!"))
 		return;
 	}
 

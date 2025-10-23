@@ -38,8 +38,9 @@ void UOptionsWidget::Setup(const TArray<TOptionsData<T>>& Data)
 		// add node to vertical box
 		Options->AddChildToVerticalBox(Node);
 	}
-	OptionNodes.Last()->DownNode = OptionNodes[0];
-	OptionNodes[0]->UpNode = OptionNodes.Last();
+	//UE_LOG(LogTemp, Warning, TEXT("Data.Num() = %i"), Data.Num())
+	OptionNodes[Data.Num()-1]->DownNode = OptionNodes[0];
+	OptionNodes[0]->UpNode = OptionNodes[Data.Num()-1];
 }
 
 void UOptionsWidget::Reset() const

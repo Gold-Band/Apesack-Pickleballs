@@ -37,16 +37,16 @@ public:
 	void SetFollowActor(AActor* Actor);
 
 	template <typename T>
-	void OpenInteractionDialog(T* Actor)
+	bool OpenInteractionDialog(T* Actor)
 	{
 		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::OpenInteractionDialog - Unknown interactable type!"));
 	}
 
 	template <>
-	void OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor);
+	bool OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor);
 
 	template <>
-	void OpenInteractionDialog<APlot>(APlot* Actor);
+	bool OpenInteractionDialog<APlot>(APlot* Actor);
 
 	void CloseInteractionDialog();
 

@@ -78,14 +78,14 @@ void AInteractionMenuActor::SetFollowActor(AActor* Actor)
 }
 
 template <>
-void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor)
+bool AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor)
 {
 	// Prepare the widget
 	SetInteractionContext(EInteractionContext::NpcCharacter);
 	if (!NpcInteractionWidget)
 	{
 		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::OpenInteractionDialog - Failed to setup widget!"));
-		return;
+		return false;
 	}
 
 	
@@ -125,13 +125,15 @@ void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* 
 	{
 		NpcInteractionWidget->Setup<FToolInfo>(OptionInitializers);
 		WidgetComponent->SetVisibility(true);
+		return true;
 	}
 	// Add npc's name to this list so it looks good
-	
+
+	return false;
 }
 
 template <>
-void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
+bool AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("AInteractionMenuActor::OpenInteractionDialog - Plot"));
 	// Prepare the widget
@@ -139,10 +141,10 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 	if (!NpcInteractionWidget)
 	{
 		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::OpenInteractionDialog - Failed to setup widget!"));
-		return;
+		return false;
 	}
 
-	// Setup options widget to have the correct options based on the npc
+	// Setup options widget to have the correct options based on the plot
 	TArray<TOptionsData<FBuildingInfo>> OptionInitializers;
 
 	if (!InteractionsManager.IsExplicitlyNull())
@@ -161,7 +163,7 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 		{
 			// get current building's upgrade
 			check(Actor->Building);
-			if (Actor->Building->NextBuilding.IsNull()) return;
+			if (Actor->Building->NextBuilding.IsNull()) return false;
 
 			const FBuildingInfo* Upgrade = Actor->Building->NextBuilding.GetRow<FBuildingInfo>(TEXT("Get Upgrade"));
 			check(Upgrade);
@@ -173,8 +175,10 @@ void AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 	{
 		NpcInteractionWidget->Setup(OptionInitializers);
 		WidgetComponent->SetVisibility(true);
+		return true;
 	}
-	
+
+	return false;
 }
 
 void AInteractionMenuActor::CloseInteractionDialog()
