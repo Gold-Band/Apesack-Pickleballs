@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ItemSensor.h"
+#include "Sensors/ItemSensor.h"
 #include "ItemActor.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void UItemSensor::Tick(float DeltaTime)
+void UItemSensor::Tick()
 {
-	Super::Tick(DeltaTime);
+	Super::Tick();
 
 	WorldState.Value = false;
 

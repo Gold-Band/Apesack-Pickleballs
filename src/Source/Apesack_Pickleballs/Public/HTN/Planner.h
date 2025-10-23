@@ -20,11 +20,14 @@ public:
 	bool HasPlan() const { return Plan.Num() > 0; }
 
 	FTaskResult LastResult;
+
+	FText GetName() const {return PlanName;}
 	
 private:
 	TDeque<TSubclassOf<UPrimitiveTask>> Plan;
 	int8 Priority = MAX_int8;
-
+	FText PlanName;
+	
 	friend class FPlanner;
 };
 

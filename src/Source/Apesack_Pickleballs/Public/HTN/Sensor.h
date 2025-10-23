@@ -34,7 +34,7 @@ public:
 
 	virtual void Initialize(AActor* OwnerActor, const FOnSenseCallback& OnSenseCallback);
 	
-	virtual void Tick(float DeltaTime);
+	virtual void Tick();
 
 	bool ShouldTick() const;
 
@@ -51,7 +51,7 @@ protected:
 	TObjectPtr<AActor> Owner;
 	
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="Tick"))
-	void ReceiveTick(float DeltaTime);
+	void ReceiveTick();
 
 	// whatever is needed to do any check
 };

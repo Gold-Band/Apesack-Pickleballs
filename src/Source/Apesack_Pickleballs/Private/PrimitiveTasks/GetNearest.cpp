@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GetNearest.h"
+#include "PrimitiveTasks/GetNearest.h"
 
 #include "GameplayTagAssetInterface.h"
 #include "Kismet/KismetSystemLibrary.h"

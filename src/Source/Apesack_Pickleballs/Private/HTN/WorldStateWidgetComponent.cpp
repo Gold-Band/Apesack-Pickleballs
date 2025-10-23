@@ -6,11 +6,22 @@
 
 UWorldStateWidgetComponent::UWorldStateWidgetComponent()
 {
-	SetManuallyRedraw(false);
 	SetDrawAtDesiredSize(true);
 	SetPivot(FVector2D(0.5f, 1.0f));
 	SetTickMode(ETickMode::Automatic);
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickInterval = 0.1f;
+}
+
+void UWorldStateWidgetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (Domain)
+	{
+		DisplayWidget->UpdateContent(Domain->WorldStateContainer);
+	}
 }
 
 void UWorldStateWidgetComponent::BeginPlay()
@@ -23,16 +34,5 @@ void UWorldStateWidgetComponent::BeginPlay()
 	// cache the agent
 	Domain = Cast<UHTNComponent>(GetOwner()->GetComponentByClass(UHTNComponent::StaticClass()));
 	if (!Domain)UE_LOG(LogTemp, Error, TEXT("Can't find the local HTN Component on %s!"), *GetOwner()->GetName());
-	
-	for (auto Sensor : Domain->SensorInstances)
-	{
-		/*Sensor->OnValueChangedNotifier = [&]()
-		{
-			if (DisplayWidget)
-			{
-				DisplayWidget->UpdateContent(Domain->WorldStates);
-			}	
-		};*/
-	}
 }
 

@@ -16,7 +16,7 @@ class APESACK_PICKLEBALLS_API UItemSensor : public USensor
 	GENERATED_BODY()
 
 public:
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick() override;
 	virtual void Initialize(AActor* OwnerActor, const FOnSenseCallback& OnSenseCallback) override;
 
 protected:

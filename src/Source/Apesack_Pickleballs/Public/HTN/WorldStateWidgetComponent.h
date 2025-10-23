@@ -20,6 +20,9 @@ class APESACK_PICKLEBALLS_API UWorldStateWidgetComponent : public UWidgetCompone
 
 	UWorldStateWidgetComponent();
 
+public:
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 private:
 	
 	virtual void BeginPlay() override;

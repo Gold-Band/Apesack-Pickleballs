@@ -1,6 +1,5 @@
 #include "HTN/WorldState.h"
 
-
 FWorldStateContainer FWorldStateContainer::FromArray(const TArray<FWorldState*>& InArray)
 {
 	FWorldStateContainer Container;
