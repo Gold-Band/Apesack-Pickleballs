@@ -57,7 +57,6 @@ UInteractionManager::UInteractionManager()
 		{
 			// populate AllClasses
 			DataTableFinder.Object->GetAllRows<FBuildingInfo>(TEXT("Caching All Buildings"), AllBuildings);
-			//DataTableFinder.Object->GetAllRows<FDataTableRowHandle>(TEXT("Caching All Building Handles"), AllBuildingHandles);
 		}
 	}
 }

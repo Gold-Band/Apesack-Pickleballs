@@ -46,19 +46,15 @@ public:
 	
 	const TArray<FClassInfo*>& GetAllClasses() const {return AllClasses;}
 	const TArray<FBuildingInfo*>& GetAllBuildings() const {return AllBuildings;}
-	//const TArray<FDataTableRowHandle*>& GetAllBuildings() const {return AllBuildingHandles;}
-	
 	
 	TSoftObjectPtr<UTask> GetUpgradeTaskForTool(const FToolInfo* ToolInfo);
 	TSoftObjectPtr<UTask> GetPromotionTaskForClass(const FClassInfo* ClassInfo);
-	
 	
 private:
 	bool bIsInteracting = false;
 	
 	TArray<FClassInfo*> AllClasses;
 	TArray<FBuildingInfo*> AllBuildings;
-	//TArray<FDataTableRowHandle*> AllBuildingHandles; 
 	
 	UGridNode* SelectedOptionNode = nullptr;
 	
@@ -81,7 +77,6 @@ private:
 	UPROPERTY()
 	TSoftObjectPtr<UTask> PromoteBuilderTask;
 
-	
 	ANpcCharacter* CharacterWeAreInteractingWith = nullptr;
 	APlot* PlotWeAreInteractingWith = nullptr;
 	
