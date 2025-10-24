@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "WorldStateWidget.generated.h"
 
+struct FWorldStateContainer;
 class UListItemObject;
 struct FWorldState;
 class UListView;
@@ -19,7 +20,7 @@ class APESACK_PICKLEBALLS_API UWorldStateWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void UpdateContent(const TArray<FWorldState*>& NewWorldState);
+	void UpdateContent(const FWorldStateContainer& NewWorldState);
 
 protected:
 	

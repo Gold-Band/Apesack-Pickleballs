@@ -29,25 +29,28 @@ public:
 
 	void CancelActivePlan();
 	void RunTask(const TSoftObjectPtr<UTask> Task);
+
+	UFUNCTION(BlueprintCallable, Category = "HTN")
+	void OverrideWorldState(const FString& OverrideStateName, bool OverrideValue);
 	
 private:
-	virtual void BeginPlay() override;
 	virtual void InitializeComponent() override;
 	TObjectPtr<UPrimitiveTask> GetNextTaskInitialized(FHTNPlan& InPlan);
 	
-	//** Sensor Stuff **//
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"))
-	TArray<FSensorInitializer> Sensors;
-	TArray<TObjectPtr<USensor>> SensorInstances;
+	//** Domain Stuff **//
 	FWorldStateContainer WorldStateContainer;
-
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"), Category="HTN")
+	TSoftObjectPtr<UDataTable> Domain;
+	
+	//** Sensor Stuff **//
+	UPROPERTY()
+	TArray<TObjectPtr<USensor>> SensorInstances;
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"), Category="HTN")
+	TArray<FSensorInitializer> Sensors;
 	
 	//** Task Stuff **//
-	/*UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"))
-	TArray<TSoftObjectPtr<UTask>> Tasks;*/
-
 	TArray<TSoftObjectPtr<UTask>> Tasks;
-	
+	UPROPERTY()
 	TObjectPtr<UPrimitiveTask> CurrentTask;
 
 	bool bGetNextTask = false;
@@ -56,12 +59,14 @@ private:
 	FHTNPlan Plan;
 	TUniquePtr<FPlanner> Planner;
 	
-	UPROPERTY(EditAnywhere, Category = "Brain")
+	UPROPERTY(EditAnywhere, Category = "HTN")
 	float PlanningInterval = 1.0f;
 	float LastPlan;
 
 	//** Other **//
 	TFunction<void()> PreTickEvent;
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"), Category = "HTN")
+	bool bLogDebug = false;
 
 	// For seeing world states in game - purely "debug" purposes
 	friend class UWorldStateWidgetComponent;

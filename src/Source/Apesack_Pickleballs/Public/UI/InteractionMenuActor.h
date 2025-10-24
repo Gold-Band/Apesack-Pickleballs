@@ -1,14 +1,14 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "InteractionMenuActor.generated.h"
 
-
+class UBuildingsManager;
+class APlot;
 class UGridNode;
-class UNpcManager;
+class UInteractionManager;
 class UOptionsWidget;
-class ANpcCharacter;
+class ANpcFriendly;
 struct FClassInfo;
 class UWidgetComponent;
 
@@ -37,13 +37,16 @@ public:
 	void SetFollowActor(AActor* Actor);
 
 	template <typename T>
-	void OpenInteractionDialog(T* Actor)
+	bool OpenInteractionDialog(T* Actor)
 	{
 		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::OpenInteractionDialog - Unknown interactable type!"));
 	}
 
 	template <>
-	void OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor);
+	bool OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Actor);
+
+	template <>
+	bool OpenInteractionDialog<APlot>(APlot* Actor);
 
 	void CloseInteractionDialog();
 
@@ -54,7 +57,7 @@ private:
 	void SetInteractionContext(EInteractionContext Context);
 
 	UPROPERTY()
-	TWeakObjectPtr<UNpcManager> NpcManager;
+	TWeakObjectPtr<UInteractionManager> InteractionsManager;
 
 	UPROPERTY(EditAnywhere)
 	FVector FollowOffset = FVector(0, 50, 130);

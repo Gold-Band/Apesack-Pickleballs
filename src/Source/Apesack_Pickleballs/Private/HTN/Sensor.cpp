@@ -9,11 +9,18 @@ void USensor::Initialize(AActor* OwnerActor, const FOnSenseCallback& OnSenseCall
 	//ReceiveInitialize(OwnerActor);
 }
 
-void USensor::Tick(float DeltaTime)
+void USensor::Tick()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Sensor::Tick() - %s"), *WorldState.Name.ToString())
-	if (TickInterval>0) LastTick = GetWorld()->GetTimeSeconds();
-	ReceiveTick(DeltaTime);
+	if (TickInterval>0 && GEngine)
+	{
+		const UWorld* World = GEngine->GetWorldFromContextObject(Owner,EGetWorldErrorMode::LogAndReturnNull);
+		if (World)
+		{
+			LastTick = World->GetTimeSeconds();
+		}
+	}
+	ReceiveTick();
 }
 
 bool USensor::ShouldTick() const

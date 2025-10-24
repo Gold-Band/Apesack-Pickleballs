@@ -11,13 +11,15 @@ class UImage;
 class UGridNode;
 class UVerticalBox;
 
-struct FOptionsData
+template<typename T>
+struct TOptionsData
 {
-	explicit FOptionsData(const TObjectPtr<UTexture2D> OptionIcon, const int OptionCost, const TSoftObjectPtr<UTask>& OptionOrderTask): Icon(OptionIcon), Cost(OptionCost), OrderTask(OptionOrderTask) {}
+	explicit TOptionsData(const TObjectPtr<UTexture2D> OptionIcon, const int OptionCost, const TSoftObjectPtr<UTask>& OptionOrderTask, const T* Info): Icon(OptionIcon), Cost(OptionCost), OrderTask(OptionOrderTask), TypeInfo(Info) {}
 	
 	const TObjectPtr<UTexture2D> Icon;
 	const int Cost = 0;
 	const TSoftObjectPtr<UTask> OrderTask;
+	const T* TypeInfo;
 };
 
 
@@ -27,7 +29,8 @@ class APESACK_PICKLEBALLS_API UOptionsWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Setup(const TArray<FOptionsData>& Data);
+	template<typename T>
+	void Setup(const TArray<TOptionsData<T>>& Data);
 
 	void Reset() const;
 

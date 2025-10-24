@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OptionsWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "GridNode.generated.h"
 
@@ -23,16 +24,22 @@ public:
 	UGridNode* GetUpNode() const {return UpNode;}
 	UGridNode* GetDownNode() const {return DownNode;}
 
-	TSoftObjectPtr<UTask> OrderTask;
+	//FDataTableRowHandle GetDataRowHandle() const {return DataRow;}
+
+	//template<typename T>
+	const void* ObjectTypeInfo = nullptr;
+	
+	TSoftObjectPtr<UTask> OrderTask = nullptr;
 	
 private:
 	UPROPERTY(EditAnywhere, meta=(BindWidget))
-	TObjectPtr<UImage> Icon;
+	TObjectPtr<UImage> Icon = nullptr;
 
 	int Cost = 0;
 
-	UGridNode* UpNode;
-	UGridNode* DownNode;
+	UGridNode* UpNode = nullptr;
+	UGridNode* DownNode = nullptr;
+	//FDataTableRowHandle DataRow;
 
 	friend class UOptionsWidget;
 };

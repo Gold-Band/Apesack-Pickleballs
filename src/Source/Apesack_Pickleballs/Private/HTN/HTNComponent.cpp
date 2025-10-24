@@ -30,24 +30,22 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	//UE_LOG(LogTemp, Warning, TEXT("Tick"))
+	
 	if (PreTickEvent)
 	{
 		PreTickEvent();
 		PreTickEvent = nullptr;
 	}
 
-	/*
 	for (auto Sensor : SensorInstances)
-{
-	if (Sensor)
 	{
+		check(Sensor);
 		if (Sensor->ShouldTick())
 		{
-			Sensor->Tick(DeltaTime); // causes crashes?
+			Sensor->Tick(); // causes crashes
 		}
 	}
-}
-*/	
 
 	if ((LastPlan+=DeltaTime) >= PlanningInterval)
 	{
@@ -60,7 +58,11 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 			// start new plan
 			if (CurrentTask) CurrentTask->Pause();
 			CurrentTask = GetNextTaskInitialized(Plan);
-			if (CurrentTask) CurrentTask->Run();
+			if (CurrentTask)
+			{
+				if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Starting plan %s"), *Plan.GetName().ToString())
+				CurrentTask->Run();
+			}
 		}
 	}
 
@@ -70,10 +72,10 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 		switch (Plan.LastResult.EndState)
 		{
 		case ETaskState::InProgress:
-			//UE_LOG(LogTemp, Log, TEXT("No previous tasks"))
+			if (bLogDebug) UE_LOG(LogTemp, Log, TEXT("No previous tasks"))
 			break;
 		case ETaskState::Success:
-			//UE_LOG(LogTemp, Warning, TEXT("Task Success"))
+			if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Task Success"))
 			// Get Next
 			if (CurrentTask) CurrentTask->Pause();
 			CurrentTask = nullptr;
@@ -81,13 +83,13 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 			if (CurrentTask) CurrentTask->Run();
 			else // no tasks, make new plan
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("Completed plan!"))
+				if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Completed plan!"))
 				bGetNextTask = false;
 			}
 			break;
 		case ETaskState::Failed:
-			//UE_LOG(LogTemp, Warning, TEXT("Task Failed! Waiting for new plan.."))
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Plan.LastResult.Message);
+			if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Task Failed! Waiting for new plan.."))
+			if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("%s"), *Plan.LastResult.Message);
 			Plan.Reset();
 			bGetNextTask = false;
 			break;
@@ -102,7 +104,7 @@ void UHTNComponent::CancelActivePlan()
 	if (CurrentTask) CurrentTask->ForceComplete();
 	CurrentTask = nullptr;
 	Plan.Reset();
-	//UE_LOG(LogTemp, Warning, TEXT("Cancelled!"))
+	if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Cancelled!"))
 }
 
 void UHTNComponent::RunTask(const TSoftObjectPtr<UTask> Task)
@@ -112,37 +114,53 @@ void UHTNComponent::RunTask(const TSoftObjectPtr<UTask> Task)
 	bGetNextTask = false;
 	CurrentTask = GetNextTaskInitialized(Plan);
 	if (CurrentTask) CurrentTask->Run();
-	//UE_LOG(LogTemp, Warning, TEXT("Ordered!"))
+	if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Ordered!"))
 }
 
-void UHTNComponent::BeginPlay()
+void UHTNComponent::OverrideWorldState(const FString& OverrideStateName, bool OverrideValue)
 {
-	Super::BeginPlay();
+	WorldStateContainer.SetToMatch(FWorldState(FName(OverrideStateName), OverrideValue));
 }
+
 
 void UHTNComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	TArray<FWorldState*> WorldStates;
+	// Save a world state for each world state defined in the Domain
+	if (Domain.IsValid())
+	{
+		TArray<FName> WorldStateNames = Domain->GetRowNames();
+		TArray<FWorldStateOptions*> WorldStateValues;
+		Domain->GetAllRows(TEXT("Getting all world states"), WorldStateValues);
+
+		const auto Func = [&](const FName& Key, const FWorldStateOptions& Value)
+		{
+			WorldStateContainer.Add(FWorldState(Key, Value.bDefaultValue));
+		};
+		Domain->ForeachRow<FWorldStateOptions>(TEXT("Saving all worldstates"), Func);		
+	}
+	
+	
+	//TArray<FWorldState*> WorldStates;
 	for (const auto& SensorInitializer : Sensors)
 	{
 		if (!SensorInitializer.SensorClass)
 		{
-			UE_LOG(LogTemp, Error, TEXT("UHTNComponent::InitializeComponent  -  SensorClass is null!"))
+			if (bLogDebug) UE_LOG(LogTemp, Error, TEXT("UHTNComponent::InitializeComponent  -  SensorClass is null!"))
 			continue;
 		}
-		const int i = SensorInstances.Add(NewObject<USensor>(this, SensorInitializer.SensorClass.Get(), EName::None, RF_NoFlags, SensorInitializer.SensorClass.GetDefaultObject()));
+		const int i = SensorInstances.Add(NewObject<USensor>(this, SensorInitializer.SensorClass/*, EName::None, RF_NoFlags, SensorInitializer.SensorClass.GetDefaultObject()*/));
 		
 		auto Callback = [&](const FWorldState& SensedWorldState)
 		{
 			WorldStateContainer.SetToMatch(SensedWorldState);
 		};
 		SensorInstances[i]->Initialize(GetOwner(), Callback);
-		WorldStates.Add(&SensorInstances[i]->WorldState);
+		//WorldStates.Add(&SensorInstances[i]->WorldState);
 		SensorInstances[i]->TickInterval = SensorInitializer.TickInterval;
 	}
-	WorldStateContainer = FWorldStateContainer::FromArray(WorldStates);
+	//WorldStateContainer = FWorldStateContainer::FromArray(WorldStates);
 	Planner = MakeUnique<FPlanner>(Tasks, &WorldStateContainer);
 }
 

@@ -20,6 +20,13 @@ public:
 	AItemActor();
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void PickedUp(AActor* ActorPickingUp);
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPickedUp(AActor* ActorPickingUp);
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))

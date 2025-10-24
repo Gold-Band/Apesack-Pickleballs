@@ -1,6 +1,5 @@
 #include "HTN/Planner.h"
 #include "HTN/Task.h"
-
 bool FHTNPlan::Dequeue(TSubclassOf<UPrimitiveTask>& OutElem)
 {
 	const bool bResult = Plan.TryPopLast(OutElem);
@@ -118,6 +117,7 @@ FPlanner::EPlanResult FPlanner::MakePlan(FHTNPlan& OutPlan) const
 				for (uint8 i = 0; i < Method.Steps.Num(); i++)
 				{
 					OutPlan.Add(Method.Steps[i]);
+					OutPlan.PlanName = FText::FromName(Method.Name);
 					//UE_LOG(LogTemp, Warning, TEXT("%i. %s"), i+1, *Method.Steps[i].GetDefaultObject()->Name)
 				}
 				break;

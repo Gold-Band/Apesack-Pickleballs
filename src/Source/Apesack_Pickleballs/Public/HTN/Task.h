@@ -10,21 +10,6 @@
 
 class USensor;
 
-/*
-USTRUCT()
-struct FTaskInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TSoftObjectPtr<UTask> Task;
-	UPROPERTY(EditAnywhere)
-	FGameplayTag TaskTag;
-};
-*/
-
-
-
 typedef TFunction<void(const FTaskResult&)> FTaskCallback;
 UCLASS(Blueprintable, BlueprintType)
 class APESACK_PICKLEBALLS_API UPrimitiveTask : public UObject
@@ -78,7 +63,7 @@ public:
 	int GetSubsystemId() const {return SubsystemId;}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bPrintStatusInLog = true;
+	bool bPrintStatusInLog = false;
 	
 protected:
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="Tick"))
@@ -130,7 +115,7 @@ public:
 };
 
 UCLASS()
-class UTaskSubsystem: public UGameInstanceSubsystem, public FTickableGameObject
+class APESACK_PICKLEBALLS_API UTaskSubsystem: public UGameInstanceSubsystem, public FTickableGameObject
 {
 	GENERATED_BODY()
 

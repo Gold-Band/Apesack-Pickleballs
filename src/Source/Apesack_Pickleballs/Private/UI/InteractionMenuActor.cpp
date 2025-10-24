@@ -1,8 +1,9 @@
 #include "UI/InteractionMenuActor.h"
 
+#include "Buildings/Plot.h"
 #include "Components/WidgetComponent.h"
-#include "NPC/NpcCharacter.h"
-#include "NPC/NpcManager.h"
+#include "NPC/NpcFriendly.h"
+#include "Managers/InteractionManager.h"
 #include "UI/OptionsWidget.h"
 
 AInteractionMenuActor::AInteractionMenuActor()
@@ -31,7 +32,7 @@ void AInteractionMenuActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	NpcManager = UNpcManager::Get(this);
+	InteractionsManager = UInteractionManager::Get(this);
 }
 
 void AInteractionMenuActor::Tick(float DeltaTime)
@@ -77,19 +78,19 @@ void AInteractionMenuActor::SetFollowActor(AActor* Actor)
 }
 
 template <>
-void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor)
+bool AInteractionMenuActor::OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Actor)
 {
 	// Prepare the widget
 	SetInteractionContext(EInteractionContext::NpcCharacter);
 	if (!NpcInteractionWidget)
 	{
 		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::OpenInteractionDialog - Failed to setup widget!"));
-		return;
+		return false;
 	}
 
 	
 	// Setup options widget to have the correct options based on the npc
-	TArray<FOptionsData> OptionInitializers;
+	TArray<TOptionsData<FToolInfo>> OptionInitializers;
 
 	const FClassInfo* ActorClass = Actor->GetClassInfo();
 	const FToolInfo* NpcTool = Actor->GetTool();
@@ -103,30 +104,81 @@ void AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* 
 	{
 		const FToolInfo* Upgrade = NpcTool->NextTool.GetRow<FToolInfo>(TEXT("Get Upgrade"));
 		check(Upgrade);
-		OptionInitializers.Add(FOptionsData(Upgrade->ToolIcon, Upgrade->PurchaseCost, NpcManager->GetUpgradeTaskForTool(Upgrade)));
+		OptionInitializers.Add(TOptionsData(Upgrade->ToolIcon, Upgrade->PurchaseCost, InteractionsManager->GetUpgradeTaskForTool(Upgrade), Upgrade));
 	}
 
 	// add all other base tools
-	if (ActorClass && !NpcManager.IsExplicitlyNull())
+	if (ActorClass && !InteractionsManager.IsExplicitlyNull())
 	{
-		for (const auto Class : NpcManager->GetAllClasses())
+		for (const auto Class : InteractionsManager->GetAllClasses())
 		{
 			if (Class != ActorClass && !Class->BaseTool.IsNull())
 			{
 				const FToolInfo* Tool = Class->BaseTool.GetRow<FToolInfo>(TEXT("Get Base Tool"));
 				check(Tool);
-				OptionInitializers.Add(FOptionsData(Tool->ToolIcon, Tool->PurchaseCost, NpcManager->GetPromotionTaskForClass(Class)));
+				OptionInitializers.Add(TOptionsData(Tool->ToolIcon, Tool->PurchaseCost, InteractionsManager->GetPromotionTaskForClass(Class), Tool));
 			}
 		}
 	}
-
 	
-	
-	NpcInteractionWidget->Setup(OptionInitializers);
-	
-	WidgetComponent->SetVisibility(true);
+	if (OptionInitializers.Num() > 0)
+	{
+		NpcInteractionWidget->Setup<FToolInfo>(OptionInitializers);
+		WidgetComponent->SetVisibility(true);
+		return true;
+	}
 	// Add npc's name to this list so it looks good
+
+	return false;
+}
+
+template <>
+bool AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("AInteractionMenuActor::OpenInteractionDialog - Plot"));
+	// Prepare the widget
+	SetInteractionContext(EInteractionContext::NpcCharacter);
+	if (!NpcInteractionWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AInteractionMenuActor::OpenInteractionDialog - Failed to setup widget!"));
+		return false;
+	}
+
+	// Setup options widget to have the correct options based on the plot
+	TArray<TOptionsData<FBuildingInfo>> OptionInitializers;
+
+	if (!InteractionsManager.IsExplicitlyNull())
+	{
+		if (!Actor->Building) // if is empty plot
+		{
+			for (const auto Building : InteractionsManager->GetAllBuildings())
+			{
+				if (Building->CompatiblePlotTags.HasTag(Actor->PlotTag) && Building->Level == 0)
+				{
+					OptionInitializers.Add(TOptionsData(Building->BuildingIcon, Building->PurchaseCost, nullptr, Building));
+				}
+			}
+		}
+		else
+		{
+			// get current building's upgrade
+			check(Actor->Building);
+			if (Actor->Building->NextBuilding.IsNull()) return false;
+
+			const FBuildingInfo* Upgrade = Actor->Building->NextBuilding.GetRow<FBuildingInfo>(TEXT("Get Upgrade"));
+			check(Upgrade);
+			OptionInitializers.Add(TOptionsData(Upgrade->BuildingIcon, Upgrade->PurchaseCost, nullptr, Upgrade));
+		}
+	}
 	
+	if (OptionInitializers.Num() > 0)
+	{
+		NpcInteractionWidget->Setup(OptionInitializers);
+		WidgetComponent->SetVisibility(true);
+		return true;
+	}
+
+	return false;
 }
 
 void AInteractionMenuActor::CloseInteractionDialog()
