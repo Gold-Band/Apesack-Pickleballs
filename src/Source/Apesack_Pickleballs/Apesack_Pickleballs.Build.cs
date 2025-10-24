@@ -15,7 +15,7 @@ public class Apesack_Pickleballs : ModuleRules {
 			"FCTween",
 			"UMG",
 			"Paper2D",
-			"GameplayTags"
+			"GameplayTags",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
