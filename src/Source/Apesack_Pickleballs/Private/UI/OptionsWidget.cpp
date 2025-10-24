@@ -6,7 +6,7 @@
 #include "Buildings/Plot.h"
 #include "Components/Image.h"
 #include "Components/VerticalBox.h"
-#include "NPC/NpcCharacter.h"
+#include "NPC/NpcFriendly.h"
 #include "UI/GridNode.h"
 
 

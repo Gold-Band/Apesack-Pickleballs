@@ -8,7 +8,7 @@ class APlot;
 class UGridNode;
 class UInteractionManager;
 class UOptionsWidget;
-class ANpcCharacter;
+class ANpcFriendly;
 struct FClassInfo;
 class UWidgetComponent;
 
@@ -43,7 +43,7 @@ public:
 	}
 
 	template <>
-	bool OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor);
+	bool OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Actor);
 
 	template <>
 	bool OpenInteractionDialog<APlot>(APlot* Actor);

@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "HTN/Sensor.h"
-#include "ItemSensor.generated.h"
+#include "ActorSensor.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class APESACK_PICKLEBALLS_API UItemSensor : public USensor
+class APESACK_PICKLEBALLS_API UActorSensor : public USensor
 {
 	GENERATED_BODY()
 
@@ -28,4 +28,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag ObjectTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UClass* FilterClass;
 };

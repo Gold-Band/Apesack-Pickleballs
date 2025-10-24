@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagAssetInterface.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Pawn.h"
 #include "Engine/Texture.h"
 #include "Engine/DataTable.h"
-#include "NpcCharacter.generated.h"
+#include "NpcBase.generated.h"
 
 class UOptionsWidget;
 class UInteractable;
@@ -16,15 +17,6 @@ class UBoxComponent;
 class UPaperSpriteComponent;
 class UFloatingPawnMovement;
 class UHTNComponent;
-
-USTRUCT(BlueprintType)
-struct FRankInfo : public FTableRowBase // row name is rank name
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UTexture2D> RankIcon;
-};
 
 
 USTRUCT(BlueprintType)
@@ -84,37 +76,34 @@ struct FNPCDescriptor
 
 
 UCLASS()
-class APESACK_PICKLEBALLS_API ANpcCharacter : public APawn
+class APESACK_PICKLEBALLS_API ANpcBase : public APawn, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	ANpcCharacter();
+	ANpcBase();
+	
+	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
 	const FClassInfo* GetClassInfo() const;
-	//FRankInfo GetRankInfo() const;
+
 	const FToolInfo* GetTool() const;
 	
-	FString GetCharacterName() const {return CharacterName;}
-
-	int GetKillCount() const {return KillCount;}
-
-	void ForceTask(const TSoftObjectPtr<UTask> Task);
+	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
 	
 protected:
 	virtual void PostInitializeComponents() override;
 	
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	FString CharacterName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
+	FGameplayTag CharacterTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
 	FDataTableRowHandle CharacterClass;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
 	FDataTableRowHandle CharacterTool;
-	
-	int KillCount;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBoxComponent> BoxCollider;
@@ -127,7 +116,4 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UFloatingPawnMovement> MovementComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UWidgetComponent> NameTag;
 };

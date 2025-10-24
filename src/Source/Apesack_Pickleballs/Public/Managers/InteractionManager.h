@@ -14,7 +14,7 @@ class UGridNode;
 class AInteractionMenuActor;
 class UWidgetComponent;
 class UOptionsWidget;
-class ANpcCharacter;
+class ANpcFriendly;
 
 
 UCLASS()
@@ -27,7 +27,7 @@ public:
 	
 	static UInteractionManager* Get(const UObject* WorldContextObject);
 
-	void SetNpcClass(ANpcCharacter* NpcActor, FClassInfo* ClassInfo);
+	void SetNpcClass(ANpcFriendly* NpcActor, FClassInfo* ClassInfo);
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
@@ -77,7 +77,7 @@ private:
 	UPROPERTY()
 	TSoftObjectPtr<UTask> PromoteBuilderTask;
 
-	ANpcCharacter* CharacterWeAreInteractingWith = nullptr;
+	ANpcFriendly* CharacterWeAreInteractingWith = nullptr;
 	APlot* PlotWeAreInteractingWith = nullptr;
 	
 };

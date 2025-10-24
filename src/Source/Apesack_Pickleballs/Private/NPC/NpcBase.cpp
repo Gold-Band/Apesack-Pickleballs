@@ -1,16 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "NPC/NpcCharacter.h"
+#include "NPC/NpcBase.h"
 #include "PaperSpriteComponent.h"
 #include "Components/BoxComponent.h"
-#include "Components/WidgetComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "HTN/HTNComponent.h"
-#include "NPC/NpcName.h"
 
 // Sets default values
-ANpcCharacter::ANpcCharacter()
+ANpcBase::ANpcBase()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
@@ -18,50 +16,38 @@ ANpcCharacter::ANpcCharacter()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	BoxCollider->SetupAttachment(RootComponent);
 
-	NameTag = CreateDefaultSubobject<UWidgetComponent>("Name");
-	NameTag->SetupAttachment(RootComponent);
-	
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(BoxCollider);
 	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));
 	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
-	
-	if (CharacterName.IsEmpty())
-	{
-		// get random name
-		static ConstructorHelpers::FObjectFinder<UDataTable> NamesDataTableFinder(TEXT("/Game/NPC/NpcNames.NpcNames"));
-		if (NamesDataTableFinder.Succeeded())
-		{
-			UDataTable* NamesDataTable = NamesDataTableFinder.Object;
-			TArray<FNpcName*> AllNames;
-			NamesDataTable->GetAllRows(TEXT("GetRandomName"), AllNames);
-			CharacterName = *AllNames[FMath::RandRange(0, AllNames.Num() - 1)]->SampleName;
-		}
-	}
 }
 
-const FClassInfo* ANpcCharacter::GetClassInfo() const
+void ANpcBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+{
+	TagContainer = CharacterTag.GetSingleTagContainer();
+}
+
+const FClassInfo* ANpcBase::GetClassInfo() const
 {
 	if (CharacterClass.IsNull()) return nullptr;
 	return CharacterClass.GetRow<FClassInfo>(TEXT("Class Getter"));
 }
 
-const FToolInfo* ANpcCharacter::GetTool() const
+const FToolInfo* ANpcBase::GetTool() const
 {
 	if (CharacterTool.IsNull()) return nullptr;
 	return CharacterTool.GetRow<FToolInfo>(TEXT("Tool Getter"));
 }
 
-void ANpcCharacter::ForceTask(const TSoftObjectPtr<UTask> Task)
+void ANpcBase::ForceTask(const TSoftObjectPtr<UTask> Task) const
 {
 	HtnDomain->CancelActivePlan();
 	HtnDomain->RunTask(Task);
 }
 
-void ANpcCharacter::PostInitializeComponents()
+void ANpcBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	if (CharacterClass.IsNull()) return;
 	
 	const FClassInfo* MyClass = CharacterClass.GetRow<FClassInfo>(TEXT("Getting Class Tasks"));
 	HtnDomain->SetTasks(MyClass->ClassTasks);

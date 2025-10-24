@@ -2,7 +2,7 @@
 
 #include "Buildings/Plot.h"
 #include "Components/WidgetComponent.h"
-#include "NPC/NpcCharacter.h"
+#include "NPC/NpcFriendly.h"
 #include "Managers/InteractionManager.h"
 #include "UI/OptionsWidget.h"
 
@@ -78,7 +78,7 @@ void AInteractionMenuActor::SetFollowActor(AActor* Actor)
 }
 
 template <>
-bool AInteractionMenuActor::OpenInteractionDialog<ANpcCharacter>(ANpcCharacter* Actor)
+bool AInteractionMenuActor::OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Actor)
 {
 	// Prepare the widget
 	SetInteractionContext(EInteractionContext::NpcCharacter);

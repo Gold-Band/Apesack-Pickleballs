@@ -1,7 +1,7 @@
 #include "Managers/InteractionManager.h"
 
 #include "Buildings/Plot.h"
-#include "NPC/NpcCharacter.h"
+#include "NPC/NpcFriendly.h"
 #include "UI/GridNode.h"
 #include "HTN/Task.h"
 #include "UI/InteractionMenuActor.h"
@@ -17,35 +17,35 @@ UInteractionManager::UInteractionManager()
 		}
 	}
 	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Actions/DA_WaitTask.DA_WaitTask"));
+		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_WaitTask.TDA_WaitTask"));
 		if (TaskFinder.Succeeded())
 		{
 			WaitTask = TaskFinder.Object;
 		}
 	}
 	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Actions/DA_EmptyTask.DA_EmptyTask"));
+		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_EmptyTask.TDA_EmptyTask"));
 		if (TaskFinder.Succeeded())
 		{
 			EmptyTask = TaskFinder.Object;
 		}
 	}
 	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Actions/DA_PromoteBuilder.DA_PromoteBuilder"));
+		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_PromoteBuilder.TDA_PromoteBuilder"));
 		if (TaskFinder.Succeeded())
 		{
 			PromoteBuilderTask = TaskFinder.Object;
 		}
 	}
 	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Actions/DA_PromoteMelee.DA_PromoteMelee"));
+		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_PromoteMelee.TDA_PromoteMelee"));
 		if (TaskFinder.Succeeded())
 		{
 			PromoteMeleeTask = TaskFinder.Object;
 		}
 	}
 	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Actions/DA_PromoteRanged.DA_PromoteRanged"));
+		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_PromoteRanged.TDA_PromoteRanged"));
 		if (TaskFinder.Succeeded())
 		{
 			PromoteRangedTask = TaskFinder.Object;
@@ -74,7 +74,7 @@ UInteractionManager* UInteractionManager::Get(const UObject* WorldContextObject)
 	return nullptr;
 }
 
-void UInteractionManager::SetNpcClass(ANpcCharacter* NpcActor, FClassInfo* ClassInfo)
+void UInteractionManager::SetNpcClass(ANpcFriendly* NpcActor, FClassInfo* ClassInfo)
 {
 	
 }
@@ -95,7 +95,7 @@ void UInteractionManager::StartInteraction(AActor* Actor)
 
 	//UE_LOG(LogTemp, Warning, TEXT("StartInteraction"));
 
-	if (ANpcCharacter* NpcActor = Cast<ANpcCharacter>(Actor))
+	if (ANpcFriendly* NpcActor = Cast<ANpcFriendly>(Actor))
 	{
 		// Order npc to wait (DA_Wait)
 		if (WaitTask.IsValid()) NpcActor->ForceTask(WaitTask);
