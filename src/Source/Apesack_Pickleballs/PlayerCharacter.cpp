@@ -4,6 +4,7 @@
 #include "InputActionValue.h"
 
 #include "GameFramework/FloatingPawnMovement.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter() {
@@ -28,6 +29,8 @@ void APlayerCharacter::BeginPlay() {
 			}
 		}
 	}
+	
+	Radius = GetActorLocation().Size2D();
 }
 
 void APlayerCharacter::BeginDestroy() {
@@ -51,25 +54,26 @@ void APlayerCharacter::Tick(float DeltaTime) {
 }
 
 // Called to bind functionality to input
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if(UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		if(!MoveAction.IsNull()) {
+	if(UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		if(!MoveAction.IsNull())
+		{
 			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);
 		}
-if (!SprintAction.IsNull()) {
-	UInputAction* Sprint = SprintAction.LoadSynchronous();
-	Input->BindAction(Sprint, ETriggerEvent::Started, this, &APlayerCharacter::StartSprinting);
-	Input->BindAction(Sprint, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprinting);
-	Input->BindAction(Sprint, ETriggerEvent::Canceled, this, &APlayerCharacter::StopSprinting);
-}
-
-
-
+		if (!SprintAction.IsNull())
+		{
+			UInputAction* Sprint = SprintAction.LoadSynchronous();
+			Input->BindAction(Sprint, ETriggerEvent::Started, this, &APlayerCharacter::StartSprinting);
+			Input->BindAction(Sprint, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprinting);
+			Input->BindAction(Sprint, ETriggerEvent::Canceled, this, &APlayerCharacter::StopSprinting);
+		}
 	}
 }
 
-void APlayerCharacter::HandleMove(const FInputActionInstance& Instance) {
+void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
 	FVector Value = Instance.GetValue().Get<FVector>();
 
 	if (MovementComp) {
@@ -82,7 +86,15 @@ void APlayerCharacter::HandleMove(const FInputActionInstance& Instance) {
 		}
 	}
 
-	AddMovementInput(Value);
+	// rotate
+	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), FVector::Zero());
+	Rotator.Yaw = Rotator.Yaw + 90.f;
+	Rotator.Pitch = 0;
+	Rotator.Roll = 0;
+	SetActorRotation(Rotator);
+	AddMovementInput(Value.X * GetActorForwardVector());
+	// clamp location to radius
+	SetActorLocation(GetActorLocation().GetClampedToSize2D(0,Radius));	
 }
 
 

@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "InputMappingContext.h"
-#include "Interactable.h"
 #include "PlayerCharacter.generated.h"
 
 class UCameraComponent;
@@ -38,7 +37,11 @@ protected:
 	virtual void BeginDestroy() override;
 	
 private:
+	
 	FVector CharacterLastPosition;
+	
+	UPROPERTY(EditAnywhere)
+	float Radius = 100;
 
 	UPROPERTY(EditAnywhere)
 	TSoftObjectPtr<UInputMappingContext> Gameplay_IMC;
