@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{66075413-4fe1-4a66-9092-ca21efef0d78}">
+		<property name="assetPath">
+			<value>Sound Effects - Footsteps.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>6.2171428571428571</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{331af6e8-867d-4efe-9576-894b6fb57018}</destination>
+		</relationship>
+	</object>
+</objects>
