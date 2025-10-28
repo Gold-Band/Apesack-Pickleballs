@@ -21,7 +21,7 @@ AInteractionMenuActor::AInteractionMenuActor()
 	WidgetComponent->SetRelativeRotation(FRotator(0, 90, 0));
 	WidgetComponent->SetRelativeScale3D(FVector(0.1f, 0.1f, 0.1f));
 
-	ConstructorHelpers::FClassFinder<UUserWidget> WidgetFinder(TEXT("/Game/NPC/UI/WBP_NpcOptions.WBP_NpcOptions_C"));
+	ConstructorHelpers::FClassFinder<UUserWidget> WidgetFinder(TEXT("/Game/Blueprints/Widgets/NpcInteraction/WBP_NpcOptions.WBP_NpcOptions_C"));
 	if (WidgetFinder.Succeeded())
 	{
 		NpcInteractionWidgetClass = WidgetFinder.Class;

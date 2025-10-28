@@ -3,7 +3,7 @@
 
 #include "NPC/NpcFriendly.h"
 #include "Components/WidgetComponent.h"
-#include "NPC/NpcName.h"
+#include "GameModes/DefaultGameMode.h"
 
 // Sets default values
 ANpcFriendly::ANpcFriendly()
@@ -13,17 +13,20 @@ ANpcFriendly::ANpcFriendly()
 	
 	NameTag = CreateDefaultSubobject<UWidgetComponent>("Name");
 	NameTag->SetupAttachment(RootComponent);
-	
+}
+
+void ANpcFriendly::BeginPlay()
+{
+	Super::BeginPlay();
+
 	if (CharacterName.IsEmpty())
 	{
-		// get random name
-		static ConstructorHelpers::FObjectFinder<UDataTable> NamesDataTableFinder(TEXT("/Game/NPC/NpcNames.NpcNames"));
-		if (NamesDataTableFinder.Succeeded())
+		const ADefaultGameMode* GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
+		if (!GameMode)
 		{
-			UDataTable* NamesDataTable = NamesDataTableFinder.Object;
-			TArray<FNpcName*> AllNames;
-			NamesDataTable->GetAllRows(TEXT("GetRandomName"), AllNames);
-			CharacterName = *AllNames[FMath::RandRange(0, AllNames.Num() - 1)]->SampleName;
+			UE_LOG(LogTemp, Error, TEXT("ANpcFriendly::ANpcFriendly - Failed to get the game mode!"))		
+			return ;
 		}
+		CharacterName = GameMode->GetRandomNpcName();
 	}
 }

@@ -27,6 +27,9 @@ public:
 
 	int GetKillCount() const {return KillCount;}
 
+protected:
+	virtual void BeginPlay() override;
+	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FString CharacterName;
