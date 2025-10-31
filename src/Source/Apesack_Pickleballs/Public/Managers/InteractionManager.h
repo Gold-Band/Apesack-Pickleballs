@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "InteractionManager.generated.h"
 
-
+class ADefaultGameMode;
 struct FBuildingInfo;
 class UTask;
 struct FToolInfo;
@@ -52,6 +52,8 @@ public:
 	
 private:
 	bool bIsInteracting = false;
+
+	const ADefaultGameMode* GameMode = nullptr;
 	
 	TArray<FClassInfo*> AllClasses;
 	TArray<FBuildingInfo*> AllBuildings;
@@ -66,16 +68,6 @@ private:
 
 	UPROPERTY()
 	TSoftObjectPtr<UTask> EmptyTask;
-	
-	// ***** temporary measure ****** // 
-	UPROPERTY()
-	TSoftObjectPtr<UTask> PromoteMeleeTask;
-
-	UPROPERTY()
-	TSoftObjectPtr<UTask> PromoteRangedTask;
-
-	UPROPERTY()
-	TSoftObjectPtr<UTask> PromoteBuilderTask;
 
 	ANpcFriendly* CharacterWeAreInteractingWith = nullptr;
 	APlot* PlotWeAreInteractingWith = nullptr;

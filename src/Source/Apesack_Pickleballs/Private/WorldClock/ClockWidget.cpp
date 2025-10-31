@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ClockWidget.h"
+#include "WorldClock/ClockWidget.h"
 
-#include "WorldClockSubsystem.h"
+#include "WorldClock/WorldClockSubsystem.h"
 #include "Components/TextBlock.h"
 
 void UClockWidget::NativeConstruct()

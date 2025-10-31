@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SunClockSynchronizer.h"
+#include "WorldClock/SunClockSynchronizer.h"
 
 // Sets default values for this component's properties
 USunClockSynchronizer::USunClockSynchronizer()

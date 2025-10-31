@@ -2,7 +2,7 @@
 
 
 #include "Sensors/ActorSensor.h"
-#include "ItemActor.h"
+#include "Items/ItemActor.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NPC/NpcBase.h"
 

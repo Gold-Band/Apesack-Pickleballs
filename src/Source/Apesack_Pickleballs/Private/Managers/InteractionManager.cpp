@@ -1,6 +1,8 @@
 #include "Managers/InteractionManager.h"
 
 #include "Buildings/Plot.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameModes/DefaultGameMode.h"
 #include "NPC/NpcFriendly.h"
 #include "UI/GridNode.h"
 #include "HTN/Task.h"
@@ -9,54 +11,17 @@
 UInteractionManager::UInteractionManager()
 {
 	{
-		ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinder(TEXT("/Game/NPC/DT_Classes.DT_Classes"));
-		if (DataTableFinder.Succeeded())
-		{
-			// populate AllClasses
-			DataTableFinder.Object->GetAllRows<FClassInfo>(TEXT("Caching All Classes"), AllClasses);
-		}
-	}
-	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_WaitTask.TDA_WaitTask"));
+		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/Data/Tasks/TDA_WaitTask.TDA_WaitTask"));
 		if (TaskFinder.Succeeded())
 		{
 			WaitTask = TaskFinder.Object;
 		}
 	}
 	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_EmptyTask.TDA_EmptyTask"));
+		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/Data/Tasks/TDA_EmptyTask.TDA_EmptyTask"));
 		if (TaskFinder.Succeeded())
 		{
 			EmptyTask = TaskFinder.Object;
-		}
-	}
-	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_PromoteBuilder.TDA_PromoteBuilder"));
-		if (TaskFinder.Succeeded())
-		{
-			PromoteBuilderTask = TaskFinder.Object;
-		}
-	}
-	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_PromoteMelee.TDA_PromoteMelee"));
-		if (TaskFinder.Succeeded())
-		{
-			PromoteMeleeTask = TaskFinder.Object;
-		}
-	}
-	{
-		ConstructorHelpers::FObjectFinder<UTask> TaskFinder(TEXT("/Game/HTN/Tasks/TDA_PromoteRanged.TDA_PromoteRanged"));
-		if (TaskFinder.Succeeded())
-		{
-			PromoteRangedTask = TaskFinder.Object;
-		}
-	}
-	{
-		ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinder(TEXT("/Game/NPC/DT_Buildings.DT_Buildings"));
-		if (DataTableFinder.Succeeded())
-		{
-			// populate AllClasses
-			DataTableFinder.Object->GetAllRows<FBuildingInfo>(TEXT("Caching All Buildings"), AllBuildings);
 		}
 	}
 }
@@ -85,6 +50,16 @@ void UInteractionManager::OnWorldBeginPlay(UWorld& InWorld)
 
 	InteractionMenuActor = InWorld.SpawnActor<AInteractionMenuActor>(AInteractionMenuActor::StaticClass());
 	if (!InteractionMenuActor) UE_LOG(LogTemp, Error, TEXT("UNpcManager::OnWorldBeginPlay -> Failed to spawn InteractionMenuActor!"));
+
+	GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
+	if (!GameMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UInteractionManager::OnWorldBeginPlay - Failed to get game mode!"))		
+		return;
+	}
+	
+	AllClasses = GameMode->GetAllClasses();
+	AllBuildings = GameMode->GetAllBuildings();
 }
 
 void UInteractionManager::StartInteraction(AActor* Actor)
@@ -198,15 +173,20 @@ void UInteractionManager::ConfirmOption()
 
 TSoftObjectPtr<UTask> UInteractionManager::GetUpgradeTaskForTool(const FToolInfo* ToolInfo)
 {
+	if (!GameMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UInteractionManager::GetUpgradeTaskForTool - No game mode!"))		
+		return nullptr;
+	}
 	if (ToolInfo->ToolTag.GetTagName() == "Tool.Melee")
 	{
-		return PromoteMeleeTask;
+		return GameMode->GetPromoteMeleeTask();
 	}
 	if (ToolInfo->ToolTag.GetTagName() == "Tool.Ranged")
 	{
-		return PromoteRangedTask;
+		return GameMode->GetPromoteRangedTask();
 	}
-	return PromoteBuilderTask;
+	return GameMode->GetPromoteBuilderTask();
 }
 
 TSoftObjectPtr<UTask> UInteractionManager::GetPromotionTaskForClass(const FClassInfo* ClassInfo)

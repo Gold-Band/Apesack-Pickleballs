@@ -89,7 +89,7 @@ public:
 	const FClassInfo* GetClassInfo() const;
 
 	const FToolInfo* GetTool() const;
-	
+
 	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
 	
 protected:
