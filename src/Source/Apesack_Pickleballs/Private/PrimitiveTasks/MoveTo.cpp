@@ -4,6 +4,7 @@
 #include "PrimitiveTasks/MoveTo.h"
 
 
+
 void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback)
 {
 	Super::Initialize(InstigatorActor, OnCompleteCallback);
@@ -45,6 +46,8 @@ void UMoveTo::Tick(float DeltaTime)
 
 		// get direction to target
 		DirToTarget = TargetLocation - Instigator->GetActorLocation();
+
+		// rotate character
 		const float DotProd = FVector::DotProduct(DirToTarget, Instigator->GetActorForwardVector());
 		if (DotProd < 0)
 		{
@@ -58,6 +61,7 @@ void UMoveTo::Tick(float DeltaTime)
 	// move actor if conditions permit
 	if (TargetDistanceSquared > OutOfSightDistanceSquared)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("%f"), FMath::Sqrt(TargetDistanceSquared))
 		OnTaskCompleted(FTaskResult(ETaskState::Failed, EffectContainer, TargetActor, FString("Target went out of sight!")));
 		return;
 	}
@@ -66,7 +70,6 @@ void UMoveTo::Tick(float DeltaTime)
 	{
 		// veer off character's set radius to directly to the target
 		InstigatorAsPawn->AddMovementInput(DirToTarget.GetUnsafeNormal2D());
-		bOffRadius = true;
 	}
 	else
 	{
@@ -76,7 +79,6 @@ void UMoveTo::Tick(float DeltaTime)
 
 	if (TargetDistanceSquared <= StopDistSquared)
 	{
-		if (bOffRadius) EffectContainer.Add(FWorldState(FName("IsOnRadius"), false));
 		OnTaskCompleted(FTaskResult(ETaskState::Success, EffectContainer, TargetActor, FString()));
 	}
 }

@@ -66,6 +66,7 @@ public:
 	bool bPrintStatusInLog = false;
 	
 protected:
+	UFUNCTION(BlueprintCallable)
 	const FTaskResult& GetPreviousTaskResult() const;
 	
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="Tick"))
