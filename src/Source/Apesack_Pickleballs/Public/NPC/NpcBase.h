@@ -15,7 +15,7 @@ class UInteractable;
 class UWidgetComponent;
 class UBoxComponent;
 class UPaperSpriteComponent;
-class UFloatingPawnMovement;
+class UCircularPawnMovementComponent;
 class UHTNComponent;
 
 
@@ -115,5 +115,5 @@ private:
 	TObjectPtr<UHTNComponent> HtnDomain;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UFloatingPawnMovement> MovementComp;
+	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
 };

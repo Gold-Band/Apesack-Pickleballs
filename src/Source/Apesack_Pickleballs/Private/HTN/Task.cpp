@@ -2,6 +2,8 @@
 
 #include "HTN/Task.h"
 
+#include "HTN/HTNComponent.h"
+
 void UPrimitiveTask::Run()
 {
 	bShouldTick = true;
@@ -48,6 +50,13 @@ void UPrimitiveTask::Initialize(AActor* InstigatorActor, const FTaskCallback& On
 	if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("UPrimitiveTask::Initialize -> %s - %s"), *InstigatorActor->GetName(), *Name);
 
 	ReceiveInitialize(InstigatorActor);
+}
+
+const FTaskResult& UPrimitiveTask::GetPreviousTaskResult() const
+{
+	UHTNComponent* Domain = Cast<UHTNComponent>(Instigator->GetComponentByClass(UHTNComponent::StaticClass()));
+	check (Domain);
+	return Domain->GetPreviousTaskResult();
 }
 
 

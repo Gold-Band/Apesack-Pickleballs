@@ -4,7 +4,7 @@
 #include "NPC/NpcBase.h"
 #include "PaperSpriteComponent.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/FloatingPawnMovement.h"
+#include "Movement/CircularPawnMovementComponent.h"
 #include "HTN/HTNComponent.h"
 
 // Sets default values
@@ -19,7 +19,7 @@ ANpcBase::ANpcBase()
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(BoxCollider);
 	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));
-	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
+	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
 }
 
 void ANpcBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

@@ -2,16 +2,17 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Movement/CircularPawnMovementComponent.h"
+#include "NPC/TestPawn.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter() {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
+	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
 
 DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
 
@@ -85,16 +86,8 @@ void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
 			MovementComp->MaxSpeed = DefaultSpeed;
 		}
 	}
-
-	// rotate
-	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), FVector::Zero());
-	Rotator.Yaw = Rotator.Yaw + 90.f;
-	Rotator.Pitch = 0;
-	Rotator.Roll = 0;
-	SetActorRotation(Rotator);
+	
 	AddMovementInput(Value.X * GetActorForwardVector());
-	// clamp location to radius
-	SetActorLocation(GetActorLocation().GetClampedToSize2D(0,Radius));	
 }
 
 

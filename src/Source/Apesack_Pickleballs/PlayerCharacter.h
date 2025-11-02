@@ -5,8 +5,9 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
+class ATestPawn;
 class UCameraComponent;
-class UFloatingPawnMovement;
+class UCircularPawnMovementComponent;
 
 UCLASS()
 class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
@@ -29,6 +30,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere)
+	ATestPawn* TestPawn;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool LoggingEnabled;
@@ -46,14 +50,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSoftObjectPtr<UInputMappingContext> Gameplay_IMC;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputAction> MoveAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputAction> SprintAction;
-
+	
 	UPROPERTY(VisibleAnywhere, meta=(AllowPrivateAccess=true))
-	TObjectPtr<UFloatingPawnMovement> MovementComp;
+	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
     float SprintMultiplier = 1.5f;
