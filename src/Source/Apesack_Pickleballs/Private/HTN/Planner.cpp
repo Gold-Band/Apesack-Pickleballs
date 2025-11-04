@@ -30,7 +30,7 @@ FPlanner::FPlanner(const TArray<TSoftObjectPtr<UTask>>& InTasks, const FWorldSta
 	TasksStates.MergeUnique(FWorldStateContainer::FromArray(Buffer));
 }
 
-bool FPlanner::NewPlan(FHTNPlan& OutPlan) const
+bool FPlanner::NewPlan(FHTNPlan& OutPlan, bool bLogDebug) const
 {
 	FHTNPlan NewPlan;
 	switch(MakePlan(NewPlan))
@@ -38,21 +38,21 @@ bool FPlanner::NewPlan(FHTNPlan& OutPlan) const
 	case Success:
 		if (NewPlan.Priority < OutPlan.Priority)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Plan success!"))
+			if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Plan success!"))
 			OutPlan = NewPlan;
 			return true;
 		}
 	case LowerPriority:
-		//UE_LOG(LogTemp, Warning, TEXT("Priority not high enough!"))
+		if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Priority not high enough!"))
 		break;
 	case InProgress:
-		//UE_LOG(LogTemp, Warning, TEXT("Plan already in progress!"));
+		if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Plan already in progress!"));
 		break;
 	case NoTasks:
-		//UE_LOG(LogTemp, Warning, TEXT("No tasks!"));
+		if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("No tasks!"));
 		break;
 	case Failed:
-		//UE_LOG(LogTemp, Warning, TEXT("Plan failed!"));
+		if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Plan failed!"));
 		break;
 	default: ;
 	}

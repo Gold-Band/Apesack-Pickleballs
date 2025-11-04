@@ -1,12 +1,11 @@
 #include "HTN/Sensor.h"
 
-void USensor::Initialize(AActor* OwnerActor, const FOnSenseCallback& OnSenseCallback)
+#include "HTN/HTNComponent.h"
+
+void USensor::Initialize(UHTNComponent* OwnerDomain)
 {
 	WorldState = WorldStateMaker.ToWorldState();
-	WorldState = WorldStateMaker.ToWorldState();
-	OnSensed = OnSenseCallback;
-	Owner = OwnerActor;
-	//ReceiveInitialize(OwnerActor);
+	Owner = OwnerDomain;
 }
 
 void USensor::Tick()

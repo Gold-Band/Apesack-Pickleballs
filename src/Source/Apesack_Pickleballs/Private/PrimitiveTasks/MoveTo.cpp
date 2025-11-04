@@ -61,7 +61,6 @@ void UMoveTo::Tick(float DeltaTime)
 	// move actor if conditions permit
 	if (TargetDistanceSquared > OutOfSightDistanceSquared)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%f"), FMath::Sqrt(TargetDistanceSquared))
 		OnTaskCompleted(FTaskResult(ETaskState::Failed, EffectContainer, TargetActor, FString("Target went out of sight!")));
 		return;
 	}

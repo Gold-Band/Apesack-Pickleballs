@@ -28,8 +28,6 @@ struct FWorldState
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FName Name;
 
-    bool GetValue() const {return Value;}
-
     bool operator == (const FWorldState& Other) const {
         return Other.Name == Name && Other.Value == Value;
     }
@@ -44,10 +42,8 @@ struct FWorldState
         return *this;
     }
 	
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool Value;
-
-    friend class USensor;
 };
 
 USTRUCT(BlueprintType)

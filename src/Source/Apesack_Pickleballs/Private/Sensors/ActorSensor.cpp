@@ -2,6 +2,8 @@
 
 
 #include "Sensors/ActorSensor.h"
+
+#include "HTN/HTNComponent.h"
 #include "Items/ItemActor.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NPC/NpcBase.h"
@@ -21,12 +23,12 @@ void UActorSensor::Tick()
 	if (!FilterClass) FilterClass = AActor::StaticClass();
 
 	// check if any (filterClass) type actors are in the radius
-	if (UKismetSystemLibrary::SphereOverlapActors(Owner->GetWorld(), Owner->GetActorLocation(), SenseRadius,ObjectTypes, FilterClass, TArray<AActor*>(),OutActors))
+	if (UKismetSystemLibrary::SphereOverlapActors(Owner->GetWorld(), Owner->GetOwner()->GetActorLocation(), SenseRadius,ObjectTypes, FilterClass, TArray<AActor*>(),OutActors))
 	{
 		for (const auto& Actor : OutActors)
 		{
 			// for now.. we can only really sense items and npcs
-			if (FilterClass == AItemActor::StaticClass())
+			if (FilterClass->IsChildOf(AItemActor::StaticClass()))
 			{
 				if (Cast<AItemActor>(Actor)->HasMatchingGameplayTag(ObjectTag))
 				{
@@ -34,7 +36,7 @@ void UActorSensor::Tick()
 					ReceiveOnSensed();
 				}
 			}
-			else if (FilterClass == ANpcBase::StaticClass())
+			else if (FilterClass->IsChildOf(ANpcBase::StaticClass()))
 			{
 				if (Cast<ANpcBase>(Actor)->HasMatchingGameplayTag(ObjectTag))
 				{
@@ -44,11 +46,5 @@ void UActorSensor::Tick()
 			}
 		}
 	}
-	if (OnSensed) OnSensed(WorldState);
-	else UE_LOG(LogTemp, Warning, TEXT("UActorSensor::Tick - OnSensed not bound!"));
-}
-
-void UActorSensor::Initialize(AActor* OwnerActor, const FOnSenseCallback& OnSenseCallback)
-{
-	Super::Initialize(OwnerActor, OnSenseCallback);
+	Owner->UpdateWorldState(WorldState);
 }

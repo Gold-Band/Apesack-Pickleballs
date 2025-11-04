@@ -3,9 +3,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "GameFramework/FloatingPawnMovement.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Movement/CircularPawnMovementComponent.h"
-#include "NPC/TestPawn.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter() {

@@ -17,7 +17,6 @@ class APESACK_PICKLEBALLS_API UActorSensor : public USensor
 
 public:
 	virtual void Tick() override;
-	virtual void Initialize(AActor* OwnerActor, const FOnSenseCallback& OnSenseCallback) override;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="OnSensed"))

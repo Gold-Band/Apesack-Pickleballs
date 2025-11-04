@@ -5,7 +5,6 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
-class ATestPawn;
 class UCameraComponent;
 class UCircularPawnMovementComponent;
 
@@ -29,9 +28,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY(EditAnywhere)
-	ATestPawn* TestPawn;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

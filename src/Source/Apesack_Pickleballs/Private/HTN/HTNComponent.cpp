@@ -30,7 +30,6 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//UE_LOG(LogTemp, Warning, TEXT("Tick"))
 	
 	if (PreTickEvent)
 	{
@@ -52,7 +51,7 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 		LastPlan-=PlanningInterval;
 		
 		//UE_LOG(LogTemp, Warning, TEXT("Making new plan!"))
-		if (Planner.IsValid() && Planner.Get()->NewPlan(Plan))
+		if (Planner.IsValid() && Planner.Get()->NewPlan(Plan, bLogDebug))
 		{
 			bGetNextTask = false;
 			// start new plan
@@ -117,9 +116,14 @@ void UHTNComponent::RunTask(const TSoftObjectPtr<UTask> Task)
 	if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Ordered!"))
 }
 
-void UHTNComponent::OverrideWorldState(const FString& OverrideStateName, bool OverrideValue)
+void UHTNComponent::UpdateWorldState(const FString& OverrideStateName, bool OverrideValue)
 {
 	WorldStateContainer.SetToMatch(FWorldState(FName(OverrideStateName), OverrideValue));
+}
+
+void UHTNComponent::UpdateWorldState(const FWorldState& UpdatedWorldState)
+{
+	WorldStateContainer.SetToMatch(UpdatedWorldState);
 }
 
 
@@ -142,7 +146,6 @@ void UHTNComponent::InitializeComponent()
 	}
 	
 	
-	//TArray<FWorldState*> WorldStates;
 	for (const auto& SensorInitializer : Sensors)
 	{
 		if (!SensorInitializer.SensorClass)
@@ -150,17 +153,12 @@ void UHTNComponent::InitializeComponent()
 			if (bLogDebug) UE_LOG(LogTemp, Error, TEXT("UHTNComponent::InitializeComponent  -  SensorClass is null!"))
 			continue;
 		}
-		const int i = SensorInstances.Add(NewObject<USensor>(this, SensorInitializer.SensorClass/*, EName::None, RF_NoFlags, SensorInitializer.SensorClass.GetDefaultObject()*/));
+		const int i = SensorInstances.Add(NewObject<USensor>(this, SensorInitializer.SensorClass));
 		
-		auto Callback = [&](const FWorldState& SensedWorldState)
-		{
-			WorldStateContainer.SetToMatch(SensedWorldState);
-		};
-		SensorInstances[i]->Initialize(GetOwner(), Callback);
-		//WorldStates.Add(&SensorInstances[i]->WorldState);
+		SensorInstances[i]->Initialize(this);
 		SensorInstances[i]->TickInterval = SensorInitializer.TickInterval;
 	}
-	//WorldStateContainer = FWorldStateContainer::FromArray(WorldStates);
+
 	Planner = MakeUnique<FPlanner>(Tasks, &WorldStateContainer);
 }
 

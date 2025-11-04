@@ -4,8 +4,7 @@
 #include "WorldState.h"
 #include "Sensor.generated.h"
 
-typedef TFunction<void(const FWorldState&)> FOnSenseCallback;
-
+class UHTNComponent;
 // A sensor for a WorldState. It directly controls the value of its target WorldState
 UCLASS(BlueprintType, Blueprintable)
 class APESACK_PICKLEBALLS_API USensor: public UObject
@@ -32,15 +31,11 @@ public:
 	UPROPERTY(EditAnywhere, meta=(EditCondition="OptionsDataTable!=nullptr", DisplayName="World State"))
 	FWorldStateMaker WorldStateMaker;
 
-	virtual void Initialize(AActor* OwnerActor, const FOnSenseCallback& OnSenseCallback);
+	virtual void Initialize(UHTNComponent* OwnerDomain);
 	
 	virtual void Tick();
 
 	bool ShouldTick() const;
-
-	FWorldState WorldState;
-
-	FOnSenseCallback OnSensed;
 
 	float TickInterval;
 
@@ -48,12 +43,12 @@ protected:
 	double LastTick;
 
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<AActor> Owner;
+	TObjectPtr<UHTNComponent> Owner;
 	
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="Tick"))
 	void ReceiveTick();
 
-	// whatever is needed to do any check
+	FWorldState WorldState;
 };
 
 USTRUCT(BlueprintType)
