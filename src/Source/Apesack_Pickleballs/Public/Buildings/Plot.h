@@ -52,9 +52,6 @@ private:
 	TObjectPtr<AActor> BuildingActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<USceneComponent> DefaultSceneRoot;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBoxComponent> BoxCollider;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))

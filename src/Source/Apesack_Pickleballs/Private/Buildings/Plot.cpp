@@ -7,11 +7,8 @@ APlot::APlot()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
-	DefaultSceneRoot = CreateDefaultSubobject<UBoxComponent>(TEXT("Root"));
-	SetRootComponent(DefaultSceneRoot);
-	
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
-	BoxCollider->SetupAttachment(DefaultSceneRoot);
+	BoxCollider->SetupAttachment(RootComponent);
 
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(BoxCollider);

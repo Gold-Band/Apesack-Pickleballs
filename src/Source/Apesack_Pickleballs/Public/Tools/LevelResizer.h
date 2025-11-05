@@ -27,8 +27,13 @@ protected:
 	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Player Offset From Cylinder Edge"))
 	float PlayerOffset = 10;
 
+	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Plots Offset From Cylinder Edge"))
+	float PlotsOffset = 10;
+	
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
-	void UpdatePositionsAndScales();
+	void UpdateMapSizeAndContentPlacement();
+	void UpdatePlayerPosition();
+	void UpdatePlotPositions();
 	void OnLoad(const FString& Filename, bool bAsTemplate);
 	void OnSave(UWorld* World, FObjectPostSaveContext ObjectPostSaveContext);
 	void OnContentMoved(UObject* Object, FPropertyChangedEvent& Event);
@@ -47,4 +52,6 @@ protected:
 	FVector CameraOffset;
 	
 	TMap<AActor*, float> LevelContentActors;
+	TArray<AActor*> AllPlots;
+	
 };
