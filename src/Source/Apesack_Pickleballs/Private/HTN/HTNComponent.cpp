@@ -126,6 +126,11 @@ void UHTNComponent::UpdateWorldState(const FWorldState& UpdatedWorldState)
 	WorldStateContainer.SetToMatch(UpdatedWorldState);
 }
 
+bool UHTNComponent::VerifyWorldState(const FWorldStateContainer& VerifyContainer) const
+{
+	return FWorldStateContainer::HasAllMatchingCommons(WorldStateContainer, VerifyContainer, false);
+}
+
 
 void UHTNComponent::InitializeComponent()
 {
@@ -175,7 +180,7 @@ TObjectPtr<UPrimitiveTask> UHTNComponent::GetNextTaskInitialized(FHTNPlan& InPla
 		{
 			InPlan.LastResult = ReturnedObjects;
 			bGetNextTask = true;
-			WorldStateContainer.SetToMatch(ReturnedObjects.Effect);
+			this->WorldStateContainer.SetToMatch(ReturnedObjects.Effect);
 		};
 
 		NextTask->Initialize(GetOwner(), Callback);

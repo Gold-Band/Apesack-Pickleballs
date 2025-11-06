@@ -3,6 +3,7 @@
 
 #include "PrimitiveTasks/MoveTo.h"
 
+#include "HTN/HTNComponent.h"
 
 
 void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback)
@@ -33,12 +34,24 @@ void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnComplet
 	StopDistSquared = FMath::Square(StopDist);
 	GotoDirectDistanceSquared = FMath::Square(GotoDirectDistance);
 	OutOfSightDistanceSquared = FMath::Square(OutOfSightDistance);
+
+	RequirementContainer = FWorldStateContainer::FromArray(Requirement);
+	
+	HTNDomain = Cast<UHTNComponent>(InstigatorActor->GetComponentByClass(UHTNComponent::StaticClass()));
 }
 
 void UMoveTo::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// check if we are still good to go
+	if (HTNDomain && !HTNDomain->VerifyWorldState(RequirementContainer))
+	{
+		// failed
+		if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto verify fail"))
+		OnTaskCompleted(FTaskResult(ETaskState::Failed, !EffectContainer, TargetActor, FString("Target is unreachable!")));
+	}
+	
 	// update target location
 	if (TargetActor)
 	{
@@ -61,10 +74,16 @@ void UMoveTo::Tick(float DeltaTime)
 	// move actor if conditions permit
 	if (TargetDistanceSquared > OutOfSightDistanceSquared)
 	{
-		OnTaskCompleted(FTaskResult(ETaskState::Failed, EffectContainer, TargetActor, FString("Target went out of sight!")));
+		OnTaskCompleted(FTaskResult(ETaskState::Failed, !EffectContainer, TargetActor, FString("Target went out of sight!")));
 		return;
 	}
 	
+	if (TargetDistanceSquared <= StopDistSquared)
+	{
+		OnTaskCompleted(FTaskResult(ETaskState::Success, EffectContainer, TargetActor, FString()));
+		return;
+	}
+
 	if (TargetDistanceSquared <= GotoDirectDistanceSquared)
 	{
 		// veer off character's set radius to directly to the target
@@ -74,10 +93,5 @@ void UMoveTo::Tick(float DeltaTime)
 	{
 		// walk forward
 		InstigatorAsPawn->AddMovementInput(InstigatorAsPawn->GetActorForwardVector());
-	}
-
-	if (TargetDistanceSquared <= StopDistSquared)
-	{
-		OnTaskCompleted(FTaskResult(ETaskState::Success, EffectContainer, TargetActor, FString()));
 	}
 }

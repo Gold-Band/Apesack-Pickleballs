@@ -10,6 +10,7 @@
 #include "Engine/DataTable.h"
 #include "NpcBase.generated.h"
 
+class UPaperSprite;
 class UOptionsWidget;
 class UInteractable;
 class UWidgetComponent;
@@ -34,7 +35,7 @@ struct FToolInfo : public FTableRowBase // row name is tool name
 	TObjectPtr<UTexture2D> ToolIcon;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UTexture2D> ToolTexture;
+	TObjectPtr<UPaperSprite> ToolSprite;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int PurchaseCost = 1;
@@ -61,7 +62,8 @@ struct FClassInfo : public FTableRowBase // row name is class name
 };
 
 
-struct FNPCDescriptor
+/*
+struct FNPCInfo
 {
 
 	FString Name;
@@ -71,9 +73,10 @@ struct FNPCDescriptor
 	int KillCount;
 	// tool
 	// outfit
-};
+};*/
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDied);
 
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpcBase : public APawn, public IGameplayTagAssetInterface
@@ -88,14 +91,27 @@ public:
 
 	const FClassInfo* GetClassInfo() const;
 
-	const FToolInfo* GetTool() const;
-
+	const FToolInfo* GetCharacterToolInfo() const;
+	
+	static const FToolInfo* GetToolInfo(const FDataTableRowHandle& ToolHandle);
+	
 	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
+
+	UPROPERTY(BlueprintAssignable, Category="NPC")
+	FOnCharacterDied OnDeath;
 	
 protected:
 	virtual void PostInitializeComponents() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxHp = 3.f;
 	
 private:
+	float Hp = MaxHp;
+	
+	UFUNCTION()
+	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
 	FGameplayTag CharacterTag;
 	
@@ -110,6 +126,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UPaperSpriteComponent> SpriteComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UPaperSpriteComponent> ToolSpriteComp;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UHTNComponent> HtnDomain;

@@ -9,6 +9,9 @@
 AInteractionMenuActor::AInteractionMenuActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("Root"));
+	SetRootComponent(RootComponent);
 	
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	WidgetComponent->SetupAttachment(RootComponent);
@@ -93,7 +96,7 @@ bool AInteractionMenuActor::OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Ac
 	TArray<TOptionsData<FToolInfo>> OptionInitializers;
 
 	const FClassInfo* ActorClass = Actor->GetClassInfo();
-	const FToolInfo* NpcTool = Actor->GetTool();
+	const FToolInfo* NpcTool = Actor->GetCharacterToolInfo();
 
 	if (!ActorClass)
 	{

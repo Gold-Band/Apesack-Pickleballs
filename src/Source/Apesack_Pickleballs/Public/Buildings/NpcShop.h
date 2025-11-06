@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Building.h"
 #include "GameFramework/Actor.h"
 #include "NpcShop.generated.h"
 
@@ -15,7 +16,7 @@ enum EShopType : uint8
 };
 
 UCLASS()
-class APESACK_PICKLEBALLS_API ANpcShop : public AActor
+class APESACK_PICKLEBALLS_API ANpcShop : public ABuilding
 {
 	GENERATED_BODY()
 	

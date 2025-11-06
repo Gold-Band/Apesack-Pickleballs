@@ -6,6 +6,7 @@
 #include "HTN/Task.h"
 #include "MoveTo.generated.h"
 
+class UHTNComponent;
 /**
  * 
  */
@@ -37,6 +38,11 @@ private:
 	APawn* InstigatorAsPawn = nullptr;
 	UPROPERTY()
 	AActor* TargetActor = nullptr;
+	UPROPERTY()
+	UHTNComponent* HTNDomain = nullptr;
+
+	FWorldStateContainer RequirementContainer;
+	
 	FVector TargetLocation;
 	FVector DirToTarget;
 };

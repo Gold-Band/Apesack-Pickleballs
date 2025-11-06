@@ -2,7 +2,7 @@
 
 
 #include "Sensors/ActorSensor.h"
-
+#include "Buildings/Building.h"
 #include "HTN/HTNComponent.h"
 #include "Items/ItemActor.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -25,24 +25,55 @@ void UActorSensor::Tick()
 	// check if any (filterClass) type actors are in the radius
 	if (UKismetSystemLibrary::SphereOverlapActors(Owner->GetWorld(), Owner->GetOwner()->GetActorLocation(), SenseRadius,ObjectTypes, FilterClass, TArray<AActor*>(),OutActors))
 	{
+		FHitResult HitResult;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(Owner->GetOwner());
+		Params.bTraceComplex = false;                
+		Params.bReturnPhysicalMaterial = false;
+		const FVector StartLocation = Owner->GetOwner()->GetActorLocation() + FVector::UpVector * 40.f;
+		
 		for (const auto& Actor : OutActors)
 		{
-			// for now.. we can only really sense items and npcs
+			const FVector EndLocation = Actor->GetActorLocation() + FVector::UpVector * 40.f;
+			//UE_LOG(LogTemp, Warning, TEXT("Actor = %s"), *Actor->GetActorNameOrLabel())
+
+			// check for line of sight
+			const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, Params);
+			if (bHit && HitResult.GetActor() != Actor)
+			{
+				continue;
+				//UE_LOG(LogTemp, Warning, TEXT("HitActor = %s"), *HitResult.GetActor()->GetActorNameOrLabel())	
+			}
+
+			bool SenseSuccess = false;
+			
+			// for now.. we can only really sense items, npcs and walls
 			if (FilterClass->IsChildOf(AItemActor::StaticClass()))
 			{
 				if (Cast<AItemActor>(Actor)->HasMatchingGameplayTag(ObjectTag))
 				{
-					WorldState.Value = true;
-					ReceiveOnSensed();
+					SenseSuccess = true;
 				}
 			}
 			else if (FilterClass->IsChildOf(ANpcBase::StaticClass()))
 			{
 				if (Cast<ANpcBase>(Actor)->HasMatchingGameplayTag(ObjectTag))
 				{
-					WorldState.Value = true;
-					ReceiveOnSensed();
+					SenseSuccess = true;
 				}
+			}
+			else if (FilterClass->IsChildOf(ABuilding::StaticClass()))
+			{
+				if (Cast<ABuilding>(Actor)->HasMatchingGameplayTag(ObjectTag))
+				{
+					SenseSuccess = true;
+				}
+			}
+
+			if (SenseSuccess)
+			{
+				WorldState.Value = true;
+				ReceiveOnSensed();
 			}
 		}
 	}

@@ -33,6 +33,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HTN")
 	void UpdateWorldState(const FString& OverrideStateName, bool OverrideValue);
 	void UpdateWorldState(const FWorldState& UpdatedWorldState);
+
+	bool VerifyWorldState(const FWorldStateContainer& VerifyContainer) const;
 	
 private:
 	virtual void InitializeComponent() override;

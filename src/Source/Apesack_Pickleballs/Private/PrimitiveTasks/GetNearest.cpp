@@ -33,6 +33,7 @@ void UGetNearest::Tick(float DeltaTime)
 				closest = Dist;
 			}
 			Objects.EndState = ETaskState::Success;
+			
 			Objects.Effect = EffectContainer;
 			Objects.Message = FString("GetNearest Succeeded!");
 		}

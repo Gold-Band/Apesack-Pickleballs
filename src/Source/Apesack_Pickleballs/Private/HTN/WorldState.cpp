@@ -21,6 +21,20 @@ FWorldStateContainer FWorldStateContainer::FromArray(const TArray<FWorldStateMak
 	return Container;
 }
 
+bool FWorldStateContainer::HasAllMatchingCommons(const FWorldStateContainer& A, const FWorldStateContainer& B, bool bLogDebug)
+{
+	for (const auto Element : A.WorldStates) 
+	{
+		const FWorldState* Match = B.WorldStates.FindByPredicate([&Element](const FWorldState& Elem) { return Elem.Name == Element.Name; });
+		if (bLogDebug && Match)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Match - %s:%s, %s:%s"), *Element.Name.ToString(),Element.Value?TEXT("true"):TEXT("false"), *Match->Name.ToString(), Match->Value?TEXT("true"):TEXT("false"));
+		}
+		if (Match && Match->Value != Element.Value) return false;
+	}
+	return true;	
+}
+
 void FWorldStateContainer::SetToMatch(const FWorldStateContainer& Other)
 {
 	for (auto& Element : WorldStates)

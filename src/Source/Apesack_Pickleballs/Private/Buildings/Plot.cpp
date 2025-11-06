@@ -1,5 +1,4 @@
 #include "Buildings/Plot.h"
-
 #include "PaperSpriteComponent.h"
 #include "Components/BoxComponent.h"
 

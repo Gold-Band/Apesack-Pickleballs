@@ -14,7 +14,12 @@ void UCheckRadius::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	const auto MovementComp = Cast<UCircularPawnMovementComponent>(Instigator->GetComponentByClass(UCircularPawnMovementComponent::StaticClass()));
-	if (!MovementComp) OnTaskCompleted(FTaskResult(ETaskState::Failed, EffectContainer, nullptr, FString("Failed! No movement component!")));
+	if (!MovementComp)
+	{
+		OnTaskCompleted(FTaskResult(ETaskState::Failed, !EffectContainer, nullptr, FString("Failed! No movement component!")));
+		return;
+	}
+	
 	const float DistDiff = FMath::Abs(MovementComp->GetDefaultRadius() - Instigator->GetActorLocation().Size2D());
 	
 	if (DistDiff <= AcceptableMargin)
