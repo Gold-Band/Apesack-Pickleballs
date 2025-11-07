@@ -6,7 +6,7 @@
 #include "PlayerCharacter.generated.h"
 
 class UCameraComponent;
-class UFloatingPawnMovement;
+class UCircularPawnMovementComponent;
 
 UCLASS()
 class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
@@ -46,14 +46,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSoftObjectPtr<UInputMappingContext> Gameplay_IMC;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputAction> MoveAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputAction> SprintAction;
-
+	
 	UPROPERTY(VisibleAnywhere, meta=(AllowPrivateAccess=true))
-	TObjectPtr<UFloatingPawnMovement> MovementComp;
+	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
     float SprintMultiplier = 1.5f;

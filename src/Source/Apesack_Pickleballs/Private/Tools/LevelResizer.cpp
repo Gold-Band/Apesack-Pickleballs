@@ -3,12 +3,12 @@
 #include "Tools/LevelResizer.h"
 
 #include "Editor.h"
-#include "EditorActorFolders.h"
 #include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Camera/CameraActor.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "UObject/ObjectSaveContext.h"
 
 // Sets default values for this component's properties
@@ -41,7 +41,10 @@ void ALevelResizer::RegisterLevelContent(TMap<AActor*, float>& OutLevelContent)
 				{
 					const float ActorOffset =  GetActorOffsetFromLevelRadius(Actor, Radius);
 					OutLevelContent.Add(Actor, ActorOffset);
-					//UE_LOG(LogTemp, Warning, TEXT("ActorOffset = %f   -   Location = %s"), ActorOffset, *Actor->GetActorLocation().ToString());
+				}
+				else if (Actor && Actor->GetFolderPath() == "Plots")
+				{
+					AllPlots.Add(Actor);
 				}
 			}
 		}
@@ -61,25 +64,24 @@ void ALevelResizer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(ALevelResizer, Radius))
 	{
-		UpdatePositionsAndScales();
+		UpdateMapSizeAndContentPlacement();
+		UpdatePlayerPosition();
+		UpdatePlotPositions();
 	}
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(ALevelResizer, PlayerOffset))
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(ALevelResizer, PlayerOffset))
 	{
-		UpdatePositionsAndScales();
+		UpdatePlayerPosition();
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(ALevelResizer, PlotsOffset))
+	{
+		UpdatePlotPositions();
 	}
 }
 
-void ALevelResizer::UpdatePositionsAndScales()
+void ALevelResizer::UpdateMapSizeAndContentPlacement()
 {
 	if (GroundCylinder) GroundCylinder->SetActorRelativeScale3D(FVector(Radius*2, Radius*2, GroundCylinder->GetActorRelativeScale3D().Z));
-	if (Player)
-	{
-		const float PlayerRadius = Radius*100 - PlayerOffset*100;
-		Player->SetActorLocation(FVector(0, PlayerRadius, Player->GetActorLocation().Z));
-		if (PlayerCamera) PlayerCamera->SetActorLocation(Player->GetActorLocation() + CameraOffset);
-	}
 
-	// all other objects
 	for (auto It = LevelContentActors.CreateIterator(); It; ++It)
 	{
 		AActor* Actor = It.Key();
@@ -92,6 +94,26 @@ void ALevelResizer::UpdatePositionsAndScales()
 		FVector Dir = Actor->GetActorLocation().GetSafeNormal2D();
 		FVector UpOffset = FVector::UpVector * Actor->GetActorLocation().Z;
 		Actor->SetActorLocation(Dir * (Radius*100.f - ActorOffset) + UpOffset);
+	}
+}
+
+void ALevelResizer::UpdatePlayerPosition()
+{
+	if (Player)
+	{
+		const float PlayerRadius = Radius*100 - PlayerOffset*100;
+		Player->SetActorLocation(FVector(0, PlayerRadius, Player->GetActorLocation().Z));
+		if (PlayerCamera) PlayerCamera->SetActorLocation(Player->GetActorLocation() + CameraOffset);
+	}
+}
+
+void ALevelResizer::UpdatePlotPositions()
+{
+	const float PlotsRadius = Radius*100 - PlotsOffset*100;
+	for (auto Plot : AllPlots)
+	{
+		FVector PlotDirection = Plot->GetActorLocation().GetUnsafeNormal2D();
+		Plot->SetActorLocationAndRotation(PlotDirection * PlotsRadius, UKismetMathLibrary::FindLookAtRotation(FVector::ZeroVector, PlotDirection));
 	}
 }
 

@@ -11,6 +11,8 @@ void UFindNearestActorWithTag::Tick(float DeltaTime)
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
 	TArray<AActor*> OutActors;
 	UKismetSystemLibrary::SphereOverlapActors(Instigator->GetWorld(), Instigator->GetActorLocation(), Radius,ObjectTypes, AActor::StaticClass(), TArray<AActor*>(),OutActors);
 	

@@ -4,7 +4,7 @@
 #include "NPC/NpcBase.h"
 #include "PaperSpriteComponent.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/FloatingPawnMovement.h"
+#include "Movement/CircularPawnMovementComponent.h"
 #include "HTN/HTNComponent.h"
 
 // Sets default values
@@ -18,8 +18,12 @@ ANpcBase::ANpcBase()
 
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(BoxCollider);
+
+	ToolSpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Tool"));
+	ToolSpriteComp->SetupAttachment(SpriteComp);
+	
 	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));
-	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
+	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
 }
 
 void ANpcBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -33,10 +37,15 @@ const FClassInfo* ANpcBase::GetClassInfo() const
 	return CharacterClass.GetRow<FClassInfo>(TEXT("Class Getter"));
 }
 
-const FToolInfo* ANpcBase::GetTool() const
+const FToolInfo* ANpcBase::GetCharacterToolInfo() const
 {
-	if (CharacterTool.IsNull()) return nullptr;
-	return CharacterTool.GetRow<FToolInfo>(TEXT("Tool Getter"));
+	return GetToolInfo(CharacterTool);
+}
+
+const FToolInfo* ANpcBase::GetToolInfo(const FDataTableRowHandle& ToolHandle)
+{
+	if (ToolHandle.IsNull()) return nullptr;
+	return ToolHandle.GetRow<FToolInfo>(TEXT("Tool Getter"));
 }
 
 void ANpcBase::ForceTask(const TSoftObjectPtr<UTask> Task) const
@@ -48,7 +57,44 @@ void ANpcBase::ForceTask(const TSoftObjectPtr<UTask> Task) const
 void ANpcBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	OnTakeAnyDamage.AddDynamic(this, &ANpcBase::OnTakeDamage);
 	
+	// Set tasks based on class
 	const FClassInfo* MyClass = CharacterClass.GetRow<FClassInfo>(TEXT("Getting Class Tasks"));
+	if (!MyClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("NpcBase.cpp(58): NPC has no class!"))
+		return;
+	}
+	
 	HtnDomain->SetTasks(MyClass->ClassTasks);
+
+	// Set tool based on class
+	if (!CharacterTool.IsNull())
+	{
+		ToolSpriteComp->SetSprite(GetCharacterToolInfo()->ToolSprite);
+	}
+	else if (!MyClass->BaseTool.IsNull())
+	{
+		// set tool to base tool
+		ToolSpriteComp->SetSprite(GetToolInfo(MyClass->BaseTool)->ToolSprite);
+	}
+}
+
+void ANpcBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
+	class AController* InstigatedBy, AActor* DamageCauser)
+{
+	// on any damage taken..
+	Hp = FMath::Clamp(Hp - Damage, 0, MaxHp);
+
+	UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
+	
+	if (Hp == 0)
+	{
+		if (OnDeath.IsBound()) OnDeath.Broadcast();
+
+		// Local OnDeath functionality
+		Destroy();
+	}
 }

@@ -5,6 +5,9 @@
 #include "GameFramework/Actor.h"
 #include "Plot.generated.h"
 
+class UPaperSpriteComponent;
+class UBoxComponent;
+
 USTRUCT(BlueprintType)
 struct FBuildingInfo : public FTableRowBase
 {
@@ -44,11 +47,13 @@ public:
 
 	void SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBuildingInfo* BuildingInfo);
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 private:
 	UPROPERTY()
 	TObjectPtr<AActor> BuildingActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UBoxComponent> BoxCollider;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UPaperSpriteComponent> SpriteComp;
 };

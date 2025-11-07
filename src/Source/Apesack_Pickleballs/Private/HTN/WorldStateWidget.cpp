@@ -17,7 +17,7 @@ void UWorldStateWidget::UpdateContent(const FWorldStateContainer& NewWorldState)
 		{
 			UListItemObject* NewItem = NewObject<UListItemObject>();
 			NewItem->DisplayText = FText::FromName(Entry.Name);
-			NewItem->bState = Entry.GetValue();
+			NewItem->bState = Entry.Value;
 			ListItems.Add(NewItem);
 		}
 		

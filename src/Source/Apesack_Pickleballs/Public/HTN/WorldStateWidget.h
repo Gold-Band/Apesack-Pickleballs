@@ -10,7 +10,6 @@ struct FWorldStateContainer;
 class UListItemObject;
 struct FWorldState;
 class UListView;
-class UHTNBrain;
 /**
  * 
  */

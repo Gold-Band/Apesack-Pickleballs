@@ -31,7 +31,10 @@ public:
 	void RunTask(const TSoftObjectPtr<UTask> Task);
 
 	UFUNCTION(BlueprintCallable, Category = "HTN")
-	void OverrideWorldState(const FString& OverrideStateName, bool OverrideValue);
+	void UpdateWorldState(const FString& OverrideStateName, bool OverrideValue);
+	void UpdateWorldState(const FWorldState& UpdatedWorldState);
+
+	bool VerifyWorldState(const FWorldStateContainer& VerifyContainer) const;
 	
 private:
 	virtual void InitializeComponent() override;
@@ -39,6 +42,8 @@ private:
 	
 	//** Domain Stuff **//
 	FWorldStateContainer WorldStateContainer;
+
+	// the list of world states that we care about
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"), Category="HTN")
 	TSoftObjectPtr<UDataTable> Domain;
 	

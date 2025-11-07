@@ -68,8 +68,6 @@ void UInteractionManager::StartInteraction(AActor* Actor)
 	if (bIsInteracting || !InteractionMenuActor || !Actor) return;
 	bIsInteracting = true;
 
-	//UE_LOG(LogTemp, Warning, TEXT("StartInteraction"));
-
 	if (ANpcFriendly* NpcActor = Cast<ANpcFriendly>(Actor))
 	{
 		// Order npc to wait (DA_Wait)
