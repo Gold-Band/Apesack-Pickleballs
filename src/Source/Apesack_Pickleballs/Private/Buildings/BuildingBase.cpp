@@ -1,6 +1,6 @@
-#include "Buildings/Building.h"
+#include "Buildings/BuildingBase.h"
 
-ABuilding::ABuilding()
+ABuildingBase::ABuildingBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -9,19 +9,19 @@ ABuilding::ABuilding()
 	RootComponent->Mobility = EComponentMobility::Static;
 }
 
-void ABuilding::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+void ABuildingBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	TagContainer = BuildingTag.GetSingleTagContainer();
 }
 
-void ABuilding::BeginPlay()
+void ABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnTakeAnyDamage.AddDynamic(this, &ABuilding::OnTakeDamage);
+	OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
 }
 
-void ABuilding::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
+void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
                              class AController* InstigatedBy, AActor* DamageCauser)
 {
 	// on any damage taken..

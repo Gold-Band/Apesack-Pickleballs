@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagAssetInterface.h"
 #include "GameFramework/Actor.h"
-#include "Building.generated.h"
+#include "BuildingBase.generated.h"
 
 class UPaperSpriteComponent;
 class UBoxComponent;
@@ -11,13 +11,13 @@ class UBoxComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBuildingDestroyed);
 
 UCLASS()
-class APESACK_PICKLEBALLS_API ABuilding : public AActor, public IGameplayTagAssetInterface
+class APESACK_PICKLEBALLS_API ABuildingBase : public AActor, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	ABuilding();
+	ABuildingBase();
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 

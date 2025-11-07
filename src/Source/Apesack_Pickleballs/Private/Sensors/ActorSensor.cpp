@@ -2,7 +2,7 @@
 
 
 #include "Sensors/ActorSensor.h"
-#include "Buildings/Building.h"
+#include "Buildings/BuildingBase.h"
 #include "HTN/HTNComponent.h"
 #include "Items/ItemActor.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -62,9 +62,9 @@ void UActorSensor::Tick()
 					SenseSuccess = true;
 				}
 			}
-			else if (FilterClass->IsChildOf(ABuilding::StaticClass()))
+			else if (FilterClass->IsChildOf(ABuildingBase::StaticClass()))
 			{
-				if (Cast<ABuilding>(Actor)->HasMatchingGameplayTag(ObjectTag))
+				if (Cast<ABuildingBase>(Actor)->HasMatchingGameplayTag(ObjectTag))
 				{
 					SenseSuccess = true;
 				}
