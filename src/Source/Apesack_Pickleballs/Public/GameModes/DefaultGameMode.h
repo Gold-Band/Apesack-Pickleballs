@@ -3,9 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActorPool.h"
 #include "GameFramework/GameModeBase.h"
 #include "DefaultGameMode.generated.h"
 
+class AProjectileBase;
+class ABuildingBase;
+class UNpcDelegates;
+class UWorldClockSubsystem;
 enum EShopType : uint8;
 class ANpcShop;
 struct FBuildingInfo;
@@ -20,6 +25,7 @@ class APESACK_PICKLEBALLS_API ADefaultGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+	
 	bool BuildersUnlocked() const { return bBuildersUnlocked; }
 	bool ArchersUnlocked() const { return bArchersUnlocked; }
 	bool SoldiersUnlocked() const { return bSoldiersUnlocked; }
@@ -37,8 +43,14 @@ public:
 	TArray<FBuildingInfo*> GetAllBuildings() const;
 
 	void RegisterShop(const ANpcShop* Shop, const EShopType ShopType);
+	void NewBuilding(ABuildingBase* Building);
+
+	UFUNCTION(BlueprintPure)
+	AActor* GetArrow();
 	
 private:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	bool bBuildersUnlocked;
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
@@ -68,4 +80,18 @@ private:
 
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	TSoftObjectPtr<UDataTable> NpcNames;
+
+
+	// cached manager instances
+	
+	UPROPERTY()
+	TObjectPtr<UWorldClockSubsystem> WorldClock;
+
+	UPROPERTY()
+	FVector WorldOrigin;
+
+	TActorPool<AActor> ArrowPool;
+	
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
+	TSubclassOf<AActor> ArrowClass;
 };

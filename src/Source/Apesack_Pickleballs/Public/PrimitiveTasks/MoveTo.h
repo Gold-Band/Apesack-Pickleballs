@@ -6,6 +6,7 @@
 #include "HTN/Task.h"
 #include "MoveTo.generated.h"
 
+class ANpcBase;
 class UHTNComponent;
 /**
  * 
@@ -35,9 +36,9 @@ private:
 	bool bOffRadius = false;
 	
 	UPROPERTY()
-	APawn* InstigatorAsPawn = nullptr;
-	UPROPERTY()
 	AActor* TargetActor = nullptr;
+	UPROPERTY()
+	ANpcBase* Npc = nullptr;
 	UPROPERTY()
 	UHTNComponent* HTNDomain = nullptr;
 

@@ -4,12 +4,15 @@
 #include "PrimitiveTasks/MoveTo.h"
 
 #include "HTN/HTNComponent.h"
+#include "NPC/NpcBase.h"
 
 
 void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback)
 {
 	Super::Initialize(InstigatorActor, OnCompleteCallback);
 
+	Npc = Cast<ANpcBase>(InstigatorActor);
+	
 	const FTaskResult PreviousResult = GetPreviousTaskResult();
 	TargetActor = PreviousResult.TargetActor;
 	if (TargetActor)
@@ -25,11 +28,9 @@ void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnComplet
 		if (DotProd < 0)
 		{
 			// target is behind us
-			Instigator->AddActorLocalRotation(FRotator(0.f, 180.f, 0.f));
+			Npc->Flip();
 		}
 	}
-
-	InstigatorAsPawn = Cast<APawn>(InstigatorActor);
 	
 	StopDistSquared = FMath::Square(StopDist);
 	GotoDirectDistanceSquared = FMath::Square(GotoDirectDistance);
@@ -65,7 +66,7 @@ void UMoveTo::Tick(float DeltaTime)
 		if (DotProd < 0)
 		{
 			// target is behind us
-			Instigator->AddActorLocalRotation(FRotator(0.f, 180.f, 0.f));
+			Npc->Flip();
 		}
 	}
 
@@ -87,11 +88,11 @@ void UMoveTo::Tick(float DeltaTime)
 	if (TargetDistanceSquared <= GotoDirectDistanceSquared)
 	{
 		// veer off character's set radius to directly to the target
-		InstigatorAsPawn->AddMovementInput(DirToTarget.GetUnsafeNormal2D());
+		Npc->AddMovementInput(DirToTarget.GetUnsafeNormal2D());
 	}
 	else
 	{
 		// walk forward
-		InstigatorAsPawn->AddMovementInput(InstigatorAsPawn->GetActorForwardVector());
+		Npc->AddMovementInput(Npc->GetActorForwardVector());
 	}
 }

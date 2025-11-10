@@ -6,7 +6,9 @@
 #include "Buildings/NpcShop.h"
 #include "NPC/NpcName.h"
 #include "Buildings/Plot.h"
+#include "Managers/NpcDelegates.h"
 #include "NPC/NpcBase.h"
+#include "WorldClock/WorldClockSubsystem.h"
 
 
 bool ADefaultGameMode::GetBuilderShopLocation(FVector& OutLocation) const
@@ -80,4 +82,25 @@ void ADefaultGameMode::RegisterShop(const ANpcShop* Shop, const EShopType ShopTy
 		UE_LOG(LogTemp, Warning, TEXT("ANpcShop - Unhandled shop type!"))
 		break;
 	}
+}
+
+void ADefaultGameMode::NewBuilding(ABuildingBase* Building)
+{
+	if (!FNpcDelegates::OnNewBuilding.IsBound()) return;
+	FNpcDelegates::OnNewBuilding.Broadcast(Building);
+}
+
+AActor* ADefaultGameMode::GetArrow()
+{
+	return ArrowPool.GetActor();
+}
+
+void ADefaultGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// cache managers
+	WorldClock = UWorldClockSubsystem::Get(this);
+
+	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 10);
 }

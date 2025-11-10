@@ -1,5 +1,7 @@
 #include "Buildings/BuildingBase.h"
 
+#include "GameModes/DefaultGameMode.h"
+
 ABuildingBase::ABuildingBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -19,6 +21,16 @@ void ABuildingBase::BeginPlay()
 	Super::BeginPlay();
 
 	OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
+
+	// notify the gamemode that we exist
+	ADefaultGameMode* GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
+	if (!GameMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABuildingBase(27): GameMode is null!"))
+		return;
+	}
+
+	GameMode->NewBuilding(this);
 }
 
 void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,

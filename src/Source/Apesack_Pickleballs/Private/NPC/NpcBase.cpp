@@ -54,6 +54,18 @@ void ANpcBase::ForceTask(const TSoftObjectPtr<UTask> Task) const
 	HtnDomain->RunTask(Task);
 }
 
+void ANpcBase::Flip()
+{
+	AddActorLocalRotation(FRotator(0.f, 180.f, 0.f));
+
+	// other stuff
+}
+
+FVector ANpcBase::GetArrowStartPosition()
+{
+	return FVector();
+}
+
 void ANpcBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

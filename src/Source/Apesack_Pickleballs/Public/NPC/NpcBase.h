@@ -92,13 +92,18 @@ public:
 	const FClassInfo* GetClassInfo() const;
 
 	const FToolInfo* GetCharacterToolInfo() const;
-	
+
 	static const FToolInfo* GetToolInfo(const FDataTableRowHandle& ToolHandle);
 	
 	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
 
+	void Flip();
+	
 	UPROPERTY(BlueprintAssignable, Category="NPC")
 	FOnCharacterDied OnDeath;
+
+	UFUNCTION(BlueprintPure)
+	FVector GetArrowStartPosition();
 	
 protected:
 	virtual void PostInitializeComponents() override;
