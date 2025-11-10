@@ -20,7 +20,7 @@ public class Apesack_Pickleballs : ModuleRules {
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"UnrealEd"
+			//"UnrealEd"
 		});
 
 		// Uncomment if you are using Slate UI
