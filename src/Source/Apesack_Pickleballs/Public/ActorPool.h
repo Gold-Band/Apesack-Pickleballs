@@ -52,7 +52,7 @@ public:
 		
 		// spawn actors
 
-		for (int32 i = 0; i < InitialSize; ++i)
+		for (int i = 0; i < InitialSize; ++i)
 		{
 			auto NewActor = World->SpawnActor<T>(ActorClass, OutOfSightLocation,FRotator::ZeroRotator, SpawnParameters);
 			if (!NewActor) continue;
@@ -62,7 +62,7 @@ public:
 			check(Interface);
 			Interface->GetOnActorDisabled().AddRaw(this, &TActorPool<T>::OnActorDisabled);
 			Interface->Disable();
-			
+
 			AllActors.Add(NewActor);
 		}
 	}
@@ -75,7 +75,8 @@ public:
 	T* GetActor()
 	{
 		T* Result = nullptr;
-		AvailableActors.Dequeue(Result);
+		const bool bSuccess = AvailableActors.Dequeue(Result);
+		if (!bSuccess) UE_LOG(LogTemp, Warning, TEXT("No actors in pool!"))
 		// if autoexpand...
 		
 		return Result;

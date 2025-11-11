@@ -56,15 +56,11 @@ void ANpcBase::ForceTask(const TSoftObjectPtr<UTask> Task) const
 
 void ANpcBase::Flip()
 {
-	AddActorLocalRotation(FRotator(0.f, 180.f, 0.f));
+	AddActorLocalRotation(FRotator(0.f, 180.f, 0.f), false, nullptr, ETeleportType::ResetPhysics);
 
 	// other stuff
 }
 
-FVector ANpcBase::GetArrowStartPosition()
-{
-	return FVector();
-}
 
 void ANpcBase::PostInitializeComponents()
 {

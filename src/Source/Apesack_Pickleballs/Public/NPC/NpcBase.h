@@ -97,14 +97,13 @@ public:
 	
 	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
 
+	UFUNCTION(BlueprintCallable)
 	void Flip();
 	
 	UPROPERTY(BlueprintAssignable, Category="NPC")
 	FOnCharacterDied OnDeath;
 
-	UFUNCTION(BlueprintPure)
-	FVector GetArrowStartPosition();
-	
+
 protected:
 	virtual void PostInitializeComponents() override;
 

@@ -44,6 +44,8 @@ void AProjectileBase::Disable()
 	SetActorTickEnabled(false);
 	SetLifeSpan(0.f);
 	bIsEnabled = false;
+
+	if (OnActorDisabled.IsBound()) OnActorDisabled.Broadcast(this);
 }
 
 void AProjectileBase::Enable()
