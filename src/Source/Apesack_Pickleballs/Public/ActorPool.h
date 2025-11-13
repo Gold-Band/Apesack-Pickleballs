@@ -12,7 +12,7 @@
 template <typename T>
 class APESACK_PICKLEBALLS_API TActorPool
 {
-	//static_assert(TIsDerivedFrom<T, IPoolableActor>::IsDerived, "TActorPool requires an AActor-derived type.");
+	static_assert(TIsDerivedFrom<T, AActor>::IsDerived, "TActorPool requires an AActor-derived type.");
 
 public:
 	TActorPool() = default;
@@ -27,6 +27,7 @@ public:
 			}
 		}
 		AllActors.Empty();
+		//AvailableActors.Empty();
 		while (!AvailableActors.IsEmpty())
 		{
 			T* Dummy;
@@ -51,16 +52,20 @@ public:
 		SpawnParameters = InSpawnParameters;
 		
 		// spawn actors
-
-		for (int i = 0; i < InitialSize; ++i)
+		ExpandBy(InitialSize);		
+	}
+	
+	void ExpandBy(int ChunkSize)
+	{
+		for (int i = 0; i < ChunkSize; ++i)
 		{
 			auto NewActor = World->SpawnActor<T>(ActorClass, OutOfSightLocation,FRotator::ZeroRotator, SpawnParameters);
-			if (!NewActor) continue;
+
+			check(NewActor);
 			
 			// Immediately deactivate – the pool has the actor
 			auto Interface = Cast<IPoolableActor>(NewActor);
-			check(Interface);
-			Interface->GetOnActorDisabled().AddRaw(this, &TActorPool<T>::OnActorDisabled);
+			Interface->GetOnActorDisabled().AddRaw(this, &TActorPool::OnActorDisabled);
 			Interface->Disable();
 
 			AllActors.Add(NewActor);
@@ -75,14 +80,16 @@ public:
 	T* GetActor()
 	{
 		T* Result = nullptr;
-		const bool bSuccess = AvailableActors.Dequeue(Result);
-		if (!bSuccess) UE_LOG(LogTemp, Warning, TEXT("No actors in pool!"))
-		// if autoexpand...
-		
+		if (!AvailableActors.Dequeue(Result) && bAutoExpand)
+		{
+			ExpandBy(ExpandChunkSize);
+			AvailableActors.Dequeue(Result);
+		}
 		return Result;
 	}
 
 private:
+	
 	void OnActorDisabled(AActor* InActor)
 	{
 		// add it back to availables

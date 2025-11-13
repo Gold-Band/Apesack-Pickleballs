@@ -90,13 +90,20 @@ void ANpcBase::PostInitializeComponents()
 	}
 }
 
+void ANpcBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	Hp = MaxHp;
+}
+
 void ANpcBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
-	class AController* InstigatedBy, AActor* DamageCauser)
+                            class AController* InstigatedBy, AActor* DamageCauser)
 {
 	// on any damage taken..
-	Hp = FMath::Clamp(Hp - Damage, 0, MaxHp);
+	Hp = FMath::Max(Hp - Damage, 0);
 
-	UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
+	//UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
 	
 	if (Hp == 0)
 	{

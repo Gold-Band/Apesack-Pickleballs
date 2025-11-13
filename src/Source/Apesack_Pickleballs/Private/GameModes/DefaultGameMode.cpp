@@ -90,6 +90,7 @@ void ADefaultGameMode::NewBuilding(ABuildingBase* Building)
 	FNpcDelegates::OnNewBuilding.Broadcast(Building);
 }
 
+// eventually change this into GetProjectile(EProjectileType type)
 AActor* ADefaultGameMode::GetArrow()
 {
 	return ArrowPool.GetActor();

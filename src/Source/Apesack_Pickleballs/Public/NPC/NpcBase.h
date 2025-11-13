@@ -107,11 +107,13 @@ public:
 protected:
 	virtual void PostInitializeComponents() override;
 
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxHp = 3.f;
 	
 private:
-	float Hp = MaxHp;
+	float Hp;
 	
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

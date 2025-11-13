@@ -39,7 +39,7 @@ void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class
 	// on any damage taken..
 	Hp = FMath::Clamp(Hp - Damage, 0, MaxHp);
 
-	UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
+	//UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
 	
 	if (Hp == 0)
 	{
