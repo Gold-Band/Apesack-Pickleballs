@@ -17,7 +17,10 @@ class APESACK_PICKLEBALLS_API ALevelResizer : public AActor
 public:	
 	// Sets default values for this component's properties
 	ALevelResizer();
-
+	
+	UFUNCTION(BlueprintCallable, CallInEditor, Category="LevelResizer")
+	void AlignNpcsToPlayerRadius();
+	
 protected:
 
 	// scale 1 = diameter of 1m
@@ -53,5 +56,6 @@ protected:
 	
 	TMap<AActor*, float> LevelContentActors;
 	TArray<AActor*> AllPlots;
+	TArray<AActor*> AllNpcs;
 	
 };

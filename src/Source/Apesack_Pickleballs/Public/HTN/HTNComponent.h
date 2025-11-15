@@ -29,6 +29,7 @@ public:
 
 	void CancelActivePlan();
 	void RunTask(const TSoftObjectPtr<UTask> Task);
+	void RunPrimitiveTask(UPrimitiveTask* Task);
 
 	UFUNCTION(BlueprintCallable, Category = "HTN")
 	void UpdateWorldState(const FString& OverrideStateName, bool OverrideValue);
@@ -59,6 +60,7 @@ private:
 	TObjectPtr<UPrimitiveTask> CurrentTask;
 
 	bool bGetNextTask = false;
+	bool bIsRunningPriorityTask = false;
 
 	//** Plan Stuff **//
 	FHTNPlan Plan;

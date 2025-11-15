@@ -6,6 +6,8 @@
 #include "Buildings/NpcShop.h"
 #include "NPC/NpcName.h"
 #include "Buildings/Plot.h"
+#include "Buildings/Wall.h"
+#include "Managers/BuildingsManager.h"
 #include "Managers/NpcDelegates.h"
 #include "NPC/NpcBase.h"
 #include "WorldClock/WorldClockSubsystem.h"
@@ -79,15 +81,57 @@ void ADefaultGameMode::RegisterShop(const ANpcShop* Shop, const EShopType ShopTy
 		ArcherShop = Shop;
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("ANpcShop - Unhandled shop type!"))
+		UE_LOG(LogTemp, Warning, TEXT("RegisterShop - Unhandled shop type!"))
 		break;
 	}
 }
 
-void ADefaultGameMode::NewBuilding(ABuildingBase* Building)
+void ADefaultGameMode::NewBuilding(ABuildingBase* Building, const EBuildingType BuildingType)
 {
+	if (!BuildingsManager) InitializeLocalBuildingsManagerReference();
+	
+	// where is this building?
+	const float BuildingDistance = GetAngleBetweenVectors(Building->GetActorLocation(), WorldOriginNormal);
+	Building->DistanceFromOrigin = BuildingDistance;
+	
+	// notify npcs
+	switch (BuildingType)
+	{
+	case Wall:
+		// is it the furthest wall?
+		BuildingsManager->AddWall(Cast<AWall>(Building));
+		break;
+	case ArcherTower:
+		break;
+	case Shop:
+		break;
+	default: 
+		UE_LOG(LogTemp, Warning, TEXT("NewBuilding - Unhandled building type!"));
+		break;
+	}
+	
 	if (!FNpcDelegates::OnNewBuilding.IsBound()) return;
 	FNpcDelegates::OnNewBuilding.Broadcast(Building);
+}
+
+FVector ADefaultGameMode::LocationToQuadrant(const FVector& WorldOrigin, const FVector& WorldLocation)
+{
+	const FVector OriginNormal = FVector::CrossProduct(WorldOrigin, FVector::UpVector);
+	const FVector QuadrantPos(FVector::DotProduct(WorldOrigin,WorldLocation), FVector::DotProduct(OriginNormal, WorldLocation), 0);
+	//const FVector2D Quadrant(QuadrantPos.X < 0 ? -1:1,QuadrantPos.Y < 0? -1:1);
+	return QuadrantPos;
+}
+
+float ADefaultGameMode::GetAngleBetweenVectors(const FVector& A, const FVector& B)
+{
+	// Guard against zero‑length vectors
+	if (A.IsNearlyZero() || B.IsNearlyZero())
+	{
+		return 0.f;
+	}
+	const float Dot = FVector::DotProduct(A, B);
+	const float CrossDot = FVector::CrossProduct(A, B).Dot(FVector::UpVector);
+	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
 }
 
 // eventually change this into GetProjectile(EProjectileType type)
@@ -99,9 +143,16 @@ AActor* ADefaultGameMode::GetArrow()
 void ADefaultGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// cache managers
 	WorldClock = UWorldClockSubsystem::Get(this);
+	if (!BuildingsManager) InitializeLocalBuildingsManagerReference();
 
 	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 10);
+}
+
+void ADefaultGameMode::InitializeLocalBuildingsManagerReference()
+{
+	BuildingsManager = UBuildingsManager::Get(this);
+	BuildingsManager->SetWorldOrigin(WorldOriginNormal);
 }

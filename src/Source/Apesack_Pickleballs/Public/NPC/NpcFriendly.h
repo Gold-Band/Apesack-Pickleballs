@@ -27,10 +27,20 @@ public:
 
 	int GetKillCount() const {return KillCount;}
 
+	void OnExternalWallChanged(AWall* Wall);
+
+	AWall* GetGuardingWall() const;
+	
 protected:
 	virtual void BeginPlay() override;
 	
 private:
+	UPROPERTY()
+	TObjectPtr<AWall> GuardingWall;
+	
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
+	TSoftObjectPtr<UTask> GotoWallTask;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FString CharacterName;
 	

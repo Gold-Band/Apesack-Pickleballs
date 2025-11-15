@@ -10,6 +10,8 @@
 #include "Engine/DataTable.h"
 #include "NpcBase.generated.h"
 
+class AWall;
+class UPrimitiveTask;
 class UPaperSprite;
 class UOptionsWidget;
 class UInteractable;
@@ -95,6 +97,7 @@ public:
 
 	static const FToolInfo* GetToolInfo(const FDataTableRowHandle& ToolHandle);
 	
+	void ForceTask(UPrimitiveTask* PrimitiveTask);
 	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
 
 	UFUNCTION(BlueprintCallable)
@@ -102,8 +105,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category="NPC")
 	FOnCharacterDied OnDeath;
-
-
+	
+	float GetCharacterPreferredRadius() const;
+	
 protected:
 	virtual void PostInitializeComponents() override;
 
@@ -114,6 +118,7 @@ protected:
 	
 private:
 	float Hp;
+	float Radius;
 	
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

@@ -22,7 +22,7 @@ void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnComplet
 	else
 	{
 		TargetLocation = PreviousResult.PointOfInterest;
-
+		
 		DirToTarget = TargetLocation - Instigator->GetActorLocation();
 		const float DotProd = FVector::DotProduct(DirToTarget, Instigator->GetActorForwardVector());
 		if (DotProd < 0)

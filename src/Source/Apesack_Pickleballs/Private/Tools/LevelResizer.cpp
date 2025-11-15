@@ -22,6 +22,17 @@ ALevelResizer::ALevelResizer()
 
 #if WITH_EDITOR
 
+void ALevelResizer::AlignNpcsToPlayerRadius()
+{
+	const float PlayerRadius = Radius*100 - PlayerOffset*100;
+	for (AActor* Npc : AllNpcs)
+	{
+		FVector PlotDirection = Npc->GetActorLocation().GetUnsafeNormal2D();
+		Npc->SetActorLocationAndRotation(PlotDirection * PlayerRadius, UKismetMathLibrary::FindLookAtRotation(FVector::ZeroVector, PlotDirection) - FRotator(0,90,0));
+	}
+}
+
+
 float GetActorOffsetFromLevelRadius(const AActor* Actor, float LevelRadius)
 {
 	return (LevelRadius*100.f) - FVector::DistXY(FVector::ZeroVector, Actor->GetActorLocation());
@@ -45,6 +56,10 @@ void ALevelResizer::RegisterLevelContent(TMap<AActor*, float>& OutLevelContent)
 				else if (Actor && Actor->GetFolderPath() == "Plots")
 				{
 					AllPlots.Add(Actor);
+				}
+				else if (Actor && Actor->GetFolderPath() == "Npcs")
+				{
+					AllNpcs.Add(Actor);
 				}
 			}
 		}

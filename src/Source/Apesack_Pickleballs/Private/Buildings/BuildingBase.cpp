@@ -29,8 +29,7 @@ void ABuildingBase::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("ABuildingBase(27): GameMode is null!"))
 		return;
 	}
-
-	GameMode->NewBuilding(this);
+	GameMode->NewBuilding(this, BuildingType);
 }
 
 void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,

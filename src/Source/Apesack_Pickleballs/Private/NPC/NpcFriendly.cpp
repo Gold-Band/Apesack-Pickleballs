@@ -4,6 +4,7 @@
 #include "NPC/NpcFriendly.h"
 #include "Components/WidgetComponent.h"
 #include "GameModes/DefaultGameMode.h"
+#include "Managers/NpcDelegates.h"
 
 // Sets default values
 ANpcFriendly::ANpcFriendly()
@@ -13,6 +14,22 @@ ANpcFriendly::ANpcFriendly()
 	
 	NameTag = CreateDefaultSubobject<UWidgetComponent>("Name");
 	NameTag->SetupAttachment(RootComponent);
+	
+	FNpcDelegates::OnFurthestLeftWallChanged.AddUObject(this, &ANpcFriendly::OnExternalWallChanged);
+}
+
+void ANpcFriendly::OnExternalWallChanged(AWall* Wall)
+{
+	// go defend it
+	GuardingWall = Wall;
+	
+	// force task goto wall
+	ForceTask(GotoWallTask);
+}
+
+AWall* ANpcFriendly::GetGuardingWall() const
+{
+	return GuardingWall;
 }
 
 void ANpcFriendly::BeginPlay()
@@ -25,7 +42,7 @@ void ANpcFriendly::BeginPlay()
 		if (!GameMode)
 		{
 			UE_LOG(LogTemp, Error, TEXT("ANpcFriendly::ANpcFriendly - Failed to get the game mode!"))		
-			return ;
+			return;
 		}
 		CharacterName = GameMode->GetRandomNpcName();
 	}

@@ -13,6 +13,10 @@ ANpcBase::ANpcBase()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
+	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("RootComponent"));
+	SetRootComponent(RootComponent);
+	RootComponent->Mobility = EComponentMobility::Movable;
+	
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	BoxCollider->SetupAttachment(RootComponent);
 
@@ -24,6 +28,8 @@ ANpcBase::ANpcBase()
 	
 	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
+	
+
 }
 
 void ANpcBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -48,6 +54,12 @@ const FToolInfo* ANpcBase::GetToolInfo(const FDataTableRowHandle& ToolHandle)
 	return ToolHandle.GetRow<FToolInfo>(TEXT("Tool Getter"));
 }
 
+void ANpcBase::ForceTask(UPrimitiveTask* PrimitiveTask)
+{
+	HtnDomain->CancelActivePlan();
+	HtnDomain->RunPrimitiveTask(PrimitiveTask);
+}
+
 void ANpcBase::ForceTask(const TSoftObjectPtr<UTask> Task) const
 {
 	HtnDomain->CancelActivePlan();
@@ -61,6 +73,11 @@ void ANpcBase::Flip()
 	// other stuff
 }
 
+
+float ANpcBase::GetCharacterPreferredRadius() const
+{
+	return Radius;
+}
 
 void ANpcBase::PostInitializeComponents()
 {
@@ -95,6 +112,8 @@ void ANpcBase::BeginPlay()
 	Super::BeginPlay();
 	
 	Hp = MaxHp;
+	Radius = GetActorLocation().Size2D();
+	
 }
 
 void ANpcBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
