@@ -37,6 +37,12 @@ public:
 
 	bool VerifyWorldState(const FWorldStateContainer& VerifyContainer) const;
 	
+	UFUNCTION(BlueprintPure, Category = "HTN")
+	bool IsWaiting() const;
+	
+protected:
+	virtual void BeginPlay() override;
+	
 private:
 	virtual void InitializeComponent() override;
 	TObjectPtr<UPrimitiveTask> GetNextTaskInitialized(FHTNPlan& InPlan);
@@ -55,6 +61,7 @@ private:
 	TArray<FSensorInitializer> Sensors;
 	
 	//** Task Stuff **//
+	UPROPERTY(EditAnywhere)
 	TArray<TSoftObjectPtr<UTask>> Tasks;
 	UPROPERTY()
 	TObjectPtr<UPrimitiveTask> CurrentTask;

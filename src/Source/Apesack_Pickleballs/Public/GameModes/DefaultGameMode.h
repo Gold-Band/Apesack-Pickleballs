@@ -7,6 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "DefaultGameMode.generated.h"
 
+class UNpcManager;
 class UBuildingsManager;
 enum EBuildingType : uint8;
 class AProjectileBase;
@@ -49,17 +50,17 @@ public:
 	void RegisterShop(const ANpcShop* Shop, const EShopType ShopType);
 	void NewBuilding(ABuildingBase* Building, const EBuildingType BuildingType);
 	
-	static FVector LocationToQuadrant(const FVector& WorldOrigin, const FVector& WorldLocation);
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
+	
+	const FVector WorldOriginNormal = FVector(0.0f, 1.0f, 0.0f);
 	
 	UFUNCTION(BlueprintPure)
 	AActor* GetArrow();
 	
-	FVector WorldOriginNormal = FVector(0, 1, 0);
-	
 private:
 	virtual void BeginPlay() override;
 	void InitializeLocalBuildingsManagerReference();
+	void InitializeLocalNpcManagerReference();
 	
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	bool bBuildersUnlocked;
@@ -95,6 +96,9 @@ private:
 	// cached manager instances
 	UPROPERTY()
 	TObjectPtr<UBuildingsManager> BuildingsManager;
+	
+	UPROPERTY()
+	TObjectPtr<UNpcManager> NpcManager;
 	
 	UPROPERTY()
 	TObjectPtr<UWorldClockSubsystem> WorldClock;

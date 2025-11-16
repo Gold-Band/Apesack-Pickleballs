@@ -29,6 +29,8 @@ protected:
 	float OutOfSightDistance = 1000;
 	
 private:
+	int Direction = 1;
+	
 	float StopDistSquared;
 	float GotoDirectDistanceSquared;
 	float OutOfSightDistanceSquared;

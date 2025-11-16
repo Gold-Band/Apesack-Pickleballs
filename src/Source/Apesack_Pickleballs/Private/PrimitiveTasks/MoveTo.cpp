@@ -24,11 +24,14 @@ void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnComplet
 		TargetLocation = PreviousResult.PointOfInterest;
 		
 		DirToTarget = TargetLocation - Instigator->GetActorLocation();
-		const float DotProd = FVector::DotProduct(DirToTarget, Instigator->GetActorForwardVector());
+		const float DotProd = FVector::DotProduct(DirToTarget, Npc->GetForwardVector());
 		if (DotProd < 0)
 		{
 			// target is behind us
+			if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto flip"))
 			Npc->Flip();
+			if (Direction == 1) Direction = -1;
+			else Direction = 1;
 		}
 	}
 	
@@ -62,11 +65,14 @@ void UMoveTo::Tick(float DeltaTime)
 		DirToTarget = TargetLocation - Instigator->GetActorLocation();
 
 		// rotate character
-		const float DotProd = FVector::DotProduct(DirToTarget, Instigator->GetActorForwardVector());
+		const float DotProd = FVector::DotProduct(DirToTarget, Npc->GetActorForwardVector());
 		if (DotProd < 0)
 		{
 			// target is behind us
+			if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto flip"))
 			Npc->Flip();
+			if (Direction == 1) Direction = -1;
+			else Direction = 1;
 		}
 	}
 
@@ -75,13 +81,15 @@ void UMoveTo::Tick(float DeltaTime)
 	// move actor if conditions permit
 	if (TargetDistanceSquared > OutOfSightDistanceSquared)
 	{
+		if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto Target went out of sight!"))
 		OnTaskCompleted(FTaskResult(ETaskState::Failed, !EffectContainer, TargetActor, FString("Target went out of sight!")));
 		return;
 	}
 	
 	if (TargetDistanceSquared <= StopDistSquared)
 	{
-		OnTaskCompleted(FTaskResult(ETaskState::Success, EffectContainer, TargetActor, FString()));
+		if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto Success"))
+		OnTaskCompleted(FTaskResult(ETaskState::Success, EffectContainer, TargetActor, FString("Success")));
 		return;
 	}
 
@@ -93,6 +101,6 @@ void UMoveTo::Tick(float DeltaTime)
 	else
 	{
 		// walk forward
-		Npc->AddMovementInput(Npc->GetActorForwardVector());
+		Npc->AddMovementInput(Npc->GetActorForwardVector(), Direction);
 	}
 }

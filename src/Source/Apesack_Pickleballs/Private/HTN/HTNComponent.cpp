@@ -144,6 +144,22 @@ bool UHTNComponent::VerifyWorldState(const FWorldStateContainer& VerifyContainer
 	return FWorldStateContainer::HasAllMatchingCommons(WorldStateContainer, VerifyContainer, false);
 }
 
+bool UHTNComponent::IsWaiting() const
+{
+	if (!CurrentTask) return false;
+	return CurrentTask->Name.Equals("Wait");
+}
+
+void UHTNComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (!Planner.IsValid())
+	{
+		SetTasks(Tasks);
+	}
+}
+
 
 void UHTNComponent::InitializeComponent()
 {

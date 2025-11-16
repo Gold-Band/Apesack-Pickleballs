@@ -6,6 +6,10 @@
 #include "NpcBase.h"
 #include "NpcFriendly.generated.h"
 
+class UHTNComponent;
+class UWidgetComponent;
+class AWall;
+
 USTRUCT(BlueprintType)
 struct FRankInfo : public FTableRowBase // row name is rank name
 {
@@ -25,6 +29,14 @@ public:
 	
 	FString GetCharacterName() const {return CharacterName;}
 
+	const FClassInfo* GetClassInfo() const;
+
+	const FToolInfo* GetCharacterToolInfo() const;
+
+	static const FToolInfo* GetToolInfo(const FDataTableRowHandle& ToolHandle);
+	
+	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
+	
 	int GetKillCount() const {return KillCount;}
 
 	void OnExternalWallChanged(AWall* Wall);
@@ -33,7 +45,8 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;	
+	virtual void PostInitializeComponents() override;
 private:
 	UPROPERTY()
 	TObjectPtr<AWall> GuardingWall;
@@ -48,4 +61,16 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UWidgetComponent> NameTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
+	FDataTableRowHandle CharacterClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
+	FDataTableRowHandle CharacterTool;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UPaperSpriteComponent> ToolSpriteComp;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UHTNComponent> HtnDomain;
 };

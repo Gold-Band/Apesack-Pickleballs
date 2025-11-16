@@ -20,6 +20,7 @@ void UGetOuterWallDefensePosition::Tick(float DeltaTime)
 	
 	FVector GotoLocation = UKismetMathLibrary::RandomPointInBoundingBox_Box(InstigatorAsNpc->GetGuardingWall()->GetArcherDefendBox());
 	GotoLocation = GotoLocation.GetSafeNormal2D() * InstigatorAsNpc->GetCharacterPreferredRadius();
+	if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Defense position = %s"), *GotoLocation.ToString())
 	FTaskResult Result{ETaskState::Success, FWorldStateContainer(), nullptr, FString()};
 	Result.PointOfInterest = GotoLocation;
 	

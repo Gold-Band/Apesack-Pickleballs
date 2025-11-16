@@ -7,8 +7,10 @@
 #include "NPC/NpcName.h"
 #include "Buildings/Plot.h"
 #include "Buildings/Wall.h"
+#include "LevelInstance/LevelInstanceTypes.h"
 #include "Managers/BuildingsManager.h"
 #include "Managers/NpcDelegates.h"
+#include "Managers/NpcManager.h"
 #include "NPC/NpcBase.h"
 #include "WorldClock/WorldClockSubsystem.h"
 
@@ -114,14 +116,6 @@ void ADefaultGameMode::NewBuilding(ABuildingBase* Building, const EBuildingType 
 	FNpcDelegates::OnNewBuilding.Broadcast(Building);
 }
 
-FVector ADefaultGameMode::LocationToQuadrant(const FVector& WorldOrigin, const FVector& WorldLocation)
-{
-	const FVector OriginNormal = FVector::CrossProduct(WorldOrigin, FVector::UpVector);
-	const FVector QuadrantPos(FVector::DotProduct(WorldOrigin,WorldLocation), FVector::DotProduct(OriginNormal, WorldLocation), 0);
-	//const FVector2D Quadrant(QuadrantPos.X < 0 ? -1:1,QuadrantPos.Y < 0? -1:1);
-	return QuadrantPos;
-}
-
 float ADefaultGameMode::GetAngleBetweenVectors(const FVector& A, const FVector& B)
 {
 	// Guard against zero‑length vectors
@@ -147,7 +141,9 @@ void ADefaultGameMode::BeginPlay()
 	// cache managers
 	WorldClock = UWorldClockSubsystem::Get(this);
 	if (!BuildingsManager) InitializeLocalBuildingsManagerReference();
+	if (!NpcManager) InitializeLocalNpcManagerReference();
 
+	// setup an arrow pool
 	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 10);
 }
 
@@ -155,4 +151,10 @@ void ADefaultGameMode::InitializeLocalBuildingsManagerReference()
 {
 	BuildingsManager = UBuildingsManager::Get(this);
 	BuildingsManager->SetWorldOrigin(WorldOriginNormal);
+}
+
+void ADefaultGameMode::InitializeLocalNpcManagerReference()
+{
+	NpcManager = UNpcManager::Get(this);
+	NpcManager->SetWorldOrigin(WorldOriginNormal);
 }
