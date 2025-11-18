@@ -10,6 +10,23 @@ class UHTNComponent;
 class UWidgetComponent;
 class AWall;
 
+UENUM(BlueprintType)
+enum EDefendSide : uint8
+{
+	None,
+	Right,
+	Left
+};
+
+enum EClassType : uint8
+{
+	Class_Peasant,
+	Class_Builder,
+	Class_Melee,
+	Class_Ranger,
+	MAX UMETA(Hidden)
+};
+
 USTRUCT(BlueprintType)
 struct FRankInfo : public FTableRowBase // row name is rank name
 {
@@ -43,16 +60,23 @@ public:
 
 	AWall* GetGuardingWall() const;
 	
+	UPROPERTY(EditAnywhere, Category="Default")
+	TEnumAsByte<EDefendSide> DefendSide = Left;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;	
 	virtual void PostInitializeComponents() override;
+	
 private:
 	UPROPERTY()
 	TObjectPtr<AWall> GuardingWall;
 	
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UTask> GotoWallTask;
+	TSoftObjectPtr<UTask> GotoWallTaskArcher;
+	
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
+	TSoftObjectPtr<UTask> GotoWallTaskMelee;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FString CharacterName;
@@ -73,4 +97,10 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UHTNComponent> HtnDomain;
+	
+	EClassType MyClassType;
+	
+	void ApplyClass();
+	void SetFighter();
+	
 };

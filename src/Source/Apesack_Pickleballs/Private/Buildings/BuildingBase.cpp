@@ -23,7 +23,7 @@ void ABuildingBase::BeginPlay()
 	OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
 
 	// notify the gamemode that we exist
-	ADefaultGameMode* GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
+	GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
 	if (!GameMode)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ABuildingBase(27): GameMode is null!"))
@@ -45,6 +45,7 @@ void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class
 		if (OnBuildingDestroyed.IsBound()) OnBuildingDestroyed.Broadcast();
 
 		// Local OnDeath functionality
+		GameMode->BuildingDestroyed(this, BuildingType);
 		Destroy();
 	}
 }

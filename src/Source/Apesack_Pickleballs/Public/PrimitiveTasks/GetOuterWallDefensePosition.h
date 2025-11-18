@@ -19,6 +19,10 @@ public:
 	virtual void Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback) override;
 	virtual void Tick(float DeltaTime) override;
 	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin=1, UIMax=3))
+	int Zone = 1;
+	
 private:
 	UPROPERTY()
 	TObjectPtr<ANpcFriendly> InstigatorAsNpc;

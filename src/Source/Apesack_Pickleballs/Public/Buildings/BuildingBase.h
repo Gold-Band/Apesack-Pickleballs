@@ -5,10 +5,12 @@
 #include "GameFramework/Actor.h"
 #include "BuildingBase.generated.h"
 
+class ADefaultGameMode;
+
 UENUM(BlueprintType)
 enum EBuildingType : uint8
 {
-	None,
+	Null,
 	Wall,
 	ArcherTower,
 	Shop
@@ -47,7 +49,8 @@ protected:
 	
 private:
 	float Hp = MaxHp;
-
+	TObjectPtr<ADefaultGameMode> GameMode;
+	
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 

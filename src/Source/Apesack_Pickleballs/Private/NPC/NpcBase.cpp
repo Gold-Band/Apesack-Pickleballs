@@ -22,7 +22,8 @@ ANpcBase::ANpcBase()
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(BoxCollider);
 
-	//MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
+	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
+	MovementComp->MaxSpeed = 200;
 }
 
 void ANpcBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

@@ -20,6 +20,7 @@ public:
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
+	void RemoveWall(AWall* Wall);
 	void AddWall(AWall* Wall);
 	void AddTower(ABuildingBase* Tower);
 	void AddShop(ABuildingBase* Shop);

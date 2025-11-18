@@ -116,6 +116,25 @@ void ADefaultGameMode::NewBuilding(ABuildingBase* Building, const EBuildingType 
 	FNpcDelegates::OnNewBuilding.Broadcast(Building);
 }
 
+void ADefaultGameMode::BuildingDestroyed(ABuildingBase* Building, const EBuildingType BuildingType)
+{
+	// notify npcs
+	switch (BuildingType)
+	{
+	case Wall:
+		// is it the furthest wall?
+		BuildingsManager->RemoveWall(Cast<AWall>(Building));
+		break;
+	case ArcherTower:
+		break;
+	case Shop:
+		break;
+	default: 
+		UE_LOG(LogTemp, Warning, TEXT("NewBuilding - Unhandled building type!"));
+		break;
+	}
+}
+
 float ADefaultGameMode::GetAngleBetweenVectors(const FVector& A, const FVector& B)
 {
 	// Guard against zero‑length vectors

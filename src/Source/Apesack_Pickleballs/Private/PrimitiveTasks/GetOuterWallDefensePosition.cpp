@@ -17,8 +17,11 @@ void UGetOuterWallDefensePosition::Initialize(AActor* InstigatorActor, const FTa
 void UGetOuterWallDefensePosition::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	FVector GotoLocation;
 	
-	FVector GotoLocation = UKismetMathLibrary::RandomPointInBoundingBox_Box(InstigatorAsNpc->GetGuardingWall()->GetArcherDefendBox());
+	if (Zone == 1) GotoLocation = UKismetMathLibrary::RandomPointInBoundingBox_Box(InstigatorAsNpc->GetGuardingWall()->GetMeleeDefendBox());
+	else if (Zone == 2) GotoLocation = UKismetMathLibrary::RandomPointInBoundingBox_Box(InstigatorAsNpc->GetGuardingWall()->GetArcherDefendBox());
+	
 	GotoLocation = GotoLocation.GetSafeNormal2D() * InstigatorAsNpc->GetCharacterPreferredRadius();
 	if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Defense position = %s"), *GotoLocation.ToString())
 	FTaskResult Result{ETaskState::Success, FWorldStateContainer(), nullptr, FString()};

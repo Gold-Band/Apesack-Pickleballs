@@ -49,6 +49,7 @@ public:
 
 	void RegisterShop(const ANpcShop* Shop, const EShopType ShopType);
 	void NewBuilding(ABuildingBase* Building, const EBuildingType BuildingType);
+	void BuildingDestroyed(ABuildingBase* Building, const EBuildingType BuildingType);
 	
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	

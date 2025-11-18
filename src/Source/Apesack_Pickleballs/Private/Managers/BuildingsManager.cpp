@@ -29,6 +29,17 @@ void UBuildingsManager::OnWorldBeginPlay(UWorld& InWorld)
 	
 }
 
+void UBuildingsManager::RemoveWall(AWall* Wall)
+{
+	const int WallIndex = AllWalls.Find(Wall);
+	AllWalls.RemoveAt(WallIndex);
+	
+	if (AllWalls.IsEmpty()) return;
+	
+	if (WallIndex == 0 && FNpcDelegates::OnFurthestLeftWallChanged.IsBound()) FNpcDelegates::OnFurthestLeftWallChanged.Broadcast(AllWalls[0]);
+	if (WallIndex == AllWalls.Num()-1 && FNpcDelegates::OnFurthestRightWallChanged.IsBound()) FNpcDelegates::OnFurthestRightWallChanged.Broadcast(AllWalls.Last());
+}
+
 void UBuildingsManager::AddWall(AWall* Wall)
 {
 	// insert in array based on distance
@@ -45,8 +56,8 @@ void UBuildingsManager::AddWall(AWall* Wall)
 	}
 	if (!bInsterted) AllWalls.Add(Wall);
 	
-	if (FNpcDelegates::OnFurthestLeftWallChanged.IsBound()) FNpcDelegates::OnFurthestLeftWallChanged.Broadcast(AllWalls[0]);
-	if (FNpcDelegates::OnFurthestRightWallChanged.IsBound())FNpcDelegates::OnFurthestRightWallChanged.Broadcast(AllWalls.Last());
+	if (AllWalls[0]->DistanceFromOrigin < 0 && FNpcDelegates::OnFurthestLeftWallChanged.IsBound()) FNpcDelegates::OnFurthestLeftWallChanged.Broadcast(AllWalls[0]);
+	if (AllWalls.Last()->DistanceFromOrigin > 0 && FNpcDelegates::OnFurthestRightWallChanged.IsBound())FNpcDelegates::OnFurthestRightWallChanged.Broadcast(AllWalls.Last());
 	//UE_LOG(LogTemp, Warning, TEXT("NumWalls = %i  |  Leftmost = %s  |  Rightmost = %s"), AllWalls.Num(), *AllWalls[0]->GetActorLabel(), *AllWalls.Last()->GetActorLabel())
 }
 
