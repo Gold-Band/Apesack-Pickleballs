@@ -102,6 +102,7 @@ void ADefaultGameMode::NewBuilding(ABuildingBase* Building, const EBuildingType 
 	case Wall:
 		// is it the furthest wall?
 		BuildingsManager->AddWall(Cast<AWall>(Building));
+		if (FNpcDelegates::OnNewBuilding.IsBound()) FNpcDelegates::OnNewBuilding.Broadcast(Building);
 		break;
 	case ArcherTower:
 		break;
@@ -112,8 +113,6 @@ void ADefaultGameMode::NewBuilding(ABuildingBase* Building, const EBuildingType 
 		break;
 	}
 	
-	if (!FNpcDelegates::OnNewBuilding.IsBound()) return;
-	FNpcDelegates::OnNewBuilding.Broadcast(Building);
 }
 
 void ADefaultGameMode::BuildingDestroyed(ABuildingBase* Building, const EBuildingType BuildingType)

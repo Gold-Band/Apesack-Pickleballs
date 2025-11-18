@@ -1,6 +1,7 @@
 #include "Buildings/BuildingBase.h"
 
 #include "GameModes/DefaultGameMode.h"
+#include "Managers/NpcDelegates.h"
 
 ABuildingBase::ABuildingBase()
 {
@@ -20,7 +21,7 @@ void ABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Hp = MaxHp;
+	Hp = 1;
 
 	OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
 
@@ -41,6 +42,11 @@ void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class
 	Hp = FMath::Clamp(Hp - Damage, 0, MaxHp);
 
 	//UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
+	if (Damage > 0 && !bNotifiedBuildersOfDamage && FNpcDelegates::OnBuildingDamaged.IsBound())
+	{
+		bNotifiedBuildersOfDamage = true;
+		FNpcDelegates::OnBuildingDamaged.Broadcast(this);
+	}
 	
 	if (Hp == 0)
 	{
@@ -48,6 +54,12 @@ void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class
 
 		// Local OnDeath functionality
 		GameMode->BuildingDestroyed(this, BuildingType);
+		OnBuildingDestroyed.Clear();
+		OnTakeAnyDamage.RemoveAll(this);
 		Destroy();
+	}
+	if (Hp == MaxHp)
+	{
+		if (FNpcDelegates::OnBuildingRepaired.IsBound()) FNpcDelegates::OnBuildingRepaired.Broadcast(this);
 	}
 }

@@ -18,21 +18,12 @@ void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnComplet
 	if (TargetActor)
 	{
 		TargetLocation = TargetActor->GetActorLocation();
+		CheckOrientationToTarget();
 	}
 	else
 	{
 		TargetLocation = PreviousResult.PointOfInterest;
-		
-		DirToTarget = TargetLocation - Instigator->GetActorLocation();
-		const float DotProd = FVector::DotProduct(DirToTarget, Npc->GetForwardVector());
-		if (DotProd < 0)
-		{
-			// target is behind us
-			if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto flip"))
-			Npc->Flip();
-			if (Direction == 1) Direction = -1;
-			else Direction = 1;
-		}
+		CheckOrientationToTarget();
 	}
 	
 	StopDistSquared = FMath::Square(StopDist);
@@ -60,20 +51,6 @@ void UMoveTo::Tick(float DeltaTime)
 	if (TargetActor)
 	{
 		TargetLocation = TargetActor->GetActorLocation();
-
-		// get direction to target
-		DirToTarget = TargetLocation - Instigator->GetActorLocation();
-
-		// rotate character
-		const float DotProd = FVector::DotProduct(DirToTarget, Npc->GetActorForwardVector());
-		if (DotProd < 0)
-		{
-			// target is behind us
-			if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto flip"))
-			Npc->Flip();
-			if (Direction == 1) Direction = -1;
-			else Direction = 1;
-		}
 	}
 
 	const float TargetDistanceSquared = FVector::DistSquared2D(Instigator->GetActorLocation(), TargetLocation);
@@ -102,5 +79,21 @@ void UMoveTo::Tick(float DeltaTime)
 	{
 		// walk forward
 		Npc->AddMovementInput(Npc->GetActorForwardVector(), Direction);
+	}
+}
+
+void UMoveTo::CheckOrientationToTarget()
+{
+	// get direction to target
+	DirToTarget = TargetLocation - Instigator->GetActorLocation();
+	// rotate character
+	const float DotProd = FVector::DotProduct(DirToTarget, Npc->GetForwardVector());
+	if (DotProd < 0)
+	{
+		// target is behind us
+		if (bPrintStatusInLog) UE_LOG(LogTemp, Warning, TEXT("Moveto flip"))
+		//Npc->Flip();
+		if (Direction == 1) Direction = -1;
+		else Direction = 1;
 	}
 }

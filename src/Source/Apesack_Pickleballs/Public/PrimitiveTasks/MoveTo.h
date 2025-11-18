@@ -46,6 +46,10 @@ private:
 
 	FWorldStateContainer RequirementContainer;
 	
+	UPROPERTY()
 	FVector TargetLocation;
+	UPROPERTY()
 	FVector DirToTarget;
+	
+	void CheckOrientationToTarget();
 };

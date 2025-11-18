@@ -54,6 +54,8 @@ class APESACK_PICKLEBALLS_API UWorldClockSubsystem : public UTickableWorldSubsys
 	
 public:
 
+	static bool IsDaytime;
+	
 	static UWorldClockSubsystem* Get(const UObject* WorldContext)
     {
         if (const UWorld* W = WorldContext ? WorldContext->GetWorld() : nullptr)
@@ -122,7 +124,7 @@ public:
 
 private:
 	uint32 Day = 0;
-	uint32 Hour = 16;
+	uint32 Hour = 18;
 	uint32 Minute = 0;
 	uint32 Second = 0;
 	FTimestamp CurrentTime;
@@ -133,7 +135,7 @@ private:
 	bool bAllowClockTicking = true;
 	bool bIsNight = false;
 	
-	float TimeScale = 4000;
+	float TimeScale = 1000;
 
 	float Milliseconds = 0;
 	int msFloor = 0;

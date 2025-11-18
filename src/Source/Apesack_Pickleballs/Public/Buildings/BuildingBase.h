@@ -34,6 +34,8 @@ public:
 
 	float DistanceFromOrigin;
 	
+	//float GetRepairPriority() const {return Priority;}
+	bool IsDestroyed() const {return Hp == 0;}
 protected:
 
 	virtual void BeginPlay() override;
@@ -47,9 +49,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
 	float MaxHp = 10.f;
 	
+	//float Priority;
+	
 private:
 	float Hp;
 	TObjectPtr<ADefaultGameMode> GameMode;
+	
+	bool bNotifiedBuildersOfDamage;
 	
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

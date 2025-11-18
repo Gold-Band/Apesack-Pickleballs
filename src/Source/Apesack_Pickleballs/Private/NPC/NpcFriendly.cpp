@@ -4,6 +4,7 @@
 #include "NPC/NpcFriendly.h"
 #include "Components/WidgetComponent.h"
 #include "PaperSpriteComponent.h"
+#include "Buildings/BuildingBase.h"
 #include "Buildings/Zone.h"
 #include "GameModes/DefaultGameMode.h"
 #include "HTN/HTNComponent.h"
@@ -62,6 +63,29 @@ void ANpcFriendly::OnExternalWallChanged(AWall* Wall)
 	
 }
 
+void ANpcFriendly::OnBuildingTookDamage(ABuildingBase* DamagedBuilding)
+{
+	if (DamagedBuilding->IsDestroyed())
+	{
+		BuildBuffer.Remove(DamagedBuilding);	
+	}
+	
+	BuildBuffer.Add(DamagedBuilding);
+	HtnDomain->UpdateWorldState("WantsToBuild", true);
+	/*if (UWorldClockSubsystem::IsDaytime)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Fix me!"))
+		ForceTask(GoBuildTask);
+	}*/
+}
+
+void ANpcFriendly::OnBuildingFixed(ABuildingBase* FixedBuilding)
+{
+	BuildBuffer.Remove(FixedBuilding);
+	if (BuildBuffer.IsEmpty()) HtnDomain->UpdateWorldState("WantsToBuild", false);
+	UE_LOG(LogTemp, Log, TEXT("All done!"))
+}
+
 AWall* ANpcFriendly::GetGuardingWall() const
 {
 	return GuardingWall;
@@ -104,6 +128,10 @@ void ANpcFriendly::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (DefendSide == Right) FNpcDelegates::OnFurthestRightWallChanged.RemoveAll(this);
 	else if (DefendSide == Left) FNpcDelegates::OnFurthestLeftWallChanged.RemoveAll(this);
 	
+	UWorldClockSubsystem::Get(this)->OnNightStartedDelegate.RemoveAll(this);
+	UWorldClockSubsystem::Get(this)->OnNightEndedDelegate.RemoveAll(this);
+	
+	
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -117,6 +145,12 @@ void ANpcFriendly::PostInitializeComponents()
 
 void ANpcFriendly::ApplyClass()
 {
+	// unassign all class specific delegates
+	FNpcDelegates::OnBuildingDamaged.RemoveAll(this);
+	FNpcDelegates::OnNewBuilding.RemoveAll(this);
+	FNpcDelegates::OnFurthestRightWallChanged.RemoveAll(this);
+	FNpcDelegates::OnFurthestLeftWallChanged.RemoveAll(this);
+	
 	const FClassInfo* MyClass = CharacterClass.GetRow<FClassInfo>(TEXT("Getting Class Tasks"));
 	if (!MyClass)
 	{
@@ -160,6 +194,9 @@ void ANpcFriendly::ApplyClass()
 		{
 			// is builder
 			MyClassType = Class_Builder;
+			FNpcDelegates::OnBuildingDamaged.AddUObject(this, &ANpcFriendly::OnBuildingTookDamage);
+			FNpcDelegates::OnNewBuilding.AddUObject(this, &ANpcFriendly::OnBuildingTookDamage);
+			FNpcDelegates::OnBuildingRepaired.AddUObject(this, &ANpcFriendly::OnBuildingFixed);
 		}
 	}
 	else
@@ -184,6 +221,7 @@ void ANpcFriendly::GotoWallIfFighter()
 	case Class_Peasant:
 		break;
 	case Class_Builder:
+		ForceTask(GotoWallTaskArcher);
 		break;
 	case Class_Melee:
 		ForceTask(GotoWallTaskMelee);
@@ -204,4 +242,5 @@ void ANpcFriendly::OnNightStarted()
 void ANpcFriendly::OnNightEnded()
 {
 	HtnDomain->UpdateWorldState(FString("IsDaytime"), true);
+	//if (!BuildBuffer.IsEmpty()) ForceTask(GoBuildTask);
 }

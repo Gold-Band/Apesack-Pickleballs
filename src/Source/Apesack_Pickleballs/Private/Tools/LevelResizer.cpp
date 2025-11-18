@@ -27,7 +27,7 @@ void ALevelResizer::AlignNpcsToPlayerRadius()
 	const float PlayerRadius = Radius*100 - PlayerOffset*100;
 	for (AActor* Npc : AllNpcs)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Npc %s"), *Npc->GetActorLabel());
+		//UE_LOG(LogTemp, Log, TEXT("Npc %s"), *Npc->GetActorLabel());
 		const FVector PlotDirection = Npc->GetActorLocation().GetUnsafeNormal2D();
 		Npc->SetActorLocationAndRotation(PlotDirection * PlayerRadius, UKismetMathLibrary::FindLookAtRotation(FVector::ZeroVector, PlotDirection) - FRotator(0,90,0));
 	}

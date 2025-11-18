@@ -48,6 +48,9 @@ public:
 	void SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBuildingInfo* BuildingInfo);
 
 private:
+	UFUNCTION()
+	void ClearPlot();
+	
 	UPROPERTY()
 	TObjectPtr<AActor> BuildingActor;
 

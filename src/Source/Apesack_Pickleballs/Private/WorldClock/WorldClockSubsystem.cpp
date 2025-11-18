@@ -3,6 +3,8 @@
 
 #include "WorldClock/WorldClockSubsystem.h"
 
+bool UWorldClockSubsystem::IsDaytime = true;
+
 void UWorldClockSubsystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -39,16 +41,19 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 			TryBroadcast(EWorldClockBroadcastTiming::EveryDay);
 		}
 		
-		if ((Hour >= NightHourStart || Hour < DayHourStart) && !bIsNight)
+		if ((Hour >= NightHourStart || Hour < DayHourStart) && IsDaytime)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Night Started"))
-			bIsNight = true;
-			if (OnNightStartedDelegate.IsBound()) OnNightStartedDelegate.Broadcast();
+			IsDaytime = false;
+			if (OnNightStartedDelegate.IsBound())
+			{
+				OnNightStartedDelegate.Broadcast();
+			}
 		}
-		else if (Hour >= DayHourStart && Hour < NightHourStart && bIsNight)
+		else if (Hour >= DayHourStart && Hour < NightHourStart && !IsDaytime)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Night Ended"))
-			bIsNight = false;
+			IsDaytime = true;
 			if (OnNightEndedDelegate.IsBound()) OnNightEndedDelegate.Broadcast();
 		}
 	}

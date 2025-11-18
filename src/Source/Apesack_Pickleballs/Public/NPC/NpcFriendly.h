@@ -6,6 +6,7 @@
 #include "NpcBase.h"
 #include "NpcFriendly.generated.h"
 
+class ABuildingBase;
 enum EZoneType : uint8;
 class UHTNComponent;
 class UWidgetComponent;
@@ -59,7 +60,9 @@ public:
 	int GetKillCount() const {return KillCount;}
 
 	void OnExternalWallChanged(AWall* Wall);
-
+	void OnBuildingTookDamage(ABuildingBase* DamagedBuilding);
+	void OnBuildingFixed(ABuildingBase* FixedBuilding);
+	
 	AWall* GetGuardingWall() const;
 	
 	UPROPERTY(EditAnywhere, Category="Default")
@@ -70,6 +73,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	TEnumAsByte<EClassType> GetClassType() const;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TArray<ABuildingBase*> BuildBuffer;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -93,11 +99,17 @@ private:
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	TSoftObjectPtr<UTask> GotoWallTaskMelee;
 	
+	//UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
+	//TSoftObjectPtr<UTask> GoBuildTask;
+	
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
+	TSoftObjectPtr<UTask> TakeShelterTask;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FString CharacterName;
 	
 	int KillCount;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UWidgetComponent> NameTag;
 	
