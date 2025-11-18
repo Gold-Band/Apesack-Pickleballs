@@ -6,6 +6,7 @@
 #include "NpcBase.h"
 #include "NpcFriendly.generated.h"
 
+enum EZoneType : uint8;
 class UHTNComponent;
 class UWidgetComponent;
 class AWall;
@@ -18,6 +19,7 @@ enum EDefendSide : uint8
 	Left
 };
 
+UENUM(BlueprintType)
 enum EClassType : uint8
 {
 	Class_Peasant,
@@ -62,11 +64,24 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category="Default")
 	TEnumAsByte<EDefendSide> DefendSide = Left;
+
+	UFUNCTION(BlueprintPure)
+	bool IsInProperZone() const;
+	
+	UFUNCTION(BlueprintPure)
+	TEnumAsByte<EClassType> GetClassType() const;
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;	
 	virtual void PostInitializeComponents() override;
+	
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsInDefensePosition;
+	
+	UPROPERTY(BlueprintReadWrite)
+	TEnumAsByte<EZoneType> Zone;
+	
 	
 private:
 	UPROPERTY()
@@ -98,9 +113,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UHTNComponent> HtnDomain;
 	
-	EClassType MyClassType;
+	TEnumAsByte<EClassType> MyClassType;
 	
 	void ApplyClass();
 	void SetFighter();
+	void GotoWallIfFighter();
+	
+	UFUNCTION()
+	void OnNightStarted();
+	UFUNCTION()
+	void OnNightEnded();
 	
 };

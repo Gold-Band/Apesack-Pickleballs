@@ -159,6 +159,7 @@ void ADefaultGameMode::BeginPlay()
 	
 	// cache managers
 	WorldClock = UWorldClockSubsystem::Get(this);
+	
 	if (!BuildingsManager) InitializeLocalBuildingsManagerReference();
 	if (!NpcManager) InitializeLocalNpcManagerReference();
 

@@ -3,25 +3,25 @@
 
 #include "Buildings/Wall.h"
 
-#include "Components/BoxComponent.h"
+#include "Buildings/Zone.h"
 
 AWall::AWall()
 {
-	MeleeDefendZone = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeZone"));
+	MeleeDefendZone = CreateDefaultSubobject<UZone>(TEXT("MeleeZone"));
 	MeleeDefendZone->SetupAttachment(RootComponent);
-	MeleeDefendZone->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	MeleeDefendZone->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	MeleeDefendZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	MeleeDefendZone->SetMobility(EComponentMobility::Type::Static);
 	MeleeDefendZone->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	MeleeDefendZone->SetGenerateOverlapEvents(false);
+	MeleeDefendZone->SetGenerateOverlapEvents(true);
 	
-	ArcherDefendZone = CreateDefaultSubobject<UBoxComponent>(TEXT("ArcherZone"));
+	ArcherDefendZone = CreateDefaultSubobject<UZone>(TEXT("ArcherZone"));
 	ArcherDefendZone->SetupAttachment(RootComponent);
-	ArcherDefendZone->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	ArcherDefendZone->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	ArcherDefendZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	ArcherDefendZone->SetMobility(EComponentMobility::Type::Static);
 	ArcherDefendZone->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	ArcherDefendZone->SetGenerateOverlapEvents(false);
+	ArcherDefendZone->SetGenerateOverlapEvents(true);
 }
 
 UE::Math::TBox<double> AWall::GetArcherDefendBox() const

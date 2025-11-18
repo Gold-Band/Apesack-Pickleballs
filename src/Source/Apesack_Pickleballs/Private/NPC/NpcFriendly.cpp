@@ -4,9 +4,11 @@
 #include "NPC/NpcFriendly.h"
 #include "Components/WidgetComponent.h"
 #include "PaperSpriteComponent.h"
+#include "Buildings/Zone.h"
 #include "GameModes/DefaultGameMode.h"
 #include "HTN/HTNComponent.h"
 #include "Managers/NpcDelegates.h"
+#include "WorldClock/WorldClockSubsystem.h"
 
 // Sets default values
 ANpcFriendly::ANpcFriendly()
@@ -56,26 +58,25 @@ void ANpcFriendly::OnExternalWallChanged(AWall* Wall)
 	//UE_LOG(LogTemp, Log, TEXT("OnExternalWallChanged"));
 	
 	// force task goto wall
-	switch (MyClassType)
-	{
-	case Class_Peasant:
-		break;
-	case Class_Builder:
-		break;
-	case Class_Melee:
-		ForceTask(GotoWallTaskMelee);
-		break;
-	case Class_Ranger:
-		ForceTask(GotoWallTaskArcher);
-		break;
-	default: ;
-	}
+	GotoWallIfFighter();
 	
 }
 
 AWall* ANpcFriendly::GetGuardingWall() const
 {
 	return GuardingWall;
+}
+
+bool ANpcFriendly::IsInProperZone() const
+{
+	if (Zone == Zone_Archer && MyClassType == Class_Ranger) return true;
+	if (Zone == Zone_Melee && MyClassType == Class_Melee) return true;
+	return false;
+}
+
+TEnumAsByte<EClassType> ANpcFriendly::GetClassType() const
+{
+	return MyClassType;
 }
 
 void ANpcFriendly::BeginPlay()
@@ -92,6 +93,9 @@ void ANpcFriendly::BeginPlay()
 		}
 		CharacterName = GameMode->GetRandomNpcName();
 	}
+	
+	UWorldClockSubsystem::Get(this)->OnNightStartedDelegate.AddDynamic(this, &ANpcFriendly::OnNightStarted);
+	UWorldClockSubsystem::Get(this)->OnNightEndedDelegate.AddDynamic(this, &ANpcFriendly::OnNightEnded);
 	
 }
 
@@ -171,4 +175,33 @@ void ANpcFriendly::SetFighter()
 	
 	if (DefendSide == Right) FNpcDelegates::OnFurthestRightWallChanged.AddUObject(this, &ANpcFriendly::OnExternalWallChanged);
 	else if (DefendSide == Left) FNpcDelegates::OnFurthestLeftWallChanged.AddUObject(this, &ANpcFriendly::OnExternalWallChanged);
+}
+
+void ANpcFriendly::GotoWallIfFighter()
+{
+	switch (MyClassType)
+	{
+	case Class_Peasant:
+		break;
+	case Class_Builder:
+		break;
+	case Class_Melee:
+		ForceTask(GotoWallTaskMelee);
+		break;
+	case Class_Ranger:
+		ForceTask(GotoWallTaskArcher);
+		break;
+	default: ;
+	}
+}
+
+void ANpcFriendly::OnNightStarted()
+{
+	HtnDomain->UpdateWorldState(FString("IsDaytime"), false);
+	if (GuardingWall) GotoWallIfFighter();
+}
+
+void ANpcFriendly::OnNightEnded()
+{
+	HtnDomain->UpdateWorldState(FString("IsDaytime"), true);
 }

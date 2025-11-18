@@ -6,7 +6,7 @@
 #include "Buildings/BuildingBase.h"
 #include "Wall.generated.h"
 
-class UBoxComponent;
+class UZone;
 
 /**
  * 
@@ -25,9 +25,9 @@ public:
 private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UBoxComponent> MeleeDefendZone;
+	TObjectPtr<UZone> MeleeDefendZone;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UBoxComponent> ArcherDefendZone;
+	TObjectPtr<UZone> ArcherDefendZone;
 	
 };

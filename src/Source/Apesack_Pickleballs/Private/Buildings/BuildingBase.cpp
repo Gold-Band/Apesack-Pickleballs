@@ -19,6 +19,8 @@ void ABuildingBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) co
 void ABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	Hp = MaxHp;
 
 	OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
 

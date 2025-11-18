@@ -38,6 +38,19 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 			Hour = Hour%24;
 			TryBroadcast(EWorldClockBroadcastTiming::EveryDay);
 		}
+		
+		if ((Hour >= NightHourStart || Hour < DayHourStart) && !bIsNight)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Night Started"))
+			bIsNight = true;
+			if (OnNightStartedDelegate.IsBound()) OnNightStartedDelegate.Broadcast();
+		}
+		else if (Hour >= DayHourStart && Hour < NightHourStart && bIsNight)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Night Ended"))
+			bIsNight = false;
+			if (OnNightEndedDelegate.IsBound()) OnNightEndedDelegate.Broadcast();
+		}
 	}
 }
 
@@ -61,6 +74,14 @@ void UWorldClockSubsystem::TryBroadcast(EWorldClockBroadcastTiming TimingType)
 		CurrentTime.Second = Second%60;
 		OnTimeTickedDelegate.Broadcast(CurrentTime);
 	}
+}
+
+void UWorldClockSubsystem::Deinitialize()
+{
+	OnTimeTickedDelegate.Clear();
+	OnNightStartedDelegate.Clear();
+	OnNightEndedDelegate.Clear();
+	Super::Deinitialize();
 }
 
 void UWorldClockSubsystem::SetTimeScale(float NewTimeScale)

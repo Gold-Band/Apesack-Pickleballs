@@ -48,7 +48,7 @@ protected:
 	float MaxHp = 10.f;
 	
 private:
-	float Hp = MaxHp;
+	float Hp;
 	TObjectPtr<ADefaultGameMode> GameMode;
 	
 	UFUNCTION()
