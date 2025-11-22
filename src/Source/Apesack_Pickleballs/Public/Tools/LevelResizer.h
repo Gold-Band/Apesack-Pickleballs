@@ -21,6 +21,9 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category="LevelResizer")
 	void AlignNpcsToPlayerRadius();
 	
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 protected:
 
 	// scale 1 = diameter of 1m
@@ -33,7 +36,6 @@ protected:
 	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Plots Offset From Cylinder Edge"))
 	float PlotsOffset = 10;
 	
-	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 	void UpdateMapSizeAndContentPlacement();
 	void UpdatePlayerPosition();
 	void UpdatePlotPositions();
