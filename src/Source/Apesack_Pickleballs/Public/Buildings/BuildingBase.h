@@ -51,9 +51,9 @@ protected:
 	
 	//float Priority;
 	
+	TObjectPtr<ADefaultGameMode> GameMode;
 private:
 	float Hp;
-	TObjectPtr<ADefaultGameMode> GameMode;
 	
 	bool bNotifiedBuildersOfDamage;
 	

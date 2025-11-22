@@ -19,7 +19,7 @@ void ANpcShop::BeginPlay()
 	Super::BeginPlay();
 	
 	// tell the gamemode that we exist
-	ADefaultGameMode* GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
+	//ADefaultGameMode* GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
 		GameMode->RegisterShop(this, ShopType);
