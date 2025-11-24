@@ -18,10 +18,13 @@ public class Apesack_Pickleballs : ModuleRules {
 			"GameplayTags",
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[]
+		if (Target.bBuildEditor)
 		{
-			"UnrealEd"
-		});
+			PrivateDependencyModuleNames.AddRange(new string[]
+			{
+				"UnrealEd"
+			});
+		}
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
