@@ -11,14 +11,9 @@
 #include "NpcBase.generated.h"
 
 class UPaperSprite;
-class UOptionsWidget;
-class UInteractable;
-class UWidgetComponent;
 class UBoxComponent;
 class UPaperSpriteComponent;
 class UCircularPawnMovementComponent;
-class UHTNComponent;
-
 
 USTRUCT(BlueprintType)
 struct FToolInfo : public FTableRowBase // row name is tool name
@@ -62,20 +57,6 @@ struct FClassInfo : public FTableRowBase // row name is class name
 };
 
 
-/*
-struct FNPCInfo
-{
-
-	FString Name;
-	TObjectPtr<UTexture2D> RankIcon;
-	TObjectPtr<UTexture2D> ClassIcon;
-	TArray<TSoftObjectPtr<UTask>> ClassTasks;
-	int KillCount;
-	// tool
-	// outfit
-};*/
-
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDied);
 
 UCLASS()
@@ -89,25 +70,35 @@ public:
 	
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
-	const FClassInfo* GetClassInfo() const;
-
-	const FToolInfo* GetCharacterToolInfo() const;
+	UFUNCTION(BlueprintCallable)
+	void Flip();
 	
-	static const FToolInfo* GetToolInfo(const FDataTableRowHandle& ToolHandle);
+	FVector GetForwardVector() const;
 	
-	void ForceTask(const TSoftObjectPtr<UTask> Task) const;
-
 	UPROPERTY(BlueprintAssignable, Category="NPC")
 	FOnCharacterDied OnDeath;
+	
+	UFUNCTION(BlueprintPure)
+	float GetCharacterPreferredRadius() const;
+	
+	UFUNCTION(BlueprintPure)
+	float GetDirectionToTown();
 	
 protected:
 	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	float MaxHp = 3.f;
 	
 private:
-	float Hp = MaxHp;
+	float Hp;
+	float Radius;
+	
+	// direction to the player's town (left or right)
+	float OriginDirection = 0;
+	bool bFwd = true;
 	
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
@@ -115,24 +106,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
 	FGameplayTag CharacterTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
-	FDataTableRowHandle CharacterClass;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category="Default")
-	FDataTableRowHandle CharacterTool;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBoxComponent> BoxCollider;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UPaperSpriteComponent> SpriteComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UPaperSpriteComponent> ToolSpriteComp;
+	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
+protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UHTNComponent> HtnDomain;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
+	TObjectPtr<UPaperSpriteComponent> SpriteComp;
 };

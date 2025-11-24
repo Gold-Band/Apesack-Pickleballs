@@ -30,4 +30,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UClass* FilterClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bLineOfSightRequired = false;
 };

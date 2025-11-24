@@ -5,6 +5,7 @@
 #include "Buildings/BuildingBase.h"
 #include "HTN/HTNComponent.h"
 #include "Items/ItemActor.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NPC/NpcBase.h"
 
@@ -34,15 +35,17 @@ void UActorSensor::Tick()
 		
 		for (const auto& Actor : OutActors)
 		{
-			const FVector EndLocation = Actor->GetActorLocation() + FVector::UpVector * 40.f;
-			//UE_LOG(LogTemp, Warning, TEXT("Actor = %s"), *Actor->GetActorNameOrLabel())
 
-			// check for line of sight
-			const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, Params);
-			if (bHit && HitResult.GetActor() != Actor)
+			if (bLineOfSightRequired)
 			{
-				continue;
-				//UE_LOG(LogTemp, Warning, TEXT("HitActor = %s"), *HitResult.GetActor()->GetActorNameOrLabel())	
+				const FVector EndLocation = Actor->GetActorLocation() + FVector::UpVector * 40.f;
+				// check for line of sight
+				const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,StartLocation, EndLocation, ECC_Visibility, Params);
+				if (bHit && HitResult.GetActor() != Actor)
+				{
+					//UE_LOG(LogTemp, Warning, TEXT("HitActor = %s"), *HitResult.GetActor()->GetActorNameOrLabel())	
+					continue;
+				}
 			}
 
 			bool SenseSuccess = false;

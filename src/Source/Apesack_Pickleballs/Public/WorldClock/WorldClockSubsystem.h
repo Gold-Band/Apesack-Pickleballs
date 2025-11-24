@@ -40,7 +40,8 @@ enum class EWorldClockBroadcastTiming : uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimeTickedSignature, const FTimestamp&, NewTime);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNightStartedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNightEndedSignature);
 
 
 /**
@@ -53,6 +54,8 @@ class APESACK_PICKLEBALLS_API UWorldClockSubsystem : public UTickableWorldSubsys
 	
 public:
 
+	static bool IsDaytime;
+	
 	static UWorldClockSubsystem* Get(const UObject* WorldContext)
     {
         if (const UWorld* W = WorldContext ? WorldContext->GetWorld() : nullptr)
@@ -82,7 +85,13 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTimeTickedSignature OnTimeTickedDelegate;
-
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnNightStartedSignature OnNightStartedDelegate;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnNightEndedSignature OnNightEndedDelegate;
+	
 	UFUNCTION(BlueprintCallable)
 	void SetTimeScale(float NewTimeScale);
 	
@@ -115,13 +124,17 @@ public:
 
 private:
 	uint32 Day = 0;
-	uint32 Hour = 8;
+	uint32 Hour = 18;
 	uint32 Minute = 0;
 	uint32 Second = 0;
 	FTimestamp CurrentTime;
 
+	uint8 DayHourStart = 6;
+	uint8 NightHourStart = 22;
+	
 	bool bAllowClockTicking = true;
-
+	bool bIsNight = false;
+	
 	float TimeScale = 1000;
 
 	float Milliseconds = 0;
@@ -131,4 +144,5 @@ private:
 
 private:
 	void TryBroadcast(EWorldClockBroadcastTiming TimingType);
+	virtual void Deinitialize() override;
 };

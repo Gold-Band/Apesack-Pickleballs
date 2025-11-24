@@ -6,6 +6,7 @@
 #include "HTN/Task.h"
 #include "MoveTo.generated.h"
 
+class ANpcBase;
 class UHTNComponent;
 /**
  * 
@@ -28,6 +29,8 @@ protected:
 	float OutOfSightDistance = 1000;
 	
 private:
+	int Direction = 1;
+	
 	float StopDistSquared;
 	float GotoDirectDistanceSquared;
 	float OutOfSightDistanceSquared;
@@ -35,14 +38,18 @@ private:
 	bool bOffRadius = false;
 	
 	UPROPERTY()
-	APawn* InstigatorAsPawn = nullptr;
-	UPROPERTY()
 	AActor* TargetActor = nullptr;
+	UPROPERTY()
+	ANpcBase* Npc = nullptr;
 	UPROPERTY()
 	UHTNComponent* HTNDomain = nullptr;
 
 	FWorldStateContainer RequirementContainer;
 	
+	UPROPERTY()
 	FVector TargetLocation;
+	UPROPERTY()
 	FVector DirToTarget;
+	
+	void CheckOrientationToTarget();
 };

@@ -5,7 +5,6 @@
 #include "PaperSpriteComponent.h"
 #include "Components/BoxComponent.h"
 #include "Movement/CircularPawnMovementComponent.h"
-#include "HTN/HTNComponent.h"
 
 // Sets default values
 ANpcBase::ANpcBase()
@@ -13,17 +12,18 @@ ANpcBase::ANpcBase()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
+	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("RootComponent"));
+	SetRootComponent(RootComponent);
+	RootComponent->Mobility = EComponentMobility::Movable;
+	
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	BoxCollider->SetupAttachment(RootComponent);
 
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(BoxCollider);
 
-	ToolSpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Tool"));
-	ToolSpriteComp->SetupAttachment(SpriteComp);
-	
-	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
+	MovementComp->MaxSpeed = 200;
 }
 
 void ANpcBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -31,27 +31,27 @@ void ANpcBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 	TagContainer = CharacterTag.GetSingleTagContainer();
 }
 
-const FClassInfo* ANpcBase::GetClassInfo() const
+void ANpcBase::Flip()
 {
-	if (CharacterClass.IsNull()) return nullptr;
-	return CharacterClass.GetRow<FClassInfo>(TEXT("Class Getter"));
+	AddActorLocalRotation(FRotator(0.f, 180.f, 0.f), false, nullptr, ETeleportType::ResetPhysics);
+	// other stuff
 }
 
-const FToolInfo* ANpcBase::GetCharacterToolInfo() const
+FVector ANpcBase::GetForwardVector() const
 {
-	return GetToolInfo(CharacterTool);
+	return bFwd? GetActorForwardVector() : -1 * GetActorForwardVector();
 }
 
-const FToolInfo* ANpcBase::GetToolInfo(const FDataTableRowHandle& ToolHandle)
+
+float ANpcBase::GetCharacterPreferredRadius() const
 {
-	if (ToolHandle.IsNull()) return nullptr;
-	return ToolHandle.GetRow<FToolInfo>(TEXT("Tool Getter"));
+	return Radius;
 }
 
-void ANpcBase::ForceTask(const TSoftObjectPtr<UTask> Task) const
+float ANpcBase::GetDirectionToTown()
 {
-	HtnDomain->CancelActivePlan();
-	HtnDomain->RunTask(Task);
+	return OriginDirection;
+	//OriginDirection = ADefaultGameMode
 }
 
 void ANpcBase::PostInitializeComponents()
@@ -59,36 +59,23 @@ void ANpcBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	OnTakeAnyDamage.AddDynamic(this, &ANpcBase::OnTakeDamage);
-	
-	// Set tasks based on class
-	const FClassInfo* MyClass = CharacterClass.GetRow<FClassInfo>(TEXT("Getting Class Tasks"));
-	if (!MyClass)
-	{
-		UE_LOG(LogTemp, Error, TEXT("NpcBase.cpp(58): NPC has no class!"))
-		return;
-	}
-	
-	HtnDomain->SetTasks(MyClass->ClassTasks);
+}
 
-	// Set tool based on class
-	if (!CharacterTool.IsNull())
-	{
-		ToolSpriteComp->SetSprite(GetCharacterToolInfo()->ToolSprite);
-	}
-	else if (!MyClass->BaseTool.IsNull())
-	{
-		// set tool to base tool
-		ToolSpriteComp->SetSprite(GetToolInfo(MyClass->BaseTool)->ToolSprite);
-	}
+void ANpcBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	Hp = MaxHp;
+	Radius = GetActorLocation().Size2D();
 }
 
 void ANpcBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
-	class AController* InstigatedBy, AActor* DamageCauser)
+                            class AController* InstigatedBy, AActor* DamageCauser)
 {
 	// on any damage taken..
-	Hp = FMath::Clamp(Hp - Damage, 0, MaxHp);
+	Hp = FMath::Max(Hp - Damage, 0);
 
-	UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
+	//UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
 	
 	if (Hp == 0)
 	{

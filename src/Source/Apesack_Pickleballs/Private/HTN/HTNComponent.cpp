@@ -46,7 +46,7 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 		}
 	}
 
-	if ((LastPlan+=DeltaTime) >= PlanningInterval)
+	if (!bIsRunningPriorityTask && (LastPlan+=DeltaTime) >= PlanningInterval)
 	{
 		LastPlan-=PlanningInterval;
 		
@@ -116,6 +116,19 @@ void UHTNComponent::RunTask(const TSoftObjectPtr<UTask> Task)
 	if (bLogDebug) UE_LOG(LogTemp, Warning, TEXT("Ordered!"))
 }
 
+void UHTNComponent::RunPrimitiveTask(UPrimitiveTask* Task)
+{
+	auto Callback = [&](const FTaskResult& ReturnedObjects)
+	{
+		bIsRunningPriorityTask = false;
+		//WorldStateContainer.SetToMatch(ReturnedObjects.Effect);
+	};
+	bGetNextTask = false;
+	bIsRunningPriorityTask = true;
+	Task->Initialize(GetOwner(), Callback);
+	Task->Run();
+}
+
 void UHTNComponent::UpdateWorldState(const FString& OverrideStateName, bool OverrideValue)
 {
 	WorldStateContainer.SetToMatch(FWorldState(FName(OverrideStateName), OverrideValue));
@@ -129,6 +142,22 @@ void UHTNComponent::UpdateWorldState(const FWorldState& UpdatedWorldState)
 bool UHTNComponent::VerifyWorldState(const FWorldStateContainer& VerifyContainer) const
 {
 	return FWorldStateContainer::HasAllMatchingCommons(WorldStateContainer, VerifyContainer, false);
+}
+
+bool UHTNComponent::IsWaiting() const
+{
+	if (!CurrentTask) return false;
+	return CurrentTask->Name.Equals("Wait");
+}
+
+void UHTNComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (!Planner.IsValid())
+	{
+		SetTasks(Tasks);
+	}
 }
 
 

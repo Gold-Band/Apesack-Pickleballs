@@ -1,5 +1,8 @@
 #include "Buildings/BuildingBase.h"
 
+#include "GameModes/DefaultGameMode.h"
+#include "Managers/NpcDelegates.h"
+
 ABuildingBase::ABuildingBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -17,8 +20,19 @@ void ABuildingBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) co
 void ABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	Hp = 1;
 
 	OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
+
+	// notify the gamemode that we exist
+	GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
+	if (!GameMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABuildingBase(27): GameMode is null!"))
+		return;
+	}
+	GameMode->NewBuilding(this, BuildingType);
 }
 
 void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
@@ -27,13 +41,25 @@ void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class
 	// on any damage taken..
 	Hp = FMath::Clamp(Hp - Damage, 0, MaxHp);
 
-	UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
+	//UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
+	if (Damage > 0 && !bNotifiedBuildersOfDamage && FNpcDelegates::OnBuildingDamaged.IsBound())
+	{
+		bNotifiedBuildersOfDamage = true;
+		FNpcDelegates::OnBuildingDamaged.Broadcast(this);
+	}
 	
 	if (Hp == 0)
 	{
 		if (OnBuildingDestroyed.IsBound()) OnBuildingDestroyed.Broadcast();
 
 		// Local OnDeath functionality
+		GameMode->BuildingDestroyed(this, BuildingType);
+		OnBuildingDestroyed.Clear();
+		OnTakeAnyDamage.RemoveAll(this);
 		Destroy();
+	}
+	if (Hp == MaxHp)
+	{
+		if (FNpcDelegates::OnBuildingRepaired.IsBound()) FNpcDelegates::OnBuildingRepaired.Broadcast(this);
 	}
 }

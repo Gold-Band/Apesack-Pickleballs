@@ -117,7 +117,7 @@ public:
 	TArray<FMethod> Methods;
 };
 
-UCLASS()
+UCLASS(Blueprintable)
 class APESACK_PICKLEBALLS_API UTaskSubsystem: public UGameInstanceSubsystem, public FTickableGameObject
 {
 	GENERATED_BODY()
@@ -125,7 +125,13 @@ class APESACK_PICKLEBALLS_API UTaskSubsystem: public UGameInstanceSubsystem, pub
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+	
+	UFUNCTION(BlueprintPure)
 	static UTaskSubsystem* Get(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure)
+	AGameModeBase* GetGameMode(const UObject* WorldContextObject);
+
 	virtual void Tick(float DeltaTime) override;
 	virtual TStatId GetStatId() const override;
 	virtual ETickableTickType GetTickableTickType() const override;

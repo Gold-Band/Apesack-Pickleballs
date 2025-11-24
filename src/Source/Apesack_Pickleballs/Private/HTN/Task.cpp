@@ -125,6 +125,12 @@ UTaskSubsystem* UTaskSubsystem::Get(const UObject* WorldContextObject)
 	return nullptr;
 }
 
+AGameModeBase* UTaskSubsystem::GetGameMode(const UObject* WorldContextObject)
+{
+	check(WorldContextObject);
+	return WorldContextObject->GetWorld()->GetAuthGameMode();
+}
+
 void UTaskSubsystem::Tick(float DeltaTime)
 {
 	for (int i = 0; i < RunningPrimitiveTasks.Num(); ++i)

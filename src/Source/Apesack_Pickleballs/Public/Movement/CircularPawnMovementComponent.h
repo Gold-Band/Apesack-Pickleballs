@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class APESACK_PICKLEBALLS_API UCircularPawnMovementComponent : public UFloatingPawnMovement
 {
 	GENERATED_BODY()

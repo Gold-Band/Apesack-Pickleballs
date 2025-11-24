@@ -16,8 +16,9 @@ FPlanner::FPlanner(const TArray<TSoftObjectPtr<UTask>>& InTasks, const FWorldSta
 	TArray<FWorldStateMaker> Buffer;
 	for (const auto& Task: Tasks)
 	{
-		if (!Task.LoadSynchronous()) continue;
-		for (const auto& Method : Task.LoadSynchronous()->Methods)
+		UTask* T = Task.LoadSynchronous();
+		check(T);
+		for (const auto& Method : T->Methods)
 		{
 			for (const auto& Step : Method.Steps)
 			{
@@ -63,22 +64,31 @@ FPlanner::EPlanResult FPlanner::MakePlan(FHTNPlan& OutPlan) const
 {
 	if (Tasks.IsEmpty()) return EPlanResult::NoTasks;
 	
-	// plannign time
 	bool bIsValidTask = false;
 	OutPlan.Priority = -1;
-	for (const auto& Task : Tasks) // highest priority == 0
+	
+	// for each high level task (data asset) available to us...
+	for (auto Task : Tasks) // highest priority == 0
 	{
 		OutPlan.Priority++;
-		if (Task.IsNull()) continue;
-
-		for (const auto& Method : Task.LoadSynchronous()->Methods)
+		
+		// is this even valid?
+		auto T = Task.LoadSynchronous();
+		if (!T)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Planner.cpp(73): Task is null!!"))
+			continue;
+		}
+		
+		// for each method in this high level task...
+		for (const auto& Method : T->Methods) //
 		{
 			bool bIsValidMethod = true;
 
 			FWorldStateContainer Hypothetical = WorldStates? *WorldStates: FWorldStateContainer();
 			if (WorldStates) Hypothetical.MergeUnique(TasksStates);
 
-			for (const auto& Step : Method.Steps)
+			for (auto Step : Method.Steps)
 			{
 				// is valid step?
 				if (!Step)

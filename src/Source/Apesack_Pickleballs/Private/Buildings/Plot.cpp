@@ -1,5 +1,6 @@
 #include "Buildings/Plot.h"
 #include "PaperSpriteComponent.h"
+#include "Buildings/BuildingBase.h"
 #include "Components/BoxComponent.h"
 
 APlot::APlot()
@@ -24,4 +25,12 @@ void APlot::SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBui
 
 	BuildingActor = GetWorld()->SpawnActor(BuildingActorClass, &GetTransform());
 	Building = BuildingInfo;
+	ABuildingBase* Base = Cast<ABuildingBase>(BuildingActor);
+	if (Base) Base->OnBuildingDestroyed.AddDynamic(this, &APlot::ClearPlot);
+}
+
+void APlot::ClearPlot()
+{
+	BuildingActor = nullptr;
+	Building = nullptr;
 }
