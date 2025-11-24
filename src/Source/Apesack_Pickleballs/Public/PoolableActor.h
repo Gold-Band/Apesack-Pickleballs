@@ -26,7 +26,7 @@ class APESACK_PICKLEBALLS_API IPoolableActor
 	
 public:
 	
-	virtual FOnPooledActorSelfDisabled& GetOnActorDisabled();
-	virtual void Disable();
-	virtual void Enable();
+	virtual FOnPooledActorSelfDisabled& GetOnActorDisabled() = 0;
+	virtual void Disable() = 0;
+	virtual void Enable() = 0;
 };

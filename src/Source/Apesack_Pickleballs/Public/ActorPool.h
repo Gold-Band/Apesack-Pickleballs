@@ -10,9 +10,9 @@
  * 
  */
 template <typename T>
-class APESACK_PICKLEBALLS_API TActorPool
+class TActorPool
 {
-	static_assert(TIsDerivedFrom<T, AActor>::IsDerived, "TActorPool requires an AActor-derived type.");
+	//static_assert(TIsDerivedFrom<T, AActor>::IsDerived, "TActorPool requires an AActor-derived type.");
 
 public:
 	TActorPool() = default;
