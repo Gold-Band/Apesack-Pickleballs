@@ -2,7 +2,10 @@
 
 #include "Tools/LevelResizer.h"
 
+#if WITH_EDITOR
 #include "Editor.h"
+#endif
+
 #include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Camera/CameraActor.h"
 #include "Engine/StaticMeshActor.h"
