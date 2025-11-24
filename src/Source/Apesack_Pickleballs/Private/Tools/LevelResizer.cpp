@@ -11,16 +11,22 @@
 #include "EngineUtils.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UObject/ObjectSaveContext.h"
+#endif
+
 
 // Sets default values for this component's properties
 ALevelResizer::ALevelResizer()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = false;\
+	
+#if WITH_EDITOR
 	FEditorDelegates::PostSaveWorldWithContext.AddUObject(this, &ALevelResizer::OnSave);
 	FCoreUObjectDelegates::OnObjectPropertyChanged.AddUObject(this, &ALevelResizer::OnContentMoved);
 	FEditorDelegates::OnMapOpened.AddUObject(this, &ALevelResizer::OnLoad);
+#endif
 }
 
+#if WITH_EDITOR
 
 void ALevelResizer::AlignNpcsToPlayerRadius()
 {

@@ -15,9 +15,9 @@ class APESACK_PICKLEBALLS_API ALevelResizer : public AActor
 	GENERATED_BODY()
 
 public:	
-#if WITH_EDITOR
 	// Sets default values for this component's properties
 	ALevelResizer();
+#if WITH_EDITOR
 	
 	UFUNCTION(BlueprintCallable, CallInEditor, Category="LevelResizer")
 	void AlignNpcsToPlayerRadius();
