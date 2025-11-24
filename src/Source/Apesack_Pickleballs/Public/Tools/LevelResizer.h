@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#if WITH_EDITORONLY_DATA
 
 #include "CoreMinimal.h"
 #include "LevelResizer.generated.h"
@@ -21,9 +22,7 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category="LevelResizer")
 	void AlignNpcsToPlayerRadius();
 	
-#if WITH_EDITOR
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
 protected:
 
 	// scale 1 = diameter of 1m
@@ -61,3 +60,4 @@ protected:
 	TArray<AActor*> AllNpcs;
 	
 };
+#endif

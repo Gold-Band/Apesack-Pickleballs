@@ -4,8 +4,6 @@
 
 #if WITH_EDITOR
 #include "Editor.h"
-#endif
-
 #include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Camera/CameraActor.h"
 #include "Engine/StaticMeshActor.h"
@@ -23,7 +21,6 @@ ALevelResizer::ALevelResizer()
 	FEditorDelegates::OnMapOpened.AddUObject(this, &ALevelResizer::OnLoad);
 }
 
-#if WITH_EDITOR
 
 void ALevelResizer::AlignNpcsToPlayerRadius()
 {
