@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#if WITH_EDITORONLY_DATA
 
 #include "CoreMinimal.h"
 #include "LevelResizer.generated.h"
@@ -16,6 +15,7 @@ class APESACK_PICKLEBALLS_API ALevelResizer : public AActor
 	GENERATED_BODY()
 
 public:	
+#if WITH_EDITOR
 	// Sets default values for this component's properties
 	ALevelResizer();
 	
@@ -23,6 +23,7 @@ public:
 	void AlignNpcsToPlayerRadius();
 	
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 protected:
 
 	// scale 1 = diameter of 1m
@@ -35,6 +36,8 @@ protected:
 	UPROPERTY(EditAnywhere, meta=(Units="Meters"), meta=(DisplayName="Plots Offset From Cylinder Edge"))
 	float PlotsOffset = 10;
 	
+	
+#if WITH_EDITOR
 	void UpdateMapSizeAndContentPlacement();
 	void UpdatePlayerPosition();
 	void UpdatePlotPositions();
@@ -42,6 +45,7 @@ protected:
 	void OnSave(UWorld* World, FObjectPostSaveContext ObjectPostSaveContext);
 	void OnContentMoved(UObject* Object, FPropertyChangedEvent& Event);
 	void RegisterLevelContent(TMap<AActor*, float>& OutLevelContent);
+#endif
 	
 	UPROPERTY(EditAnywhere)
 	AStaticMeshActor* GroundCylinder;
@@ -60,4 +64,3 @@ protected:
 	TArray<AActor*> AllNpcs;
 	
 };
-#endif
