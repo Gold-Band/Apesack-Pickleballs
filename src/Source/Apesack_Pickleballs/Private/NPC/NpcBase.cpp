@@ -57,8 +57,9 @@ float ANpcBase::GetDirectionToTown()
 void ANpcBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
 	OnTakeAnyDamage.AddDynamic(this, &ANpcBase::OnTakeDamage);
+
+
 }
 
 void ANpcBase::BeginPlay()
@@ -68,20 +69,30 @@ void ANpcBase::BeginPlay()
 	Hp = MaxHp;
 	Radius = GetActorLocation().Size2D();
 }
-
 void ANpcBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
-                            class AController* InstigatedBy, AActor* DamageCauser)
+	class AController* InstigatedBy, AActor* DamageCauser)
 {
 	// on any damage taken..
-	Hp = FMath::Max(Hp - Damage, 0);
+	//Hp = FMath::Max(Hp - Damage, 0);
 
 	//UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
-	
-	if (Hp == 0)
-	{
-		if (OnDeath.IsBound()) OnDeath.Broadcast();
+
+	//if (Hp == 0)
+	//{
+	//	if (OnDeath.IsBound())
+		//	OnDeath.Broadcast();
 
 		// Local OnDeath functionality
-		Destroy();
-	}
+	//	Destroy();
+//	}
+	//else
+	//{
+	//	return;   // <-- simply returns from the function
+//	}
 }
+void ANpcBase::ApplyDamageListener(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
+	class AController* InstigatedBy, AActor* DamageCauser)
+{
+
+}
+
