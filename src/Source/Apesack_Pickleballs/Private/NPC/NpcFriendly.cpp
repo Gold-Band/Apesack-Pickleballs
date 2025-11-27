@@ -91,11 +91,6 @@ AWall* ANpcFriendly::GetGuardingWall() const
 	return GuardingWall;
 }
 
-bool ANpcFriendly::HasGuardingWall() const
-{
-	return GuardingWall != nullptr;
-}
-
 bool ANpcFriendly::IsInProperZone() const
 {
 	if (Zone == Zone_Archer && MyClassType == Class_Ranger) return true;
