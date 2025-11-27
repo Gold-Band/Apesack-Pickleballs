@@ -64,7 +64,6 @@ public:
 	void OnBuildingFixed(ABuildingBase* FixedBuilding);
 	
 	AWall* GetGuardingWall() const;
-	bool HasGuardingWall() const;
 	
 	UPROPERTY(EditAnywhere, Category="Default")
 	TEnumAsByte<EDefendSide> DefendSide = Left;
