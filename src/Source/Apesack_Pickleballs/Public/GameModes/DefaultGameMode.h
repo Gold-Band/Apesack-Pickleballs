@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "ActorPool.h"
 #include "GameFramework/GameModeBase.h"
+#include "WorldClock/WorldClockSubsystem.h"
 #include "DefaultGameMode.generated.h"
 
+struct FTimestamp;
 class UNpcManager;
 class UBuildingsManager;
 enum EBuildingType : uint8;
@@ -57,6 +59,16 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	AActor* GetArrow();
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bEnableClock = true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FTimestamp GameStartTime = FTimestamp(0,8,0,0);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GameTimeScale = 1000.f;
 	
 private:
 	virtual void BeginPlay() override;
