@@ -22,7 +22,13 @@ public:
 	UE::Math::TBox<double> GetArcherDefendBox() const;
 	UE::Math::TBox<double> GetMeleeDefendBox() const;
 	
+protected:
+	virtual void BeginPlay() override;
+	
 private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UStaticMeshComponent> WallMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UZone> MeleeDefendZone;
