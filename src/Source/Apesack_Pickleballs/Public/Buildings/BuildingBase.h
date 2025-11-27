@@ -53,6 +53,7 @@ protected:
 	
 	TObjectPtr<ADefaultGameMode> GameMode;
 private:
+	UPROPERTY(visibleAnywhere, Category="Building")
 	float Hp;
 	
 	bool bNotifiedBuildersOfDamage;
