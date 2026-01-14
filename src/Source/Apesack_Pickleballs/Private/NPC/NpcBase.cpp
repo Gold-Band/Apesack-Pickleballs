@@ -12,15 +12,12 @@ ANpcBase::ANpcBase()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
-	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("RootComponent"));
-	SetRootComponent(RootComponent);
-	RootComponent->Mobility = EComponentMobility::Movable;
+	Root = CreateDefaultSubobject<USceneComponent>(FName("Root"));
+	SetRootComponent(Root);
+	Root->Mobility = EComponentMobility::Movable;
 	
-	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
-	BoxCollider->SetupAttachment(RootComponent);
-
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
-	SpriteComp->SetupAttachment(BoxCollider);
+	SpriteComp->SetupAttachment(Root);
 
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
 	MovementComp->MaxSpeed = 200;
@@ -57,8 +54,9 @@ float ANpcBase::GetDirectionToTown()
 void ANpcBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
 	OnTakeAnyDamage.AddDynamic(this, &ANpcBase::OnTakeDamage);
+
+
 }
 
 void ANpcBase::BeginPlay()
@@ -68,20 +66,30 @@ void ANpcBase::BeginPlay()
 	Hp = MaxHp;
 	Radius = GetActorLocation().Size2D();
 }
-
 void ANpcBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
-                            class AController* InstigatedBy, AActor* DamageCauser)
+	class AController* InstigatedBy, AActor* DamageCauser)
 {
 	// on any damage taken..
-	Hp = FMath::Max(Hp - Damage, 0);
+	//Hp = FMath::Max(Hp - Damage, 0);
 
 	//UE_LOG(LogTemp, Warning, TEXT("On Damage Taken, HP = %f"), Hp);
-	
-	if (Hp == 0)
-	{
-		if (OnDeath.IsBound()) OnDeath.Broadcast();
+
+	//if (Hp == 0)
+	//{
+	//	if (OnDeath.IsBound())
+		//	OnDeath.Broadcast();
 
 		// Local OnDeath functionality
-		Destroy();
-	}
+	//	Destroy();
+//	}
+	//else
+	//{
+	//	return;   // <-- simply returns from the function
+//	}
 }
+void ANpcBase::ApplyDamageListener(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
+	class AController* InstigatedBy, AActor* DamageCauser)
+{
+
+}
+

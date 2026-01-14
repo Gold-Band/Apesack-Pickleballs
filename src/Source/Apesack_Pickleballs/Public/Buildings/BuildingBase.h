@@ -50,9 +50,14 @@ protected:
 	float MaxHp = 10.f;
 	
 	//float Priority;
-	
+	UPROPERTY()
 	TObjectPtr<ADefaultGameMode> GameMode;
+	
 private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<USceneComponent> Root;
+	
+	UPROPERTY(visibleAnywhere, Category="Building")
 	float Hp;
 	
 	bool bNotifiedBuildersOfDamage;

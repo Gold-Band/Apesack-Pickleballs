@@ -7,8 +7,8 @@ ABuildingBase::ABuildingBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("RootComponent"));
-	SetRootComponent(RootComponent);
+	Root = CreateDefaultSubobject<USceneComponent>(FName("RootComponent"));
+	SetRootComponent(Root);
 	RootComponent->Mobility = EComponentMobility::Static;
 }
 

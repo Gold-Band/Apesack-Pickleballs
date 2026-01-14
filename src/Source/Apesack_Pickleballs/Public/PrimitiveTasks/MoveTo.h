@@ -17,7 +17,7 @@ class APESACK_PICKLEBALLS_API UMoveTo : public UPrimitiveTask
 	GENERATED_BODY()
 
 public:
-	virtual void Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback) override;
+	virtual void Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback, const FTaskResult& PreviousTaskResult) override;
 	virtual void Tick(float DeltaTime) override;
 	
 protected:

@@ -4,10 +4,6 @@
 #include "PrimitiveTasks/CheckRadius.h"
 #include "Movement/CircularPawnMovementComponent.h"
 
-void UCheckRadius::Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback)
-{
-	Super::Initialize(InstigatorActor, OnCompleteCallback);
-}
 
 void UCheckRadius::Tick(float DeltaTime)
 {

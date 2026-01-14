@@ -90,7 +90,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
-	float MaxHp = 3.f;
+	float MaxHp = 300.f;
 	
 private:
 	float Hp;
@@ -107,11 +107,15 @@ private:
 	FGameplayTag CharacterTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UBoxComponent> BoxCollider;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
+
+	UFUNCTION()
+	void ApplyDamageListener(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
+		class AController* InstigatedBy, AActor* DamageCauser);
+
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<USceneComponent> Root;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UPaperSpriteComponent> SpriteComp;

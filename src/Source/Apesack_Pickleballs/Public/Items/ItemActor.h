@@ -31,4 +31,8 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FGameplayTagContainer ItemTags;
+
+	UPROPERTY(Category=Sprite, VisibleAnywhere, BlueprintReadOnly, meta=(ExposeFunctionCategories="Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess="true"))
+	TObjectPtr<UPaperSpriteComponent> RenderComponent;
+
 };

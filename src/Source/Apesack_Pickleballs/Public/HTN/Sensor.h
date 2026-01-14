@@ -4,6 +4,7 @@
 #include "WorldState.h"
 #include "Sensor.generated.h"
 
+class USensorManager;
 class UHTNComponent;
 // A sensor for a WorldState. It directly controls the value of its target WorldState
 UCLASS(BlueprintType, Blueprintable)
@@ -35,12 +36,12 @@ public:
 	
 	virtual void Tick();
 
-	bool ShouldTick() const;
+	bool ShouldTick(float DeltaTime);
 
 	float TickInterval;
 
 protected:
-	double LastTick;
+	float WaitTime;
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UHTNComponent> Owner;
@@ -49,6 +50,13 @@ protected:
 	void ReceiveTick();
 
 	FWorldState WorldState;
+	
+	UPROPERTY()
+	TObjectPtr<UWorld> WorldContext;
+	
+	UPROPERTY()
+	TObjectPtr<USensorManager> SensorManager;
+	
 };
 
 USTRUCT(BlueprintType)

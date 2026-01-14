@@ -106,7 +106,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetTime(const uint8 NewDay, const uint8 NewHour, const uint8 NewMinute, const uint8 NewSecond);
-
+	
 	UFUNCTION(BlueprintPure)
 	FTimestamp GetTime() const;
 

@@ -1,38 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Sensors/ActorSensor.h"
-#include "Buildings/BuildingBase.h"
 #include "HTN/HTNComponent.h"
-#include "Items/ItemActor.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "NPC/NpcBase.h"
+#include "Managers/SensorManager.h"
+
 
 void UActorSensor::Tick()
 {
 	Super::Tick();
 
+	TRACE_CPUPROFILER_EVENT_SCOPE_STR("ItemSensor")
+
 	WorldState.Value = false;
 
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
-	TArray<AActor*> OutActors;
-
-	if (!FilterClass) FilterClass = AActor::StaticClass();
-
-	// check if any (filterClass) type actors are in the radius
-	if (UKismetSystemLibrary::SphereOverlapActors(Owner->GetWorld(), Owner->GetOwner()->GetActorLocation(), SenseRadius,ObjectTypes, FilterClass, TArray<AActor*>(),OutActors))
+	const auto Result = SensorManager->FindNearestWithTag(ObjectTag, Owner->GetOwner()->GetActorLocation());
+	if (Result)
 	{
-		FHitResult HitResult;
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(Owner->GetOwner());
-		Params.bTraceComplex = false;                
-		Params.bReturnPhysicalMaterial = false;
-		const FVector StartLocation = Owner->GetOwner()->GetActorLocation() + FVector::UpVector * 40.f;
-		
+		WorldState.Value = true;
+		ReceiveOnSensed();
+	}
+	
+	Owner->UpdateWorldState(WorldState);
+
+	/*if (!FilterClass) FilterClass = AActor::StaticClass();
 		for (const auto& Actor : OutActors)
 		{
 
@@ -72,13 +61,6 @@ void UActorSensor::Tick()
 					SenseSuccess = true;
 				}
 			}
-
-			if (SenseSuccess)
-			{
-				WorldState.Value = true;
-				ReceiveOnSensed();
-			}
 		}
-	}
-	Owner->UpdateWorldState(WorldState);
+	}*/
 }

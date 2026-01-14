@@ -1,22 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PrimitiveTasks/GetOuterWallDefensePosition.h"
-
 #include "Buildings/Wall.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "NPC/NpcFriendly.h"
 
-void UGetOuterWallDefensePosition::Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback)
-{
-	Super::Initialize(InstigatorActor, OnCompleteCallback);
-	
-	InstigatorAsNpc = Cast<ANpcFriendly>(InstigatorActor);
-}
-
 void UGetOuterWallDefensePosition::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	InstigatorAsNpc = Cast<ANpcFriendly>(Instigator);
 	FVector GotoLocation;
 	
 	if (Zone == 1) GotoLocation = UKismetMathLibrary::RandomPointInBoundingBox_Box(InstigatorAsNpc->GetGuardingWall()->GetMeleeDefendBox());

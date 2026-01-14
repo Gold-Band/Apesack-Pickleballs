@@ -1,41 +1,27 @@
 #include "HTN/Sensor.h"
-
 #include "HTN/HTNComponent.h"
+#include "Managers/SensorManager.h"
 
 void USensor::Initialize(UHTNComponent* OwnerDomain)
 {
 	WorldState = WorldStateMaker.ToWorldState();
 	Owner = OwnerDomain;
+	WorldContext = Owner->GetWorld();
+	SensorManager = USensorManager::Get(WorldContext);
 }
 
 void USensor::Tick()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Sensor::Tick() - %s"), *WorldState.Name.ToString())
-	if (TickInterval>0 && GEngine)
+	if (TickInterval>0)
 	{
-		const UWorld* World = GEngine->GetWorldFromContextObject(Owner,EGetWorldErrorMode::LogAndReturnNull);
-		if (World)
-		{
-			LastTick = World->GetTimeSeconds();
-		}
+		WaitTime = 0;
 	}
 	ReceiveTick();
 }
 
-bool USensor::ShouldTick() const
+bool USensor::ShouldTick(float DeltaTime)
 {
 	if (TickInterval==0) return true;
 
-	// if no world, no GetTimeSeconds()
-	if (GEngine)
-	{
-		const UWorld* World = GEngine->GetWorldFromContextObject(Owner,EGetWorldErrorMode::LogAndReturnNull);
-		if (!World)
-		{
-			return false;
-		}
-	
-		return World->GetTimeSeconds() - LastTick >= TickInterval;
-	}
-	return false;
+	return (WaitTime+=DeltaTime) >= TickInterval;
 }

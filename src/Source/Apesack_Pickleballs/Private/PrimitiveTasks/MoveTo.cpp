@@ -1,20 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PrimitiveTasks/MoveTo.h"
-
 #include "HTN/HTNComponent.h"
 #include "NPC/NpcBase.h"
 
-
-void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback)
+void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnCompleteCallback,
+	const FTaskResult& PreviousTaskResult)
 {
-	Super::Initialize(InstigatorActor, OnCompleteCallback);
-
+	Super::Initialize(InstigatorActor, OnCompleteCallback, PreviousTaskResult);
+	
 	Npc = Cast<ANpcBase>(InstigatorActor);
 	
-	const FTaskResult PreviousResult = GetPreviousTaskResult();
-	TargetActor = PreviousResult.TargetActor;
+	TargetActor = PreviousTaskResult.TargetActor;
 	if (TargetActor)
 	{
 		TargetLocation = TargetActor->GetActorLocation();
@@ -22,7 +19,7 @@ void UMoveTo::Initialize(AActor* InstigatorActor, const FTaskCallback& OnComplet
 	}
 	else
 	{
-		TargetLocation = PreviousResult.PointOfInterest;
+		TargetLocation = PreviousTaskResult.PointOfInterest;
 		CheckOrientationToTarget();
 	}
 	

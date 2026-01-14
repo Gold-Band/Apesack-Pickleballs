@@ -4,9 +4,13 @@
 #include "Buildings/Wall.h"
 
 #include "Buildings/Zone.h"
+#include "GameModes/DefaultGameMode.h"
 
 AWall::AWall()
 {
+	WallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WallMesh"));
+	WallMesh->SetupAttachment(RootComponent);
+	
 	MeleeDefendZone = CreateDefaultSubobject<UZone>(TEXT("MeleeZone"));
 	MeleeDefendZone->SetupAttachment(RootComponent);
 	MeleeDefendZone->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
@@ -32,4 +36,17 @@ UE::Math::TBox<double> AWall::GetArcherDefendBox() const
 UE::Math::TBox<double> AWall::GetMeleeDefendBox() const
 {
 	return MeleeDefendZone->Bounds.GetBox();
+}
+
+void AWall::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), GameMode->WorldOriginNormal);
+	if (Angle > 0)
+	{
+		//UE_LOG(LogTemp, Error, TEXT("flip"));
+		SetActorScale3D(FVector(1,-1,1));
+		//RootComponent->AddLocalRotation(FRotator(0, 0, 180), false, nullptr, ETeleportType::TeleportPhysics);
+	}
 }

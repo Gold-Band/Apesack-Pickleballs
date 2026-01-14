@@ -40,9 +40,7 @@ public:
 	{
 		NoTasks,
 		Success,
-		Failed,
-		InProgress,
-		LowerPriority
+		Failed
 	};
 
 	
@@ -50,7 +48,7 @@ public:
 
 	// Requests a new plan. OutPlan is only modified if the new plan has higher priority
 	// OutPlan - Plug current-use plan
-	bool NewPlan(FHTNPlan& OutPlan, bool bLogDebug = false) const;
+	bool RequestPlan(FHTNPlan& OutPlan, bool bLogDebug = false) const;
 	
 private:
 	// makes a new plan
