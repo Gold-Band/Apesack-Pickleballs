@@ -21,9 +21,9 @@ void ABuildingBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Hp = 1;
+	//Hp = 1;
 
-	OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
+	//OnTakeAnyDamage.AddDynamic(this, &ABuildingBase::OnTakeDamage);
 
 	// notify the gamemode that we exist
 	GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
@@ -35,6 +35,7 @@ void ABuildingBase::BeginPlay()
 	GameMode->NewBuilding(this, BuildingType);
 }
 
+/*
 void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
                              class AController* InstigatedBy, AActor* DamageCauser)
 {
@@ -63,3 +64,4 @@ void ABuildingBase::OnTakeDamage(AActor* DamagedActor, float Damage, const class
 		if (FNpcDelegates::OnBuildingRepaired.IsBound()) FNpcDelegates::OnBuildingRepaired.Broadcast(this);
 	}
 }
+*/

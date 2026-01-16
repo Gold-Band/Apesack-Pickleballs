@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class APESACK_PICKLEBALLS_API UListItemObject : public UObject
 {
 	GENERATED_BODY()

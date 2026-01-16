@@ -15,7 +15,7 @@ UCLASS()
 class APESACK_PICKLEBALLS_API UTxtListObject : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
-
+	
 protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	
