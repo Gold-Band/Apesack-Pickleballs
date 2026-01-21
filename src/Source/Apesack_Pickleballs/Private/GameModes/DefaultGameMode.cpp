@@ -3,6 +3,7 @@
 
 #include "GameModes/DefaultGameMode.h"
 
+#include "Buildings/ArcherTower.h"
 #include "Buildings/NpcShop.h"
 #include "NPC/NpcName.h"
 #include "Buildings/Plot.h"
@@ -105,6 +106,8 @@ void ADefaultGameMode::NewBuilding(ABuildingBase* Building, const EBuildingType 
 		if (FNpcDelegates::OnNewBuilding.IsBound()) FNpcDelegates::OnNewBuilding.Broadcast(Building);
 		break;
 	case ArcherTower:
+		BuildingsManager->AddTower(Cast<AArcherTower>(Building));
+		if (FNpcDelegates::OnNewBuilding.IsBound()) FNpcDelegates::OnNewBuilding.Broadcast(Building);
 		break;
 	case Shop:
 		break;

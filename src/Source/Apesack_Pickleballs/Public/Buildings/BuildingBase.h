@@ -46,8 +46,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess=true), Category="Building")
 	FGameplayTag BuildingTag;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
-	float MaxHp = 10.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
+	//float MaxHp = 10.f;
 	
 	//float Priority;
 	UPROPERTY()
@@ -62,7 +62,7 @@ private:
 	
 	bool bNotifiedBuildersOfDamage;
 	
-	UFUNCTION()
-	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	//	UFUNCTION()
+	//void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 };
