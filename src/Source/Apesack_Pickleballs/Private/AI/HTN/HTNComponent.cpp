@@ -10,7 +10,8 @@ UHTNComponent::UHTNComponent()
 
 void UHTNComponent::AssignTask(const FTask& Task, int Priority)
 {
-	Tasks.Insert(Task, Priority);
+	if (Priority >= 0) Tasks.Insert(Task, Priority);
+	else Tasks.Add(Task);
 }
 
 void UHTNComponent::UpdatePlan()

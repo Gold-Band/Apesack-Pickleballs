@@ -13,7 +13,7 @@ FMoveTimedAction::FMoveTimedAction(ANpc* OwnerNpc)
 
 bool FMoveTimedAction::IsExecutable() const
 {
-	return true;
+	return Owner->bCanMove;
 }
 
 void FMoveTimedAction::Execute(float DeltaTime)

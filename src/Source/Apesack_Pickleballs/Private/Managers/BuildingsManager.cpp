@@ -1,7 +1,5 @@
 #include "Managers/BuildingsManager.h"
-#include "Buildings/BuildingBase.h"
-#include "Buildings/Wall.h"
-#include "Managers/NpcDelegates.h"
+#include "Buildings/Building.h"
 
 UBuildingsManager::UBuildingsManager()
 {
@@ -29,48 +27,101 @@ void UBuildingsManager::OnWorldBeginPlay(UWorld& InWorld)
 	
 }
 
-void UBuildingsManager::RemoveWall(AWall* Wall)
+void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType)
 {
-	const int WallIndex = AllWalls.Find(Wall);
-	AllWalls.RemoveAt(WallIndex);
+	TArray<ABuilding*>* ModifyArray;
 	
-	if (AllWalls.IsEmpty()) return;
-	
-	if (WallIndex == 0 && FNpcDelegates::OnFurthestLeftWallChanged.IsBound()) FNpcDelegates::OnFurthestLeftWallChanged.Broadcast(AllWalls[0]);
-	if (WallIndex == AllWalls.Num()-1 && FNpcDelegates::OnFurthestRightWallChanged.IsBound()) FNpcDelegates::OnFurthestRightWallChanged.Broadcast(AllWalls.Last());
-}
-
-void UBuildingsManager::AddWall(AWall* Wall)
-{
-	// insert in array based on distance
-
-	bool bInsterted = false;
-	for (int i = 0; i < AllWalls.Num(); ++i)
+	if (BuildingType == EBuildingType::Wall)
 	{
-		if (Wall->DistanceFromOrigin < AllWalls[i]->DistanceFromOrigin)
+		ModifyArray = &AllWalls;
+	}
+	else
+	{
+		ModifyArray = &AllTowers;
+	}
+	
+	bool bInserted = false;
+	// insert in array based on distance
+	for (int i = 0; i < ModifyArray->Num(); ++i)
+	{
+		if (NewBuilding->DistanceFromOrigin < (*ModifyArray)[i]->DistanceFromOrigin)
 		{
-			AllWalls.Insert(Wall, i);
-			bInsterted = true;
+			ModifyArray->Insert(NewBuilding, i);
+			bInserted = true;
 			break;
 		}
 	}
-	if (!bInsterted) AllWalls.Add(Wall);
+	if (!bInserted) ModifyArray->Add(NewBuilding);
 	
-	if (AllWalls[0]->DistanceFromOrigin < 0 && FNpcDelegates::OnFurthestLeftWallChanged.IsBound()) FNpcDelegates::OnFurthestLeftWallChanged.Broadcast(AllWalls[0]);
-	if (AllWalls.Last()->DistanceFromOrigin > 0 && FNpcDelegates::OnFurthestRightWallChanged.IsBound())FNpcDelegates::OnFurthestRightWallChanged.Broadcast(AllWalls.Last());
-	//UE_LOG(LogTemp, Warning, TEXT("NumWalls = %i  |  Leftmost = %s  |  Rightmost = %s"), AllWalls.Num(), *AllWalls[0]->GetActorLabel(), *AllWalls.Last()->GetActorLabel())
+	const FString Type = BuildingType == EBuildingType::Wall? "Walls" : "Towers";
+	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), *Type, ModifyArray->Num(), *(*ModifyArray)[0]->GetActorLabel(), *ModifyArray->Last()->GetActorLabel())
 }
 
-void UBuildingsManager::AddTower(ABuildingBase* Tower)
+void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType)
 {
-	UE_LOG(LogTemp, Warning, TEXT("New Tower!"))
+	TArray<ABuilding*>* ModifyArray;
+	
+	if (BuildingType == EBuildingType::Wall)
+	{
+		ModifyArray = &AllWalls;
+	}
+	else
+	{
+		ModifyArray = &AllTowers;
+	}
+	
+	ModifyArray->Remove(OldBuilding);
+	//const int WallIndex = ModifyArray->Find(OldBuilding);
+	//ModifyArray->RemoveAt(WallIndex);
 }
 
-void UBuildingsManager::AddShop(ABuildingBase* Shop)
+AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide Side)
 {
+	TArray<ABuilding*>* SearchArray;
+	ABuilding* Result = nullptr;
+	
+	if (Type == EBuildingType::Wall)
+	{
+		SearchArray = &AllWalls;
+	}
+	else
+	{
+		SearchArray = &AllTowers;
+	}
+	
+	
+	// for now
+	return Cast<AActor>((*SearchArray)[0]);
+	
+	
+	
+	// test to make sure they are on the correct side
+	if (Side == EOriginSide::Right)
+	{
+		Result = SearchArray->Last();
+		if (Result->DistanceFromOrigin > 0)
+		{
+			return Result;
+		}
+	}
+	else
+	{
+		Result = (*SearchArray)[0];
+		if (Result->DistanceFromOrigin < 0)
+		{
+			return Result;
+		}
+	}
+		
+	return nullptr;
 }
 
-void UBuildingsManager::SetWorldOrigin(const FVector& NewWorldOrigin)
+bool UBuildingsManager::TowersExist() const
 {
-	WorldOrigin = NewWorldOrigin;
+	return AllTowers.Num() > 0;
+}
+
+bool UBuildingsManager::WallsExist() const
+{
+	return AllWalls.Num() > 0;
 }

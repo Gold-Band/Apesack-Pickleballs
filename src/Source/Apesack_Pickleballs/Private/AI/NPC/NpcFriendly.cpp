@@ -9,7 +9,7 @@ ANpcFriendly::ANpcFriendly()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
-	// Follow
+	// Follow 
 	FollowTask.Actions.Add(&TargetPlayerAction);
 	FollowTask.Actions.Add(&MoveToAction);
 	//HtnDomain->AssignTask(FollowTask, 0);
@@ -19,17 +19,24 @@ ANpcFriendly::ANpcFriendly()
 	MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	MeleeAttackTask.Actions.Add(&CooldownAction);
-	//HtnDomain->AssignTask(MeleeAttackTask, 0);
+	HtnDomain->AssignTask(MeleeAttackTask);
+	
+	// Occupy Tower
+	OccupyTowerTask.Actions.Add(&TargetFarthestTowerAction);
+	OccupyTowerTask.Actions.Add(&MoveToAction);
+	OccupyTowerTask.Actions.Add(&OccupyTowerAction);
+	HtnDomain->AssignTask(OccupyTowerTask);
+	
 	
 	// Ranged Attack
 	RangedAttackTask.Actions.Add(&TargetNearestEnemyAction);
 	RangedAttackTask.Actions.Add(&RangedAttackAction);
 	RangedAttackTask.Actions.Add(&CooldownAction);
-	HtnDomain->AssignTask(RangedAttackTask, 0);
+	HtnDomain->AssignTask(RangedAttackTask);
 	
 	// Wander
 	WanderTask.Actions.Add(&MoveTimedAction);
-	HtnDomain->AssignTask(WanderTask, 1);
+	HtnDomain->AssignTask(WanderTask);
 }
 
 void ANpcFriendly::BeginPlay()

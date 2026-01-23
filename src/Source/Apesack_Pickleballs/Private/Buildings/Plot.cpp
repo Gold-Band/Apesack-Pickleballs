@@ -1,6 +1,6 @@
 #include "Buildings/Plot.h"
 #include "PaperSpriteComponent.h"
-#include "Buildings/BuildingBase.h"
+#include "Buildings/Building.h"
 #include "Components/BoxComponent.h"
 
 APlot::APlot()
@@ -14,23 +14,12 @@ APlot::APlot()
 	SpriteComp->SetupAttachment(BoxCollider);
 }
 
-void APlot::SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBuildingInfo* BuildingInfo)
+void APlot::SpawnBuilding(int IndexOfBuilding)
 {
-	if (!BuildingActorClass)
-	{
-		UE_LOG(LogTemp, Error, TEXT("BuildingInfo is null!"))
-		return;
-	}
-	if (BuildingActor) BuildingActor->Destroy();
-
-	BuildingActor = GetWorld()->SpawnActor(BuildingActorClass, &GetTransform());
-	Building = BuildingInfo;
-	ABuildingBase* Base = Cast<ABuildingBase>(BuildingActor);
-	if (Base) Base->OnBuildingDestroyed.AddDynamic(this, &APlot::ClearPlot);
-}
-
-void APlot::ClearPlot()
-{
-	BuildingActor = nullptr;
-	Building = nullptr;
+	//hide sprite
+	SpriteComp->SetVisibility(false);
+	
+	// spawn building actor
+	UClass* Class = CompatibleBuildings[IndexOfBuilding]->StaticClass();
+	BuildingActor = Cast<ABuilding>(GetWorld()->SpawnActor(Class));
 }

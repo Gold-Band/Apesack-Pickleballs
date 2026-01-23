@@ -3,15 +3,13 @@
 
 #include "UI/OptionsWidget.h"
 
-#include "Buildings/Plot.h"
 #include "Components/Image.h"
 #include "Components/VerticalBox.h"
-#include "AI/NPC/NpcFriendly.h"
 #include "UI/GridNode.h"
 
 
-template void UOptionsWidget::Setup<FToolInfo>(const TArray<TOptionsData<FToolInfo>>&);
-template void UOptionsWidget::Setup<FBuildingInfo>(const TArray<TOptionsData<FBuildingInfo>>&);
+//template void UOptionsWidget::Setup<FToolInfo>(const TArray<TOptionsData<FToolInfo>>&);
+//template void UOptionsWidget::Setup<FBuildingInfo>(const TArray<TOptionsData<FBuildingInfo>>&);
 
 template <typename T>
 void UOptionsWidget::Setup(const TArray<TOptionsData<T>>& Data)

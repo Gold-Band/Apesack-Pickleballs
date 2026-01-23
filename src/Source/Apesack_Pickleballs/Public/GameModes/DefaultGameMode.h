@@ -11,15 +11,9 @@
 struct FTimestamp;
 class UNpcManager;
 class UBuildingsManager;
-enum EBuildingType : uint8;
 class AProjectile;
-class ABuildingBase;
 class UNpcDelegates;
 class UWorldClockSubsystem;
-enum EShopType : uint8;
-class ANpcShop;
-struct FBuildingInfo;
-struct FClassInfo;
 
 
 /**
@@ -31,24 +25,8 @@ class APESACK_PICKLEBALLS_API ADefaultGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	
-	bool BuildersUnlocked() const { return bBuildersUnlocked; }
-	bool ArchersUnlocked() const { return bArchersUnlocked; }
-	bool SoldiersUnlocked() const { return bSoldiersUnlocked; }
-
-
-	bool GetBuilderShopLocation(FVector& OutLocation) const;
-	bool GetArcherShopLocation(FVector& OutLocation) const;
-	bool GetBlacksmithShopLocation(FVector& OutLocation) const;
-	
 	FString GetRandomNpcName() const;
-	TArray<FClassInfo*> GetAllClasses() const;
-	TArray<FBuildingInfo*> GetAllBuildings() const;
 
-	void RegisterShop(const ANpcShop* Shop, const EShopType ShopType);
-	void NewBuilding(ABuildingBase* Building, const EBuildingType BuildingType);
-	void BuildingDestroyed(ABuildingBase* Building, const EBuildingType BuildingType);
-	
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
 	const FVector WorldOriginNormal = FVector(0.0f, 1.0f, 0.0f);
@@ -72,27 +50,6 @@ private:
 	void InitializeLocalBuildingsManagerReference();
 	void InitializeLocalNpcManagerReference();
 	
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	bool bBuildersUnlocked;
-	TWeakObjectPtr<const ANpcShop> BuilderShop; 
-	
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	bool bArchersUnlocked;
-	TWeakObjectPtr<const ANpcShop> ArcherShop; 
-
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	bool bSoldiersUnlocked;
-	TWeakObjectPtr<const ANpcShop> BlacksmithShop; 
-	
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UDataTable> NpcClasses;
-	
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UDataTable> NpcTools;
-	
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UDataTable> Buildings;
-
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	TSoftObjectPtr<UDataTable> NpcNames;
 

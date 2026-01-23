@@ -15,9 +15,12 @@
 #include "AI/Actions/Cooldown.h"
 
 #include "GameplayTagContainer.h"
+#include "AI/Actions/OccupyTower.h"
 #include "AI/Actions/RangedAttack.h"
+#include "AI/Actions/TargetFarthestTower.h"
 #include "Engine/Texture.h"
 #include "Engine/DataTable.h"
+#include "Managers/BuildingsManager.h"
 
 #include "Npc.generated.h"
 
@@ -71,6 +74,19 @@ struct FClassInfo : public FTableRowBase // row name is class name
 };
 
 
+
+UENUM(BlueprintType)
+enum class ECharacterType : uint8
+{
+	Peasant,
+	Fighter,
+	Archer,
+	Builder
+};
+
+
+
+
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpc : public APawn, public IClickableActor
 {
@@ -101,6 +117,10 @@ public:
 	void MoveForwardScaled(float Scale);
 	
 	
+	UPROPERTY(EditAnywhere)
+	ECharacterType CharacterClass;
+	
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -129,31 +149,38 @@ protected:
 	FTask RangedAttackTask{"Ranged Attack"};
 	FTask BuildTask{"Build/Repair"};
 	FTask HideTask{"Hide"};
-	FTask ManTowerTask{"Man Archer Tower"};
+	FTask OccupyTowerTask{"Man Archer Tower"};
 	FTask DefendWallTask{"Defend Wall"};
 	
 	
 	//**
 	//** My Components
 	//**
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UCircularPawnMovementComponent> MovementComp = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<USceneComponent> Root = nullptr;
 
 	UPROPERTY()
 	TObjectPtr<UStatsComponent> Stats = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHTNComponent> HtnDomain = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
 
 	
 	// Actions
 public:
+	//*
+	//* General Properties
+	//*
+	UPROPERTY(EditAnywhere, Category = "Action Properties|General")
+	EOriginSide MainSide;
+	
+	
 	
 	//*
 	//* Move
@@ -179,11 +206,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
 	float RaycastInterval = 0.2f;
 	
+	UPROPERTY(VisibleAnywhere)
+	bool bCanMove = true;
+	
+	
 	//*
 	//* Targeting
 	//*
 	FTargetPlayerAction TargetPlayerAction{this};
 	FTargetNearestEnemyAction TargetNearestEnemyAction{this};
+	FTargetFarthestTowerAction TargetFarthestTowerAction{this};
 	
 	UPROPERTY(VisibleAnywhere, Category="Action Properties|Targeting")
 	TObjectPtr<AActor> TargetActor = nullptr;
@@ -213,17 +245,12 @@ public:
 	float Delay;
 	
 	//*
+	//* Archer
+	//*
+	FOccupyTowerAction OccupyTowerAction{this};
+	
+	
+	//*
 	//* Build
 	//*
-	
-	
-	//*
-	//* Upgrades?
-	//*
-	
-	
-	//*
-	//* Survival?
-	//*
-
 };

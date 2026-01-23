@@ -2,15 +2,45 @@
 
 #include "Buildings/ArcherTower.h"
 
+#include "AI/NPC/Npc.h"
+
 AArcherTower::AArcherTower()
 {
-	WallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WallMesh"));
-	WallMesh->SetupAttachment(RootComponent);
+	PrimaryActorTick.bCanEverTick = false;
+	TowerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WallMesh"));
+	TowerMesh->SetupAttachment(RootComponent);
 }
 
+bool AArcherTower::HasRoom() const
+{
+	return NumOccupants < MaxOccupants;
+}
+
+void AArcherTower::AddOccupant(ANpc* NewOccupant)
+{
+	if (!HasRoom()) return;
+
+	Occupants.Add(NewOccupant);
+	NewOccupant->SetActorLocation(Spots[NumOccupants]->GetComponentLocation());
+	
+	NumOccupants++;
+}
+
+void AArcherTower::RemoveOccupant(ANpc* OldOccupant)
+{
+	Occupants.Remove(OldOccupant);
+	NumOccupants--;
+}
+
+void AArcherTower::AddSpot(USceneComponent* NewSpot)
+{
+	Spots.Add(NewSpot);
+}
 
 void AArcherTower::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UE_LOG(LogTemp, Warning, TEXT("Building ArcherTower"));
+	UBuildingsManager::Get(GetWorld())->AddBuilding(this, EBuildingType::Tower);
 }

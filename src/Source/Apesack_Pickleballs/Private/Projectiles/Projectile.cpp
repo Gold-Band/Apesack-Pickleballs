@@ -83,6 +83,7 @@ void AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const F
 	}
 	
 	SetActorLocation(StartLocation);
+	Enable();
 }
 
 FOnPooledActorSelfDisabled& AProjectile::GetOnActorDisabled()

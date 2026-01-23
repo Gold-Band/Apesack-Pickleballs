@@ -13,7 +13,7 @@ FRangedAttackAction::FRangedAttackAction(ANpc* OwnerNpc)
 
 bool FRangedAttackAction::IsExecutable() const
 {
-	return FAction::IsExecutable(); // if we are armed with a ranged weapon
+	return Owner->CharacterClass == ECharacterType::Archer;
 }
 
 void FRangedAttackAction::Execute(float DeltaTime)

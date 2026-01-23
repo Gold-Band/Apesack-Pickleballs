@@ -18,7 +18,7 @@ class APESACK_PICKLEBALLS_API UHTNComponent : public UActorComponent
 public:
 	UHTNComponent();
 
-	void AssignTask(const FTask& Task, int Priority);
+	void AssignTask(const FTask& Task, int Priority = -1);
 
 	void UpdatePlan();
 	

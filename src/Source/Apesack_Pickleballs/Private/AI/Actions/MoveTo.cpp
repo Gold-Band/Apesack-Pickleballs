@@ -14,7 +14,7 @@ FMoveToAction::FMoveToAction(ANpc* OwnerNpc)
 
 bool FMoveToAction::IsExecutable() const
 {
-	return true;
+	return Owner->bCanMove;
 }
 
 void FMoveToAction::Execute(float DeltaTime)

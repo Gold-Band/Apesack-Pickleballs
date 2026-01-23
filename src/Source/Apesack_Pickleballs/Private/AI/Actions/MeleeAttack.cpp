@@ -11,7 +11,7 @@ FMeleeAttackAction::FMeleeAttackAction(ANpc* OwnerNpc)
 
 bool FMeleeAttackAction::IsExecutable() const
 {
-	return FAction::IsExecutable(); // if we are armed with a melee weapon
+	return Owner->CharacterClass == ECharacterType::Fighter;
 }
 
 void FMeleeAttackAction::Execute(float DeltaTime)
