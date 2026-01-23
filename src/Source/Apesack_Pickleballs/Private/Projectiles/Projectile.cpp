@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Projectiles/ProjectileBase.h"
+#include "Projectiles/Projectile.h"
 #include "Components/BoxComponent.h"
 
 // Sets default values
-AProjectileBase::AProjectileBase()
+AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -19,22 +19,27 @@ AProjectileBase::AProjectileBase()
 }
 
 // Called every frame
-void AProjectileBase::Tick(float DeltaTime)
+void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void AProjectileBase::Launch(const FVector& Direction, float Force)
+void AProjectile::Launch(const FVector& Direction, float Force)
 {
 	Collider->AddImpulse(Direction * Force);
 }
 
-FOnPooledActorSelfDisabled& AProjectileBase::GetOnActorDisabled()
+void AProjectile::LaunchAt_Implementation(const FVector& StartLocation, const FVector& TargetLocation, float ArcParam, float Accuracy)
+{
+	
+}
+
+FOnPooledActorSelfDisabled& AProjectile::GetOnActorDisabled()
 {
 	return OnActorDisabled;
 }
 
-void AProjectileBase::Disable()
+void AProjectile::Disable()
 {
 	Collider->SetSimulatePhysics(false);
 	Collider->SetEnableGravity(false);
@@ -48,7 +53,7 @@ void AProjectileBase::Disable()
 	if (OnActorDisabled.IsBound()) OnActorDisabled.Broadcast(this);
 }
 
-void AProjectileBase::Enable()
+void AProjectile::Enable()
 {
 	Collider->SetSimulatePhysics(true);
 	Collider->SetEnableGravity(true);

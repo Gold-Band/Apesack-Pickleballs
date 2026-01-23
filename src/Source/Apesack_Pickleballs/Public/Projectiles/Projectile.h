@@ -5,19 +5,19 @@
 #include "CoreMinimal.h"
 #include "Interfaces/PoolableActor.h"
 #include "GameFramework/Actor.h"
-#include "ProjectileBase.generated.h"
+#include "Projectile.generated.h"
 
 class UBoxComponent;
 
-UCLASS()
-class APESACK_PICKLEBALLS_API AProjectileBase : public AActor, public IPoolableActor
+UCLASS(abstract, BlueprintType)
+class APESACK_PICKLEBALLS_API AProjectile : public AActor, public IPoolableActor
 {
 	GENERATED_BODY()
 
 	virtual FOnPooledActorSelfDisabled& GetOnActorDisabled() override; 
 
 public:	
-	AProjectileBase();
+	AProjectile();
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void Disable() override;
@@ -31,7 +31,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Launch(const FVector& Direction, float Force);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void LaunchAt(const FVector& StartLocation, const FVector& TargetLocation, float ArcParam = 0.5, float Accuracy = 1);
+	
 private:
+	void LaunchAt_Implementation(const FVector& StartLocation, const FVector& TargetLocation, float ArcParam = 0.5, float Accuracy = 1);
 	FOnPooledActorSelfDisabled OnActorDisabled;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))

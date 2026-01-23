@@ -12,7 +12,7 @@ struct FTimestamp;
 class UNpcManager;
 class UBuildingsManager;
 enum EBuildingType : uint8;
-class AProjectileBase;
+class AProjectile;
 class ABuildingBase;
 class UNpcDelegates;
 class UWorldClockSubsystem;
