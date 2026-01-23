@@ -63,6 +63,7 @@ void UBuildingsManager::AddWall(AWall* Wall)
 
 void UBuildingsManager::AddTower(ABuildingBase* Tower)
 {
+	UE_LOG(LogTemp, Warning, TEXT("New Tower!"))
 }
 
 void UBuildingsManager::AddShop(ABuildingBase* Shop)
