@@ -5,14 +5,14 @@
 
 #include "Buildings/ArcherTower.h"
 #include "Buildings/NpcShop.h"
-#include "NPC/NpcName.h"
+#include "AI/NPC/NpcName.h"
 #include "Buildings/Plot.h"
 #include "Buildings/Wall.h"
 #include "LevelInstance/LevelInstanceTypes.h"
 #include "Managers/BuildingsManager.h"
 #include "Managers/NpcDelegates.h"
 #include "Managers/NpcManager.h"
-#include "NPC/NpcBase.h"
+#include "AI/NPC/Npc.h"
 #include "WorldClock/WorldClockSubsystem.h"
 
 

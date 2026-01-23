@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PoolableActor.h"
+#include "Interfaces/PoolableActor.h"
 #include "GameFramework/Actor.h"
 #include "ProjectileBase.generated.h"
 

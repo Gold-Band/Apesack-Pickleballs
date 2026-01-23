@@ -2,7 +2,7 @@
 
 #include "Buildings/Plot.h"
 #include "Components/WidgetComponent.h"
-#include "NPC/NpcFriendly.h"
+#include "AI/NPC/NpcFriendly.h"
 #include "Managers/InteractionManager.h"
 #include "UI/OptionsWidget.h"
 
@@ -95,10 +95,10 @@ bool AInteractionMenuActor::OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Ac
 	// Setup options widget to have the correct options based on the npc
 	TArray<TOptionsData<FToolInfo>> OptionInitializers;
 
-	const FClassInfo* ActorClass = Actor->GetClassInfo();
-	const FToolInfo* NpcTool = Actor->GetCharacterToolInfo();
+	//const FClassInfo* ActorClass = Actor->GetClassInfo();
+	//const FToolInfo* NpcTool = Actor->GetCharacterToolInfo();
 
-	if (!ActorClass)
+	/*if (!ActorClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Actor Has No Class Assigned!"));
 	}
@@ -107,7 +107,7 @@ bool AInteractionMenuActor::OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Ac
 	{
 		const FToolInfo* Upgrade = NpcTool->NextTool.GetRow<FToolInfo>(TEXT("Get Upgrade"));
 		check(Upgrade);
-		OptionInitializers.Add(TOptionsData(Upgrade->ToolIcon, Upgrade->PurchaseCost, InteractionsManager->GetUpgradeTaskForTool(Upgrade), Upgrade));
+		//OptionInitializers.Add(TOptionsData(Upgrade->ToolIcon, Upgrade->PurchaseCost, InteractionsManager->GetUpgradeTaskForTool(Upgrade), Upgrade));
 	}
 
 	// add all other base tools
@@ -119,10 +119,10 @@ bool AInteractionMenuActor::OpenInteractionDialog<ANpcFriendly>(ANpcFriendly* Ac
 			{
 				const FToolInfo* Tool = Class->BaseTool.GetRow<FToolInfo>(TEXT("Get Base Tool"));
 				check(Tool);
-				OptionInitializers.Add(TOptionsData(Tool->ToolIcon, Tool->PurchaseCost, InteractionsManager->GetPromotionTaskForClass(Class), Tool));
+				//OptionInitializers.Add(TOptionsData(Tool->ToolIcon, Tool->PurchaseCost, InteractionsManager->GetPromotionTaskForClass(Class), Tool));
 			}
 		}
-	}
+	}*/
 	
 	if (OptionInitializers.Num() > 0)
 	{
@@ -158,7 +158,7 @@ bool AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 			{
 				if (Building->CompatiblePlotTags.HasTag(Actor->PlotTag) && Building->Level == 0)
 				{
-					OptionInitializers.Add(TOptionsData(Building->BuildingIcon, Building->PurchaseCost, nullptr, Building));
+					//OptionInitializers.Add(TOptionsData(Building->BuildingIcon, Building->PurchaseCost, nullptr, Building));
 				}
 			}
 		}
@@ -170,7 +170,7 @@ bool AInteractionMenuActor::OpenInteractionDialog<APlot>(APlot* Actor)
 
 			const FBuildingInfo* Upgrade = Actor->Building->NextBuilding.GetRow<FBuildingInfo>(TEXT("Get Upgrade"));
 			check(Upgrade);
-			OptionInitializers.Add(TOptionsData(Upgrade->BuildingIcon, Upgrade->PurchaseCost, nullptr, Upgrade));
+			//OptionInitializers.Add(TOptionsData(Upgrade->BuildingIcon, Upgrade->PurchaseCost, nullptr, Upgrade));
 		}
 	}
 	

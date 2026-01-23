@@ -20,7 +20,6 @@ enum EShopType : uint8;
 class ANpcShop;
 struct FBuildingInfo;
 struct FClassInfo;
-class UTask;
 
 
 /**
@@ -37,9 +36,6 @@ public:
 	bool ArchersUnlocked() const { return bArchersUnlocked; }
 	bool SoldiersUnlocked() const { return bSoldiersUnlocked; }
 
-	const TSoftObjectPtr<UTask>& GetPromoteMeleeTask() const { return PromoteMeleeTask; }
-	const TSoftObjectPtr<UTask>& GetPromoteRangedTask() const { return PromoteRangedTask; }
-	const TSoftObjectPtr<UTask>& GetPromoteBuilderTask() const { return PromoteBuilderTask; }
 
 	bool GetBuilderShopLocation(FVector& OutLocation) const;
 	bool GetArcherShopLocation(FVector& OutLocation) const;
@@ -61,6 +57,8 @@ public:
 	AActor* GetArrow();
 	
 protected:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bEnableClock = true;
 	
@@ -71,26 +69,19 @@ protected:
 	float GameTimeScale = 1000.f;
 	
 private:
-	virtual void BeginPlay() override;
 	void InitializeLocalBuildingsManagerReference();
 	void InitializeLocalNpcManagerReference();
 	
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	bool bBuildersUnlocked;
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UTask> PromoteBuilderTask;
 	TWeakObjectPtr<const ANpcShop> BuilderShop; 
 	
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	bool bArchersUnlocked;
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UTask> PromoteRangedTask;
 	TWeakObjectPtr<const ANpcShop> ArcherShop; 
 
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	bool bSoldiersUnlocked;
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
-	TSoftObjectPtr<UTask> PromoteMeleeTask;
 	TWeakObjectPtr<const ANpcShop> BlacksmithShop; 
 	
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))

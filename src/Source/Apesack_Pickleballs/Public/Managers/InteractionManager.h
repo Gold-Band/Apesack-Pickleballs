@@ -6,7 +6,6 @@
 
 class ADefaultGameMode;
 struct FBuildingInfo;
-class UTask;
 struct FToolInfo;
 struct FClassInfo;
 class APlot;
@@ -47,9 +46,6 @@ public:
 	const TArray<FClassInfo*>& GetAllClasses() const {return AllClasses;}
 	const TArray<FBuildingInfo*>& GetAllBuildings() const {return AllBuildings;}
 	
-	TSoftObjectPtr<UTask> GetUpgradeTaskForTool(const FToolInfo* ToolInfo);
-	TSoftObjectPtr<UTask> GetPromotionTaskForClass(const FClassInfo* ClassInfo);
-	
 private:
 	bool bIsInteracting = false;
 
@@ -62,12 +58,6 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<AInteractionMenuActor> InteractionMenuActor;
-
-	UPROPERTY()
-	TSoftObjectPtr<UTask> WaitTask;
-
-	UPROPERTY()
-	TSoftObjectPtr<UTask> EmptyTask;
 
 	ANpcFriendly* CharacterWeAreInteractingWith = nullptr;
 	APlot* PlotWeAreInteractingWith = nullptr;

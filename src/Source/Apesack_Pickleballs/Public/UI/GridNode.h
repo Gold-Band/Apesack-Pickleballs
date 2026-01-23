@@ -7,7 +7,6 @@
 #include "Blueprint/UserWidget.h"
 #include "GridNode.generated.h"
 
-class UTask;
 class UImage;
 /**
  * 
@@ -29,7 +28,7 @@ public:
 	//template<typename T>
 	const void* ObjectTypeInfo = nullptr;
 	
-	TSoftObjectPtr<UTask> OrderTask = nullptr;
+	//TSoftObjectPtr<UTaskAsset> OrderTask = nullptr;
 	
 private:
 	UPROPERTY(EditAnywhere, meta=(BindWidget))

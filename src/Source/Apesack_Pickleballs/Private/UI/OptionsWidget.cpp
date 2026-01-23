@@ -6,7 +6,7 @@
 #include "Buildings/Plot.h"
 #include "Components/Image.h"
 #include "Components/VerticalBox.h"
-#include "NPC/NpcFriendly.h"
+#include "AI/NPC/NpcFriendly.h"
 #include "UI/GridNode.h"
 
 
@@ -31,7 +31,7 @@ void UOptionsWidget::Setup(const TArray<TOptionsData<T>>& Data)
 		Node = OptionNodes[i];
 		Node->Icon->SetBrushFromTexture(Data[i].Icon);
 		Node->Cost = Data[i].Cost;
-		Node->OrderTask = Data[i].OrderTask;
+		//Node->OrderTask = Data[i].OrderTask;
 		Node->ObjectTypeInfo = static_cast<const void*>(Data[i].TypeInfo);
 		if (i > 0) Node->UpNode = OptionNodes[i-1];
 		if (i-1 >= 0) OptionNodes[i-1]->DownNode = Node;		
