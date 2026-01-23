@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Interfaces/PoolableActor.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/GameplayStaticsTypes.h"
 #include "Projectile.generated.h"
 
 class UBoxComponent;
@@ -25,21 +26,39 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void Enable() override;
 
-
 	virtual void Tick(float DeltaTime) override;
-
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLanded();
+	
 	UFUNCTION(BlueprintCallable)
-	void Launch(const FVector& Direction, float Force);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void LaunchAt(const FVector& StartLocation, const FVector& TargetLocation, float ArcParam = 0.5, float Accuracy = 1);
+	virtual void LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
+	
+	UPROPERTY(EditAnywhere)
+	float Speed = 1000.0f;
+	
+	UPROPERTY(EditAnywhere)
+	float AppliedForce = 1.5f;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=PredictProjectilePathResult)
+	FPredictProjectilePathResult PredictResult;
+	
+	UPROPERTY(VisibleAnywhere)
+	FVector Velocity;
+	
+	UPROPERTY(VisibleAnywhere)
+	AActor* ShooterActor;
+	
+	UPROPERTY(VisibleAnywhere)
+	float TransferDamage = 1;
+	
+	UPROPERTY(EditAnywhere)
+	bool bDrawPathDebug = false;
 	
 private:
-	void LaunchAt_Implementation(const FVector& StartLocation, const FVector& TargetLocation, float ArcParam = 0.5, float Accuracy = 1);
 	FOnPooledActorSelfDisabled OnActorDisabled;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UBoxComponent> Collider;
-
 	bool bIsEnabled = true;
+	bool bPathSucceeded = false;
+	bool bLanded = false;
 };

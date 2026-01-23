@@ -7,7 +7,7 @@
 #include "ClickableActor.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI, BlueprintType, meta=(CannotImplementInterfaceInBlueprint))
+UINTERFACE(MinimalAPI, BlueprintType, Blueprintable)
 class UClickableActor : public UInterface
 {
 	GENERATED_BODY()
@@ -22,6 +22,6 @@ class APESACK_PICKLEBALLS_API IClickableActor
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable)
-	virtual void OnClicked() = 0;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void OnActorClicked();
 };

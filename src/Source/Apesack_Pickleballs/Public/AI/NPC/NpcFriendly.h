@@ -42,13 +42,8 @@ class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc
 
 public:
 	ANpcFriendly();
-	
-	
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;	
-	
-
-	
 };

@@ -42,9 +42,9 @@ UStatsComponent* ANpc::GetStats()
 	return Stats;
 }
 
-void ANpc::OnClicked()
+FVector ANpc::GetProjectileSpawnLocation_Implementation() const
 {
-	UE_LOG(LogTemp, Warning, TEXT("NpcBase::OnClicked()"));
+	return FVector::Zero();
 }
 
 void ANpc::MoveForwardScaled(float Scale)

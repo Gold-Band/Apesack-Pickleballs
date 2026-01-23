@@ -7,6 +7,8 @@
 
 FRangedAttackAction::FRangedAttackAction(ANpc* OwnerNpc)
 {
+	Owner = OwnerNpc;
+	Name = "Ranged Attack";
 }
 
 bool FRangedAttackAction::IsExecutable() const
@@ -17,8 +19,7 @@ bool FRangedAttackAction::IsExecutable() const
 void FRangedAttackAction::Execute(float DeltaTime)
 {
 	// get target
-	const AActor* Target = Owner->TargetActor;
-	if (Target == nullptr)
+	if (Owner->TargetActor == nullptr)
 	{
 		State = EActionState::Failed;
 		return;
@@ -28,18 +29,19 @@ void FRangedAttackAction::Execute(float DeltaTime)
 	//*	Shoot - Change into ranged attack.
 	//* 1. Get an arrow from the gamemode
 	AArrow* Arrow = Cast<AArrow>(Cast<ADefaultGameMode>(Owner->GetWorld()->GetAuthGameMode())->GetArrow());
+	if (!Arrow)
+	{
+		State = EActionState::Failed;
+		return;
+	}
 	
 	//* 2. Get my statsComponent and pass some information down to the arrow
 	Arrow->Damage = Owner->GetStats()->GetRangedDamage(Owner->BaseDamage_MeleeAttack);
 	
 	//* 3. Call Launch At
-	Arrow->LaunchAt(Owner->GetActorLocation(), Target->GetActorLocation());
+	Arrow->LaunchAt(Owner, Owner->GetProjectileSpawnLocation(), Owner->TargetActor->GetActorLocation());
 	
 	//*
-	
-	
-	
-	
 	State = EActionState::Succeeded;
 	Owner->Delay = Owner->Cooldown_RangedAttack;
 }

@@ -19,7 +19,13 @@ ANpcFriendly::ANpcFriendly()
 	MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	MeleeAttackTask.Actions.Add(&CooldownAction);
-	HtnDomain->AssignTask(MeleeAttackTask, 0);
+	//HtnDomain->AssignTask(MeleeAttackTask, 0);
+	
+	// Ranged Attack
+	RangedAttackTask.Actions.Add(&TargetNearestEnemyAction);
+	RangedAttackTask.Actions.Add(&RangedAttackAction);
+	RangedAttackTask.Actions.Add(&CooldownAction);
+	HtnDomain->AssignTask(RangedAttackTask, 0);
 	
 	// Wander
 	WanderTask.Actions.Add(&MoveTimedAction);

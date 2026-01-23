@@ -15,5 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	AArrow();
 
+	virtual void Tick(float DeltaTime) override;
+	
 	float Damage = 0;	
 };

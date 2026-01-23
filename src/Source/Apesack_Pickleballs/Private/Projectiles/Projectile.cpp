@@ -1,37 +1,88 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Projectiles/Projectile.h"
-#include "Components/BoxComponent.h"
+
+#include "StatsComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("Root"));
 	RootComponent->Mobility = EComponentMobility::Movable;
-
-	Collider = CreateDefaultSubobject<UBoxComponent>(FName("Collider"));
-	Collider->SetupAttachment(RootComponent);
-	Collider->SetSimulatePhysics(true);
-	Collider->SetEnableGravity(true);
 }
 
 // Called every frame
 void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AProjectile::Launch(const FVector& Direction, float Force)
-{
-	Collider->AddImpulse(Direction * Force);
-}
-
-void AProjectile::LaunchAt_Implementation(const FVector& StartLocation, const FVector& TargetLocation, float ArcParam, float Accuracy)
-{
 	
+	if (bPathSucceeded)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Travelling"))
+		// raycast and move
+		
+		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * AppliedForce;
+		const FVector CurrentPos = GetActorLocation();
+		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
+		const TArray<AActor*> IgnoreActors = {this, ShooterActor};
+		FHitResult Hit;
+		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),CurrentPos, NextPos, TraceChannel, false, IgnoreActors, EDrawDebugTrace::None,Hit,true))
+		{
+			// hit - set next pos			
+			NextPos = Hit.ImpactPoint;
+			bLanded = true;
+			
+			// try to damage what we hit
+			UStatsComponent* DamageReceiver = Cast<UStatsComponent>(Hit.GetActor()->GetComponentByClass<UStatsComponent>());
+			if (DamageReceiver != nullptr) DamageReceiver->ApplyDamagePatch(TransferDamage);
+		}
+		
+		if (NextPos.Z <= 0)
+		{
+			NextPos.Z = 0;
+			bLanded = true;
+		}
+			
+		const FRotator NextRot = UKismetMathLibrary::FindLookAtRotation(CurrentPos, CurrentPos + (NextPos-CurrentPos));
+		SetActorLocationAndRotation(NextPos, NextRot);
+		// todo - Apply radius functionality
+		
+		
+		// change velocity
+		Velocity += FVector::DownVector * 9.8f * 2;
+		
+		
+		if (bLanded)
+		{
+			SetActorTickEnabled(false);
+			OnLanded();
+		}
+	}
+}
+
+void AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy)
+{
+	bPathSucceeded = true;
+	ShooterActor = Caller;
+	
+	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, Speed};
+	Params.ActorsToIgnore = TArray{Caller};
+	Params.bDrawDebug = bDrawPathDebug;
+	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
+	Params.CollisionRadius = 0;
+	//Params.bAcceptClosestOnNoSolutions = true;
+	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No solution for projectile"))
+		bPathSucceeded = false;
+		//return;
+	}
+	
+	SetActorLocation(StartLocation);
 }
 
 FOnPooledActorSelfDisabled& AProjectile::GetOnActorDisabled()
@@ -41,25 +92,23 @@ FOnPooledActorSelfDisabled& AProjectile::GetOnActorDisabled()
 
 void AProjectile::Disable()
 {
-	Collider->SetSimulatePhysics(false);
-	Collider->SetEnableGravity(false);
+	// reset
 	
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	SetLifeSpan(0.f);
 	bIsEnabled = false;
+	Velocity = FVector::ZeroVector;
 
 	if (OnActorDisabled.IsBound()) OnActorDisabled.Broadcast(this);
 }
 
 void AProjectile::Enable()
 {
-	Collider->SetSimulatePhysics(true);
-	Collider->SetEnableGravity(true);
-	
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
 	bIsEnabled = true;
+	bLanded = false;
 }

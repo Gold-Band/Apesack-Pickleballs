@@ -89,11 +89,11 @@ public:
 	UStatsComponent* GetStats();
 	FString GetCharacterName() const {return CharacterName;}
 	
-	//*
-	//* IClickabledActor Interface
-	//*
-	virtual void OnClicked() override;
-	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FVector GetProjectileSpawnLocation() const;
+private:
+	FVector GetProjectileSpawnLocation_Implementation() const;
+public:
 	
 	//*
 	//* Actions
