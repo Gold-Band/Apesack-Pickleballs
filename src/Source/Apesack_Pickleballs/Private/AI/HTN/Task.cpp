@@ -38,12 +38,12 @@ void FTask::Run(float DeltaTime)
 	switch (CurrentAction->State)
 	{
 	case EActionState::Failed:
-		UE_LOG(LogTemp, Log, TEXT("Failed!"));
+		UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\"!"), *Name, *CurrentAction->GetName());
 		bFailed = true;
 		break;
 	case EActionState::Succeeded:
 		Progress++;
-		UE_LOG(LogTemp, Log, TEXT("Done!"));
+		//UE_LOG(LogTemp, Log, TEXT("Done!"));
 	default: bFailed = false;
 	}
 }

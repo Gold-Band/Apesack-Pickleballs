@@ -17,13 +17,14 @@ bool FTargetFarthestTowerAction::IsExecutable() const
 	// do towers exist?
 	const UBuildingsManager* BuildingsManager = UBuildingsManager::Get(Owner->GetWorld());
 	if (bPrintDebug) UE_LOG(LogTemp, Warning, TEXT("tower exists? %s"), FarthestTower? TEXT("yes"): TEXT("no"));
-	return !BuildingsManager->TowersExist();
+	return BuildingsManager->TowersExist();
 }
 
 void FTargetFarthestTowerAction::Execute(float DeltaTime)
 {
 	if (bIsFirstCall)
 	{
+		bIsFirstCall = false;
 		const UWorld* World = Owner->GetWorld();
 		UBuildingsManager* BuildingsManager = UBuildingsManager::Get(World);
 		FarthestTower= Owner->TargetActor = BuildingsManager->GetFarthestBuilding(EBuildingType::Tower, Owner->MainSide);

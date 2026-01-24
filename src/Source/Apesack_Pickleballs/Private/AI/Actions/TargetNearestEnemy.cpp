@@ -20,7 +20,7 @@ void FTargetNearestEnemyAction::Execute(float DeltaTime)
 {
 	if (bIsFirstCall)
 	{
-		
+		bIsFirstCall = false;	
 		const UWorld* World = Owner->GetWorld();
 		const FVector Location = Owner->GetActorLocation();
 		UNpcManager* NpcManager = UNpcManager::Get(World);

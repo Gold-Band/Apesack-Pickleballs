@@ -78,7 +78,6 @@ void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType Bui
 AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide Side)
 {
 	TArray<ABuilding*>* SearchArray;
-	ABuilding* Result = nullptr;
 	
 	if (Type == EBuildingType::Wall)
 	{
@@ -89,9 +88,11 @@ AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide S
 		SearchArray = &AllTowers;
 	}
 	
+	if (SearchArray->IsEmpty()) return nullptr;
 	
 	// for now
 	return Cast<AActor>((*SearchArray)[0]);
+	ABuilding* Result = nullptr;
 	
 	
 	

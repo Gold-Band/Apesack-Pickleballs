@@ -19,6 +19,7 @@ void FTargetPlayerAction::Execute(float DeltaTime)
 {
 	if (bIsFirstCall)
 	{
+		bIsFirstCall = false;
 		if (bPrintDebug) UE_LOG(LogTemp, Warning, TEXT("Getting the player"));
 		Owner->TargetActor = Owner->GetWorld()->GetFirstPlayerController()->GetPawn();
 		TargetActor = Owner->TargetActor;

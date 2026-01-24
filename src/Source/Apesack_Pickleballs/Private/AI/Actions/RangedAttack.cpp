@@ -9,6 +9,7 @@ FRangedAttackAction::FRangedAttackAction(ANpc* OwnerNpc)
 {
 	Owner = OwnerNpc;
 	Name = "Ranged Attack";
+	bPrintDebug = false;
 }
 
 bool FRangedAttackAction::IsExecutable() const
@@ -25,12 +26,11 @@ void FRangedAttackAction::Execute(float DeltaTime)
 		return;
 	}
 	
-	//*
-	//*	Shoot - Change into ranged attack.
 	//* 1. Get an arrow from the gamemode
 	AArrow* Arrow = Cast<AArrow>(Cast<ADefaultGameMode>(Owner->GetWorld()->GetAuthGameMode())->GetArrow());
 	if (!Arrow)
 	{
+		if (bPrintDebug) UE_LOG(LogTemp, Warning, TEXT("Can't get an arrow"));
 		State = EActionState::Failed;
 		return;
 	}
