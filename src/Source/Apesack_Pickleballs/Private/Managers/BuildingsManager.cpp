@@ -92,6 +92,8 @@ AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide S
 	
 	// for now
 	return Cast<AActor>((*SearchArray)[0]);
+// TODO(adam): unreachable
+#if 0
 	ABuilding* Result = nullptr;
 	
 	
@@ -115,6 +117,7 @@ AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide S
 	}
 		
 	return nullptr;
+#endif
 }
 
 bool UBuildingsManager::TowersExist() const
