@@ -4,22 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "TxtListObject.h"
-#include "TxtChkListObject.generated.h"
+#include "BtnListObject.generated.h"
 
-class UCheckBox;
+class UButton;
 /**
  * 
  */
 UCLASS()
-class APESACK_PICKLEBALLS_API UTxtChkListObject : public UTxtListObject
+class APESACK_PICKLEBALLS_API UBtnListObject : public UTxtListObject
 {
 	GENERATED_BODY()
 
 	protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	
-	private:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UCheckBox> State;
+	TObjectPtr<UButton> Action;
 	
 };

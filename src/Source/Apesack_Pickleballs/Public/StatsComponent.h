@@ -25,6 +25,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	float GetRangedDamage(float BaseDamage) const;
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	float GetHealth() const;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	float GetMaxHealth() const;
+	
 private:
 	float Damage;
 };

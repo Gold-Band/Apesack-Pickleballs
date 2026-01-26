@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "ListItemObject.generated.h"
 
+class APlot;
 /**
  * 
  */
@@ -17,7 +17,12 @@ class APESACK_PICKLEBALLS_API UListItemObject : public UObject
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Data")
 	FText DisplayText;
-
+	
+	// function for a button
+	const AActor* ContextActor;
+	
+	TFunction<void()>* OnActionCalledFunction;
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Data")
-	bool bState;
+	int Cost;
 };

@@ -12,6 +12,21 @@ ABuilding::ABuilding()
 	RootComponent->Mobility = EComponentMobility::Static;
 }
 
+void ABuilding::OnClicked()
+{
+	OnActorClicked();
+}
+
+FString ABuilding::GetActorName() const
+{
+	return Name;
+}
+
+int ABuilding::GetBuildCost() const
+{
+	return BuildCost;
+}
+
 void ABuilding::BeginPlay()
 {
 	Super::BeginPlay();

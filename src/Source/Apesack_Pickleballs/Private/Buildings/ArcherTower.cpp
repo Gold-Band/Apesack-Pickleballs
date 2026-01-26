@@ -9,6 +9,8 @@ AArcherTower::AArcherTower()
 	PrimaryActorTick.bCanEverTick = false;
 	TowerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WallMesh"));
 	TowerMesh->SetupAttachment(RootComponent);
+	
+	Name = FString("Archer Tower");
 }
 
 bool AArcherTower::HasRoom() const
@@ -35,6 +37,19 @@ void AArcherTower::RemoveOccupant(ANpc* OldOccupant)
 void AArcherTower::AddSpot(USceneComponent* NewSpot)
 {
 	Spots.Add(NewSpot);
+}
+ 
+TArray<UListItemObject*> AArcherTower::GetInfo() const
+{
+	// hp
+	// num occupans / max occupants
+	return Super::GetInfo();
+}
+
+TArray<UListItemObject*> AArcherTower::GetActions() const
+{
+	// upgrades
+	return Super::GetActions();
 }
 
 void AArcherTower::BeginPlay()

@@ -19,6 +19,9 @@ class APESACK_PICKLEBALLS_API AWall : public ABuilding
 public:
 	AWall();
 	
+	virtual TArray<UListItemObject*> GetInfo() const override;
+	virtual TArray<UListItemObject*> GetActions() const override;
+	
 protected:
 	virtual void BeginPlay() override;	
 	

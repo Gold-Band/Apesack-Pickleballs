@@ -26,6 +26,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddSpot(USceneComponent* NewSpot);
 	
+	virtual TArray<UListItemObject*> GetInfo() const override;
+	virtual TArray<UListItemObject*> GetActions() const override;
+	
+	
 protected:
 	virtual void BeginPlay() override;
 	

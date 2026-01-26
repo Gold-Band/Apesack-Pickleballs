@@ -124,6 +124,15 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnActorClicked();
+	
+public:
+	virtual void OnClicked() override;
+	virtual FString GetActorName() const override;
+	virtual TArray<UListItemObject*> GetInfo() const override;
+	virtual TArray<UListItemObject*> GetActions() const override;
+
 private:
 	float Radius = 0;
 	

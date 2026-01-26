@@ -54,7 +54,7 @@ void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType Buildi
 	if (!bInserted) ModifyArray->Add(NewBuilding);
 	
 	const FString Type = BuildingType == EBuildingType::Wall? "Walls" : "Towers";
-	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), *Type, ModifyArray->Num(), *(*ModifyArray)[0]->GetActorLabel(), *ModifyArray->Last()->GetActorLabel())
+	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), *Type, ModifyArray->Num(), *(*ModifyArray)[0]->GetActorName(), *ModifyArray->Last()->GetActorName())
 }
 
 void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType)

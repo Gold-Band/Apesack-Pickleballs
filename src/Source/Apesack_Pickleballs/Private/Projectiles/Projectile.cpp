@@ -64,6 +64,7 @@ void AProjectile::Tick(float DeltaTime)
 	}
 }
 
+// @todo: if no solution, return false
 void AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy)
 {
 	bPathSucceeded = true;

@@ -9,6 +9,18 @@ AWall::AWall()
 	WallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WallMesh"));
 	WallMesh->SetupAttachment(RootComponent);
 	
+	Name = FString("Wall");
+	
+}
+
+TArray<UListItemObject*> AWall::GetActions() const
+{
+	return Super::GetActions();
+}
+
+TArray<UListItemObject*> AWall::GetInfo() const
+{
+	return Super::GetInfo();
 }
 
 void AWall::BeginPlay()

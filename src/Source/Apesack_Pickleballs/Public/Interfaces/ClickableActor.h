@@ -6,8 +6,10 @@
 #include "UObject/Interface.h"
 #include "ClickableActor.generated.h"
 
+class UListItemObject;
+
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI, BlueprintType, Blueprintable)
+UINTERFACE(MinimalAPI, BlueprintType, NotBlueprintable)
 class UClickableActor : public UInterface
 {
 	GENERATED_BODY()
@@ -22,6 +24,19 @@ class APESACK_PICKLEBALLS_API IClickableActor
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void OnActorClicked();
+	UFUNCTION(BlueprintCallable)
+	virtual bool IsClickableActor() const;
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void OnClicked();
+	
+	UFUNCTION(BlueprintCallable)
+	virtual FString GetActorName() const;
+	
+	UFUNCTION(BlueprintCallable)
+	virtual TArray<UListItemObject*> GetInfo() const;
+	
+	UFUNCTION(BlueprintCallable)
+	virtual TArray<UListItemObject*> GetActions() const;
+
 };

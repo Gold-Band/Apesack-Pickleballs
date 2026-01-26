@@ -20,8 +20,21 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float DistanceFromOrigin;
 	
+	virtual void OnClicked() override;
+	virtual FString GetActorName() const override final;
+	int GetBuildCost() const;
+	
 protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnActorClicked();
+	
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int BuildCost = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Name;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<USceneComponent> Root;

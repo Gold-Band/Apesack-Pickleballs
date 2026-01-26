@@ -46,7 +46,18 @@ public:
 
 	void SpawnBuilding(int IndexOfBuilding);
 	
+	virtual void OnClicked() override;
+	virtual FString GetActorName() const override;
+	virtual TArray<UListItemObject*> GetActions() const override;
+
+	void TestFunction()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TestFunction"));
+	}
+	
 protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnActorClicked();
 	
 	UPROPERTY(EditAnywhere, Category="Plot Properties")
 	TArray<TSubclassOf<ABuilding>> CompatibleBuildings;

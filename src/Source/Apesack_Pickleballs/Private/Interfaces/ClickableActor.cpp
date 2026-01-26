@@ -3,4 +3,30 @@
 
 #include "Interfaces/ClickableActor.h"
 
+bool IClickableActor::IsClickableActor() const
+{
+	return true;
+}
+
+void IClickableActor::OnClicked()
+{
+
+}
+
 // Add default functionality here for any IClickableActor functions that are not pure virtual.
+FString IClickableActor::GetActorName() const
+{
+	return FString("Clickable Actor");
+}
+
+TArray<UListItemObject*> IClickableActor::GetInfo() const 
+{
+	UE_LOG(LogTemp, Warning, TEXT("Clickable Actor GetInfo() Not Overridden!"))
+	return TArray<UListItemObject*>();
+}
+
+TArray<UListItemObject*> IClickableActor::GetActions() const
+{
+	UE_LOG(LogTemp, Warning, TEXT("Clickable Actor GetActions() Not Overridden!"))
+	return TArray<UListItemObject*>();
+}
