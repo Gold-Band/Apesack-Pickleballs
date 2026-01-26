@@ -1,52 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Buildings/Wall.h"
 
-#include "Buildings/Zone.h"
-#include "GameModes/DefaultGameMode.h"
+#include "Managers/BuildingsManager.h"
 
 AWall::AWall()
 {
+	PrimaryActorTick.bCanEverTick = false;
 	WallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WallMesh"));
 	WallMesh->SetupAttachment(RootComponent);
 	
-	MeleeDefendZone = CreateDefaultSubobject<UZone>(TEXT("MeleeZone"));
-	MeleeDefendZone->SetupAttachment(RootComponent);
-	MeleeDefendZone->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
-	MeleeDefendZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
-	MeleeDefendZone->SetMobility(EComponentMobility::Type::Static);
-	MeleeDefendZone->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	MeleeDefendZone->SetGenerateOverlapEvents(true);
+	Name = FString("Wall");
 	
-	ArcherDefendZone = CreateDefaultSubobject<UZone>(TEXT("ArcherZone"));
-	ArcherDefendZone->SetupAttachment(RootComponent);
-	ArcherDefendZone->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
-	ArcherDefendZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
-	ArcherDefendZone->SetMobility(EComponentMobility::Type::Static);
-	ArcherDefendZone->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	ArcherDefendZone->SetGenerateOverlapEvents(true);
 }
 
-UE::Math::TBox<double> AWall::GetArcherDefendBox() const
+TArray<UListItemObject*> AWall::GetActions() const
 {
-	return ArcherDefendZone->Bounds.GetBox();
+	return Super::GetActions();
 }
 
-UE::Math::TBox<double> AWall::GetMeleeDefendBox() const
+TArray<UListItemObject*> AWall::GetInfo() const
 {
-	return MeleeDefendZone->Bounds.GetBox();
+	return Super::GetInfo();
 }
 
 void AWall::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), GameMode->WorldOriginNormal);
-	if (Angle > 0)
-	{
-		//UE_LOG(LogTemp, Error, TEXT("flip"));
-		SetActorScale3D(FVector(1,-1,1));
-		//RootComponent->AddLocalRotation(FRotator(0, 0, 180), false, nullptr, ETeleportType::TeleportPhysics);
-	}
+	UBuildingsManager::Get(GetWorld())->AddBuilding(this, EBuildingType::Wall);
 }
