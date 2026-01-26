@@ -45,7 +45,7 @@ TArray<UListItemObject*> APlot::GetActions() const
 		Action->DisplayText = FText::FromString(Option.GetDefaultObject()->GetActorName());
 		Action->Cost = Option.GetDefaultObject()->GetBuildCost();
 		Action->ContextActor = this;
-		Action->OnActionCalledFunction = &ThisClass::TestFunction;
+		//Action->OnActionCalledFunction = &ThisClass::TestFunction;
 		//auto test =  &ThisClass::TestFunction;
 		Actions.Add(Action);
 	}
