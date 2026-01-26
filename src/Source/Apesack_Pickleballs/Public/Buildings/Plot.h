@@ -1,14 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/ClickableActor.h"
 #include "Plot.generated.h"
 
+class UBuildingsManager;
+class ABuilding;
 class UPaperSpriteComponent;
 class UBoxComponent;
 
-USTRUCT(BlueprintType)
+/*USTRUCT(BlueprintType)
 struct FBuildingInfo : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -30,33 +32,46 @@ struct FBuildingInfo : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Level = 0;
-};
+};*/
 
+
+// an object that spawns a building object (wall, archer tower, ...)
 UCLASS()
-class APESACK_PICKLEBALLS_API APlot : public AActor {
+class APESACK_PICKLEBALLS_API APlot : public AActor, public IClickableActor {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
 	APlot();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTag PlotTag;
-
-	const FBuildingInfo* Building;
-
-	void SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBuildingInfo* BuildingInfo);
-
-private:
-	UFUNCTION()
-	void ClearPlot();
+	void SpawnBuilding(int IndexOfBuilding);
 	
-	UPROPERTY()
-	TObjectPtr<AActor> BuildingActor;
+	virtual void OnClicked() override;
+	virtual FString GetActorName() const override;
+	virtual TArray<UListItemObject*> GetActions() const override;
 
+	void TestFunction()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TestFunction"));
+	}
+	
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnActorClicked();
+	
+	UPROPERTY(EditAnywhere, Category="Plot Properties")
+	TArray<TSubclassOf<ABuilding>> CompatibleBuildings;
+	
+private:
+	// the spawned building
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ABuilding> BuildingActor;
+
+	// for handling mouse clicks
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBoxComponent> BoxCollider;
 	
+	// the plot sprite (star - temporary)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UPaperSpriteComponent> SpriteComp;
 };

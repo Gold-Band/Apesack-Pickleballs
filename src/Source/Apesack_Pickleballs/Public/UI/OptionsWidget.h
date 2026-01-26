@@ -6,7 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "OptionsWidget.generated.h"
 
-class UTask;
 class UImage;
 class UGridNode;
 class UVerticalBox;
@@ -14,11 +13,11 @@ class UVerticalBox;
 template<typename T>
 struct TOptionsData
 {
-	explicit TOptionsData(const TObjectPtr<UTexture2D> OptionIcon, const int OptionCost, const TSoftObjectPtr<UTask>& OptionOrderTask, const T* Info): Icon(OptionIcon), Cost(OptionCost), OrderTask(OptionOrderTask), TypeInfo(Info) {}
+	//explicit TOptionsData(const TObjectPtr<UTexture2D> OptionIcon, const int OptionCost, const TSoftObjectPtr<UTaskAsset>& OptionOrderTask, const T* Info): Icon(OptionIcon), Cost(OptionCost), OrderTask(OptionOrderTask), TypeInfo(Info) {}
 	
 	const TObjectPtr<UTexture2D> Icon;
 	const int Cost = 0;
-	const TSoftObjectPtr<UTask> OrderTask;
+	//const TSoftObjectPtr<UTaskAsset> OrderTask;
 	const T* TypeInfo;
 };
 
