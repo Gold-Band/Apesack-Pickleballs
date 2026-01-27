@@ -26,4 +26,7 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Data")
 	int Cost;
+	
+	UPROPERTY(BlueprintReadWrite, Category="Data")
+	UUserWidget* Parent;
 };

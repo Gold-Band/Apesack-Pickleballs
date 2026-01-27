@@ -102,7 +102,59 @@ TArray<UListItemObject*> ANpc::GetInfo() const
 
 TArray<UListItemObject*> ANpc::GetActions() const 
 {
+	TArray<UListItemObject*> Actions{};
+	
 	// orders
 	// upgrades
-	return TArray<UListItemObject*>();
+	
+	/*int i = 0;
+	for (auto Option : CompatibleBuildings)
+	{
+		if (!Option) continue;
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(Option.GetDefaultObject()->GetActorName());
+		Action->Cost = Option.GetDefaultObject()->GetBuildCost();
+		Action->ContextActor = this;
+
+		const TFunction<void()> Func = [&, i](){SpawnBuilding(i);};
+		Action->OnActionCalledFunction = Func;
+
+		Actions.Add(Action);
+		i++;
+	}*/
+
+	{ // set peasant
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	{ // set archer
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Archer"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	{ // set fighter
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	{ // set builder
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	
+	return Actions;
 }

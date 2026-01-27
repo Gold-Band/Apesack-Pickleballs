@@ -5,6 +5,7 @@
 #include "AI/HTN/ListItemObject.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "UI/InfoPanel.h"
 
 void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
@@ -15,13 +16,17 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	const FString Txt = FString::Printf(TEXT("%s | Cost: %i"), *ListItem->DisplayText.ToString(), ListItem->Cost);
 	Text->SetText(FText::FromString(Txt));
-	Action->OnClicked.AddDynamic(this, &ThisClass::OnButtonClicked);
+	ActionBtn->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButtonClicked);
 	ButtonFunction = ListItem->OnActionCalledFunction;
+	Parent = ListItem->Parent;
 }
 
 void UBtnListObject::OnButtonClicked()
 {
 	ButtonFunction.CheckCallable();
 	ButtonFunction();
-	Action->SetIsEnabled(false);
+	ActionBtn->SetIsEnabled(false);
+	
+	check(Parent);
+	Cast<UInfoPanel>(Parent)->OnActionEntryClicked();
 }

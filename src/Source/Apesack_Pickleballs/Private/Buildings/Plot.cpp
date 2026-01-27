@@ -43,6 +43,7 @@ TArray<UListItemObject*> APlot::GetActions() const
 	int i = 0;
 	for (auto Option : CompatibleBuildings)
 	{
+		if (!Option) continue;
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(Option.GetDefaultObject()->GetActorName());
 		Action->Cost = Option.GetDefaultObject()->GetBuildCost();

@@ -18,12 +18,15 @@ class APESACK_PICKLEBALLS_API UBtnListObject : public UTxtListObject
 	protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Action;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UButton> ActionBtn;
 	
 private:
 	UFUNCTION()
 	void OnButtonClicked();
 	
 	TFunction<void()> ButtonFunction;
+	
+	UPROPERTY()
+	TObjectPtr<UUserWidget> Parent;
 };

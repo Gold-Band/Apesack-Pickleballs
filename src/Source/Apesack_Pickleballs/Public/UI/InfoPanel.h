@@ -16,6 +16,11 @@ class APESACK_PICKLEBALLS_API UInfoPanel : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnActionEntryClicked();
+	
+	
 protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
