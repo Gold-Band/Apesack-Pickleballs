@@ -7,7 +7,6 @@ FTargetNearestEnemyAction::FTargetNearestEnemyAction(ANpc* OwnerNpc)
 	Owner = OwnerNpc;
 	Name = "Target Player";
 	bIsFirstCall = true;
-	bPrintDebug = false;
 	NearestEnemy = nullptr;
 }
 
@@ -26,7 +25,7 @@ void FTargetNearestEnemyAction::Execute(float DeltaTime)
 		UNpcManager* NpcManager = UNpcManager::Get(World);
 		NearestEnemy = Owner->TargetActor = NpcManager->FindNearestNpc(Location, ENpcSearchOption::AnyHostile);
 		
-		if (bPrintDebug) UE_LOG(LogTemp, Warning, TEXT("NearestEnemy = %s  Owner->TargetActor = %s"), NearestEnemy? TEXT("Valid"): TEXT("Null"), Owner->TargetActor? TEXT("Valid") : TEXT("Null"));
+		if (Owner->bPrintDebug_TargetNearestEnemy) UE_LOG(LogTemp, Warning, TEXT("NearestEnemy = %s  Owner->TargetActor = %s"), NearestEnemy? TEXT("Valid"): TEXT("Null"), Owner->TargetActor? TEXT("Valid") : TEXT("Null"));
 	}
 	
 	if (NearestEnemy != nullptr) State = EActionState::Succeeded;

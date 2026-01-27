@@ -15,11 +15,8 @@ APlot::APlot()
 	SpriteComp->SetupAttachment(BoxCollider);
 }
 
-void APlot::SpawnBuilding(int IndexOfBuilding) const 
+void APlot::SpawnBuilding(int IndexOfBuilding) 
 {
-	//hide sprite
-	SpriteComp->SetVisibility(false);
-	
 	// spawn building actor
 	const FVector Location = GetActorLocation();
 	const FRotator Rotation = GetActorRotation();
@@ -49,7 +46,12 @@ TArray<UListItemObject*> APlot::GetActions()
 		Action->Cost = Option.GetDefaultObject()->GetBuildCost();
 		Action->ContextActor = this;
 
-		const TFunction<void()> Func = [&, i](){SpawnBuilding(i);};
+		const TFunction<void()> Func = [&, i]()
+		{
+			SpriteComp->SetVisibility(false);
+			BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);			
+			SpawnBuilding(i);
+		};
 		Action->OnActionCalledFunction = Func;
 
 		Actions.Add(Action);

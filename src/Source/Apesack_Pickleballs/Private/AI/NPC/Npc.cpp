@@ -127,7 +127,7 @@ TArray<UListItemObject*> ANpc::GetActions()
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
 		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Peasant;};
 		Action->OnActionCalledFunction = Func;
 		Actions.Add(Action);
 	}
@@ -143,7 +143,7 @@ TArray<UListItemObject*> ANpc::GetActions()
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
 		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Fighter;};
 		Action->OnActionCalledFunction = Func;
 		Actions.Add(Action);
 	}
@@ -151,7 +151,7 @@ TArray<UListItemObject*> ANpc::GetActions()
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
 		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Builder;};
 		Action->OnActionCalledFunction = Func;
 		Actions.Add(Action);
 	}

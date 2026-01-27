@@ -44,7 +44,7 @@ public:
 	// Sets default values for this actor's properties
 	APlot();
 
-	void SpawnBuilding(int IndexOfBuilding) const;
+	void SpawnBuilding(int IndexOfBuilding);
 	
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
@@ -60,7 +60,7 @@ protected:
 private:
 	// the spawned building
 	UPROPERTY(VisibleAnywhere)
-	mutable TObjectPtr<AActor> BuildingActor;
+	TObjectPtr<AActor> BuildingActor;
 
 	// for handling mouse clicks
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))

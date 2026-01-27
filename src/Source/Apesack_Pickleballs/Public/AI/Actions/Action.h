@@ -22,7 +22,6 @@ public:
 	virtual void Reset() { State = EActionState::InProgress; }
 	
 	EActionState State;
-	bool bPrintDebug = false;
 	
 	FString GetName() const {return Name;}
 	

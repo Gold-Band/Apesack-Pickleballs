@@ -8,7 +8,6 @@ FMoveTimedAction::FMoveTimedAction(ANpc* OwnerNpc)
 	MoveTime = 0;
 	ExecutionTime = 0;
 	Direction = 0;
-	bPrintDebug = false;
 }
 
 bool FMoveTimedAction::IsExecutable() const
@@ -22,7 +21,7 @@ void FMoveTimedAction::Execute(float DeltaTime)
 	{
 		MoveTime = FMath::RandRange(Owner->WanderTimeMin, Owner->WanderTimeMax);
 		Direction = FMath::RandRange(-1, 1);
-		if (bPrintDebug) UE_LOG(LogTemp, Warning, TEXT("set move time to %fs"), MoveTime);
+		if (Owner->bPrintDebug_MoveTimed) UE_LOG(LogTemp, Warning, TEXT("set move time to %fs"), MoveTime);
 	}
 	
 	Owner->MoveForwardScaled(Direction * Owner->WanderSpeed);

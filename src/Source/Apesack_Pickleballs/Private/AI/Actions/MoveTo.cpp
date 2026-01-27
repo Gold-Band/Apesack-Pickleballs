@@ -7,7 +7,6 @@ FMoveToAction::FMoveToAction(ANpc* OwnerNpc)
 	Owner = OwnerNpc;
 	Name = "Move To";
 	TargetActor = nullptr;
-	bPrintDebug = true;
 	Timer = Owner->RaycastInterval;
 	HitResults = TArray<FHitResult>();
 }
@@ -45,6 +44,7 @@ void FMoveToAction::Execute(float DeltaTime)
 		{
 			for (const auto& It : HitResults)
 			{
+				if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Dist=%f | Other=%s | Target=%s"), It.Distance, *It.GetActor()->GetName(), *TargetActor->GetName());
 				if (It.GetActor() == TargetActor && It.Distance <= Owner->StopDistance)
 				{
 					State = EActionState::Succeeded;
