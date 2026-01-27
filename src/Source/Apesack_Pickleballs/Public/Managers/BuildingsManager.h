@@ -4,9 +4,23 @@
 #include "CoreMinimal.h"
 #include "BuildingsManager.generated.h"
 
-
+class ABuilding;
+class AArcherTower;
 class AWall;
-class ABuildingBase;
+
+UENUM(BlueprintType, Blueprintable)
+enum class EBuildingType : uint8
+{
+	Wall,
+	Tower
+};
+
+UENUM(BlueprintType, Blueprintable)
+enum class EOriginSide : uint8
+{
+	Left,
+	Right
+};
 
 UCLASS()
 class UBuildingsManager: public UWorldSubsystem
@@ -20,16 +34,21 @@ public:
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
-	void RemoveWall(AWall* Wall);
-	void AddWall(AWall* Wall);
-	void AddTower(ABuildingBase* Tower);
-	void AddShop(ABuildingBase* Shop);
-	void SetWorldOrigin(const FVector& NewWorldOrigin);	
+	void AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType);
+	void RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType);
 	
-private:
 	FVector WorldOrigin;
 	
-	TArray<AWall*> AllWalls;
-	TArray<ABuildingBase*> AllTowers;
-	TArray<ABuildingBase*> AllShops;
+	AActor* GetFarthestBuilding(EBuildingType Type, EOriginSide Side);
+	
+	bool TowersExist() const;
+	bool WallsExist() const;
+	
+private:
+	
+	UPROPERTY()
+	TArray<ABuilding*> AllWalls;
+	
+	UPROPERTY()
+	TArray<ABuilding*> AllTowers;
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Buildings/BuildingBase.h"
+#include "Buildings/Building.h"
 #include "Wall.generated.h"
 
 class UZone;
@@ -12,28 +12,20 @@ class UZone;
  * 
  */
 UCLASS()
-class APESACK_PICKLEBALLS_API AWall : public ABuildingBase
+class APESACK_PICKLEBALLS_API AWall : public ABuilding
 {
 	GENERATED_BODY()
 	
 public:
 	AWall();
-
-	UE::Math::TBox<double> GetArcherDefendBox() const;
-	UE::Math::TBox<double> GetMeleeDefendBox() const;
+	
+	virtual TArray<UListItemObject*> GetInfo() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
 	
 protected:
-	virtual void BeginPlay() override;
-	
-private:
+	virtual void BeginPlay() override;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UStaticMeshComponent> WallMesh;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UZone> MeleeDefendZone;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UZone> ArcherDefendZone;
 	
 };

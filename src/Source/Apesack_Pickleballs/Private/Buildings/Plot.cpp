@@ -1,6 +1,7 @@
 #include "Buildings/Plot.h"
 #include "PaperSpriteComponent.h"
-#include "Buildings/BuildingBase.h"
+#include "AI/HTN/ListItemObject.h"
+#include "Buildings/Building.h"
 #include "Components/BoxComponent.h"
 
 APlot::APlot()
@@ -14,23 +15,48 @@ APlot::APlot()
 	SpriteComp->SetupAttachment(BoxCollider);
 }
 
-void APlot::SetBuilding(const TSubclassOf<AActor> BuildingActorClass, const FBuildingInfo* BuildingInfo)
+void APlot::SpawnBuilding(int IndexOfBuilding) 
 {
-	if (!BuildingActorClass)
-	{
-		UE_LOG(LogTemp, Error, TEXT("BuildingInfo is null!"))
-		return;
-	}
-	if (BuildingActor) BuildingActor->Destroy();
-
-	BuildingActor = GetWorld()->SpawnActor(BuildingActorClass, &GetTransform());
-	Building = BuildingInfo;
-	ABuildingBase* Base = Cast<ABuildingBase>(BuildingActor);
-	if (Base) Base->OnBuildingDestroyed.AddDynamic(this, &APlot::ClearPlot);
+	// spawn building actor
+	const FVector Location = GetActorLocation();
+	const FRotator Rotation = GetActorRotation();
+	BuildingActor = GetWorld()->SpawnActor(CompatibleBuildings[IndexOfBuilding], &Location, &Rotation);
 }
 
-void APlot::ClearPlot()
+void APlot::OnClicked()
 {
-	BuildingActor = nullptr;
-	Building = nullptr;
+	OnActorClicked();
+}
+
+FString APlot::GetActorName() const
+{
+	return FString("Plot of Land");
+}
+
+TArray<UListItemObject*> APlot::GetActions()
+{
+	TArray<UListItemObject*> Actions{};
+	
+	int i = 0;
+	for (auto Option : CompatibleBuildings)
+	{
+		if (!Option) continue;
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(Option.GetDefaultObject()->GetActorName());
+		Action->Cost = Option.GetDefaultObject()->GetBuildCost();
+		Action->ContextActor = this;
+
+		const TFunction<void()> Func = [&, i]()
+		{
+			SpriteComp->SetVisibility(false);
+			BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);			
+			SpawnBuilding(i);
+		};
+		Action->OnActionCalledFunction = Func;
+
+		Actions.Add(Action);
+		i++;
+	}
+	
+	return Actions;
 }

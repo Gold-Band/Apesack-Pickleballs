@@ -3,26 +3,49 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Buildings/BuildingBase.h"
+#include "Buildings/Building.h"
 #include "ArcherTower.generated.h"
 
+class ANpc;
 /**
  * 
  */
 UCLASS()
-class APESACK_PICKLEBALLS_API AArcherTower : public ABuildingBase
+class APESACK_PICKLEBALLS_API AArcherTower : public ABuilding
 {
 	GENERATED_BODY()
 	
 public:
 	AArcherTower();
-
+	
+	virtual bool HasRoom() const;
+	
+	virtual void AddOccupant(ANpc* NewOccupant);
+	virtual void RemoveOccupant(ANpc* OldOccupant);
+	
+	UFUNCTION(BlueprintCallable)
+	void AddSpot(USceneComponent* NewSpot);
+	
+	virtual TArray<UListItemObject*> GetInfo() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
+	
+	
 protected:
 	virtual void BeginPlay() override;
 	
-private:
+	UPROPERTY(VisibleAnywhere)
+	TArray<ANpc*> Occupants;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UStaticMeshComponent> WallMesh;
+	UPROPERTY(VisibleAnywhere)
+	TArray<USceneComponent*> Spots;
+	
+	UPROPERTY(EditAnywhere)
+	float MaxOccupants = 1;
+	
+	UPROPERTY(VisibleAnywhere)
+	float NumOccupants = 0; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStaticMeshComponent> TowerMesh;
 	
 };
