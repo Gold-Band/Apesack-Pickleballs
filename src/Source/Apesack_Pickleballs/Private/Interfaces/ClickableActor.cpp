@@ -25,7 +25,7 @@ TArray<UListItemObject*> IClickableActor::GetInfo() const
 	return TArray<UListItemObject*>();
 }
 
-TArray<UListItemObject*> IClickableActor::GetActions() const
+TArray<UListItemObject*> IClickableActor::GetActions()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Clickable Actor GetActions() Not Overridden!"))
 	return TArray<UListItemObject*>();

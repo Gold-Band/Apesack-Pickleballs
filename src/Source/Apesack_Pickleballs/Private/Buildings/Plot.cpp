@@ -36,7 +36,7 @@ FString APlot::GetActorName() const
 	return FString("Plot of Land");
 }
 
-TArray<UListItemObject*> APlot::GetActions() const
+TArray<UListItemObject*> APlot::GetActions()
 {
 	TArray<UListItemObject*> Actions{};
 	

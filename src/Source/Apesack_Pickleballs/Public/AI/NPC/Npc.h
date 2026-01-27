@@ -131,7 +131,7 @@ public:
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
 	virtual TArray<UListItemObject*> GetInfo() const override;
-	virtual TArray<UListItemObject*> GetActions() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
 
 private:
 	float Radius = 0;

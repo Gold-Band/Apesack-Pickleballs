@@ -100,7 +100,7 @@ TArray<UListItemObject*> ANpc::GetInfo() const
 	return Info;
 }
 
-TArray<UListItemObject*> ANpc::GetActions() const 
+TArray<UListItemObject*> ANpc::GetActions() 
 {
 	TArray<UListItemObject*> Actions{};
 	

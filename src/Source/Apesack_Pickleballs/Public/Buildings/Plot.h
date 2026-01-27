@@ -48,7 +48,7 @@ public:
 	
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
-	virtual TArray<UListItemObject*> GetActions() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
