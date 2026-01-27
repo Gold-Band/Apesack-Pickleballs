@@ -5,6 +5,7 @@
 #include "AI/HTN/ListItemObject.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "UI/InfoPanel.h"
 
 void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
@@ -13,8 +14,28 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 	const UListItemObject* ListItem = Cast<UListItemObject>(ListItemObject);
 	if (!ListItem || !Text) return;
 
-	const FString Txt = FString::Printf(TEXT("%s | Cost: %i"), *ListItem->DisplayText.ToString(), ListItem->Cost);
-	Text->SetText(FText::FromString(Txt));
+	if (ListItem->Cost > 0)
+	{
+		const FString Txt = FString::Printf(TEXT("%s | Cost: %i"), *ListItem->DisplayText.ToString(), ListItem->Cost);
+		Text->SetText(FText::FromString(Txt));
+	}
+	else
+	{
+		const FString Txt = FString::Printf(TEXT("%s"), *ListItem->DisplayText.ToString());
+		Text->SetText(FText::FromString(Txt));
+	}
 	
-	//Action->OnClicked.AddDynamic(ListItemObject->ContextActor, &ListItemObject->OnActionCalledFunction);
+	ActionBtn->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButtonClicked);
+	ButtonFunction = ListItem->OnActionCalledFunction;
+	Parent = ListItem->Parent;
+}
+
+void UBtnListObject::OnButtonClicked()
+{
+	ButtonFunction.CheckCallable();
+	ButtonFunction();
+	//ActionBtn->SetIsEnabled(false);
+	
+	check(Parent);
+	Cast<UInfoPanel>(Parent)->OnActionEntryClicked();
 }

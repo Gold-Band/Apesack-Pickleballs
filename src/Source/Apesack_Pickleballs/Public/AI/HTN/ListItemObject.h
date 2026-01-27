@@ -19,10 +19,14 @@ public:
 	FText DisplayText;
 	
 	// function for a button
+	UPROPERTY()
 	const AActor* ContextActor;
 	
-	TFunction<void()>* OnActionCalledFunction;
+	TFunction<void()> OnActionCalledFunction;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Data")
 	int Cost;
+	
+	UPROPERTY(BlueprintReadWrite, Category="Data")
+	UUserWidget* Parent;
 };

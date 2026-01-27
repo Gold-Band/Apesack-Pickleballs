@@ -15,14 +15,12 @@ APlot::APlot()
 	SpriteComp->SetupAttachment(BoxCollider);
 }
 
-void APlot::SpawnBuilding(int IndexOfBuilding)
+void APlot::SpawnBuilding(int IndexOfBuilding) 
 {
-	//hide sprite
-	SpriteComp->SetVisibility(false);
-	
 	// spawn building actor
-	UClass* Class = CompatibleBuildings[IndexOfBuilding]->StaticClass();
-	BuildingActor = Cast<ABuilding>(GetWorld()->SpawnActor(Class));
+	const FVector Location = GetActorLocation();
+	const FRotator Rotation = GetActorRotation();
+	BuildingActor = GetWorld()->SpawnActor(CompatibleBuildings[IndexOfBuilding], &Location, &Rotation);
 }
 
 void APlot::OnClicked()
@@ -35,19 +33,29 @@ FString APlot::GetActorName() const
 	return FString("Plot of Land");
 }
 
-TArray<UListItemObject*> APlot::GetActions() const
+TArray<UListItemObject*> APlot::GetActions()
 {
 	TArray<UListItemObject*> Actions{};
 	
+	int i = 0;
 	for (auto Option : CompatibleBuildings)
 	{
+		if (!Option) continue;
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(Option.GetDefaultObject()->GetActorName());
 		Action->Cost = Option.GetDefaultObject()->GetBuildCost();
 		Action->ContextActor = this;
-		//Action->OnActionCalledFunction = &ThisClass::TestFunction;
-		//auto test =  &ThisClass::TestFunction;
+
+		const TFunction<void()> Func = [&, i]()
+		{
+			SpriteComp->SetVisibility(false);
+			BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);			
+			SpawnBuilding(i);
+		};
+		Action->OnActionCalledFunction = Func;
+
 		Actions.Add(Action);
+		i++;
 	}
 	
 	return Actions;

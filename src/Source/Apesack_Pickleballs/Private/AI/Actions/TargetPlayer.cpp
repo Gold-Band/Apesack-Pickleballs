@@ -6,7 +6,6 @@ FTargetPlayerAction::FTargetPlayerAction(ANpc* OwnerNpc)
 	Owner = OwnerNpc;
 	Name = "Target Player";
 	bIsFirstCall = true;
-	bPrintDebug = false;
 	TargetActor = nullptr;
 }
 
@@ -20,7 +19,7 @@ void FTargetPlayerAction::Execute(float DeltaTime)
 	if (bIsFirstCall)
 	{
 		bIsFirstCall = false;
-		if (bPrintDebug) UE_LOG(LogTemp, Warning, TEXT("Getting the player"));
+		if (Owner->bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Getting the player"));
 		Owner->TargetActor = Owner->GetWorld()->GetFirstPlayerController()->GetPawn();
 		TargetActor = Owner->TargetActor;
 	}

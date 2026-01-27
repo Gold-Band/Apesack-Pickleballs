@@ -37,6 +37,6 @@ public:
 	virtual TArray<UListItemObject*> GetInfo() const;
 	
 	UFUNCTION(BlueprintCallable)
-	virtual TArray<UListItemObject*> GetActions() const;
+	virtual TArray<UListItemObject*> GetActions();
 
 };

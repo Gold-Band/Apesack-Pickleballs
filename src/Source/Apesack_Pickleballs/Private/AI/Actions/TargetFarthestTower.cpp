@@ -7,7 +7,6 @@ FTargetFarthestTowerAction::FTargetFarthestTowerAction(ANpc* OwnerNpc)
 {
 	Name = "Target Farthest Tower";
 	Owner = OwnerNpc;
-	bPrintDebug = false;
 	FarthestTower = nullptr;
 	bIsFirstCall = true;
 }
@@ -16,7 +15,7 @@ bool FTargetFarthestTowerAction::IsExecutable() const
 {
 	// do towers exist?
 	const UBuildingsManager* BuildingsManager = UBuildingsManager::Get(Owner->GetWorld());
-	if (bPrintDebug) UE_LOG(LogTemp, Warning, TEXT("tower exists? %s"), FarthestTower? TEXT("yes"): TEXT("no"));
+	if (Owner->bPrintDebug_TargetFurthestTower) UE_LOG(LogTemp, Warning, TEXT("tower exists? %s"), FarthestTower? TEXT("yes"): TEXT("no"));
 	return BuildingsManager->TowersExist();
 }
 
