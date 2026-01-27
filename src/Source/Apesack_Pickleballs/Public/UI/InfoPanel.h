@@ -27,9 +27,4 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
 	TObjectPtr<UListView> Actions;
 	
-public:
-
-	UFUNCTION(BlueprintCallable)
-	void MakeActionsForObject(UObject* Object);
-	
 };
