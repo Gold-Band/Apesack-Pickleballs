@@ -15,6 +15,13 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	const FString Txt = FString::Printf(TEXT("%s | Cost: %i"), *ListItem->DisplayText.ToString(), ListItem->Cost);
 	Text->SetText(FText::FromString(Txt));
-	
-	//Action->OnClicked.AddDynamic(ListItemObject->ContextActor, &ListItemObject->OnActionCalledFunction);
+	Action->OnClicked.AddDynamic(this, &ThisClass::OnButtonClicked);
+	ButtonFunction = ListItem->OnActionCalledFunction;
+}
+
+void UBtnListObject::OnButtonClicked()
+{
+	ButtonFunction.CheckCallable();
+	ButtonFunction();
+	Action->SetIsEnabled(false);
 }

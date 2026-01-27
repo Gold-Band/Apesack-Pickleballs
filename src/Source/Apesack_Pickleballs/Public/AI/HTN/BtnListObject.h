@@ -21,4 +21,9 @@ class APESACK_PICKLEBALLS_API UBtnListObject : public UTxtListObject
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Action;
 	
+private:
+	UFUNCTION()
+	void OnButtonClicked();
+	
+	TFunction<void()> ButtonFunction;
 };

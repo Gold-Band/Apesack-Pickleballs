@@ -44,17 +44,12 @@ public:
 	// Sets default values for this actor's properties
 	APlot();
 
-	void SpawnBuilding(int IndexOfBuilding);
+	void SpawnBuilding(int IndexOfBuilding) const;
 	
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
 	virtual TArray<UListItemObject*> GetActions() const override;
 
-	void TestFunction()
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TestFunction"));
-	}
-	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnActorClicked();
@@ -65,7 +60,7 @@ protected:
 private:
 	// the spawned building
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<ABuilding> BuildingActor;
+	mutable TObjectPtr<AActor> BuildingActor;
 
 	// for handling mouse clicks
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
