@@ -20,7 +20,7 @@ public:
 	AWall();
 	
 	virtual TArray<UListItemObject*> GetInfo() const override;
-	virtual TArray<UListItemObject*> GetActions() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
 	
 protected:
 	virtual void BeginPlay() override;	

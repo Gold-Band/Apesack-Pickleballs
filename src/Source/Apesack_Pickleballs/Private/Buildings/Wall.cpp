@@ -13,7 +13,7 @@ AWall::AWall()
 	
 }
 
-TArray<UListItemObject*> AWall::GetActions() const
+TArray<UListItemObject*> AWall::GetActions()
 {
 	return Super::GetActions();
 }

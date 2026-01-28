@@ -131,7 +131,7 @@ public:
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
 	virtual TArray<UListItemObject*> GetInfo() const override;
-	virtual TArray<UListItemObject*> GetActions() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
 
 private:
 	float Radius = 0;
@@ -262,4 +262,31 @@ public:
 	//*
 	//* Build
 	//*
+	
+	//*
+	//* Debug
+	//*
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_MoveTo = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move Timed", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_MoveTimed = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_MeleeAttack = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_RangedAttack = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Cooldown", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_Cooldown = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Enemy", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_TargetNearestEnemy = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Tower", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_TargetFurthestTower = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_TargetPlayer = false;
 };

@@ -48,13 +48,8 @@ public:
 	
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
-	virtual TArray<UListItemObject*> GetActions() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
 
-	void TestFunction()
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TestFunction"));
-	}
-	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnActorClicked();
@@ -65,7 +60,7 @@ protected:
 private:
 	// the spawned building
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<ABuilding> BuildingActor;
+	TObjectPtr<AActor> BuildingActor;
 
 	// for handling mouse clicks
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))

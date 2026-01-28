@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Sensor.h"
 #include "Task.h"
 #include "HTNComponent.generated.h"
 

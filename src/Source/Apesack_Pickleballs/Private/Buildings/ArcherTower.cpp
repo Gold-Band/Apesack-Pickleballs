@@ -46,7 +46,7 @@ TArray<UListItemObject*> AArcherTower::GetInfo() const
 	return Super::GetInfo();
 }
 
-TArray<UListItemObject*> AArcherTower::GetActions() const
+TArray<UListItemObject*> AArcherTower::GetActions() 
 {
 	// upgrades
 	return Super::GetActions();
