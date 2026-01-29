@@ -28,14 +28,17 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 	ActionBtn->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButtonClicked);
 	ButtonFunction = ListItem->OnActionCalledFunction;
 	Parent = ListItem->Parent;
+	Cost = ListItem->Cost;
 }
 
 void UBtnListObject::OnButtonClicked()
 {
-	ButtonFunction.CheckCallable();
-	ButtonFunction();
-	//ActionBtn->SetIsEnabled(false);
-	
 	check(Parent);
-	Cast<UInfoPanel>(Parent)->OnActionEntryClicked();
+	UInfoPanel* InfoPanel = Cast<UInfoPanel>(Parent);
+	InfoPanel->OnActionEntryClicked(Cost);
+	if (InfoPanel->bTransactionSucceeded)
+	{
+		ButtonFunction.CheckCallable();
+		ButtonFunction();
+	}
 }
