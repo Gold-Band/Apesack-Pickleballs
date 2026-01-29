@@ -15,6 +15,9 @@ ANpcHostile::ANpcHostile()
 	MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	MeleeAttackTask.Actions.Add(&CooldownAction);
+	
+	MeleeAttackTask.bAutoReset = true;
+	
 	HtnDomain->AssignTask(MeleeAttackTask);
 	
 	CharacterClass = ECharacterType::Fighter;

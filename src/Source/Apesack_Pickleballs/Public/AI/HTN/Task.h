@@ -21,10 +21,15 @@ public:
 	void Reset();
 	
 	TArray<FAction*> Actions;
+	bool bAutoReset;
+	float AutoResetInterval;
 	
 private:
+	bool AutoResetCondition() const;
 	
 	FString Name;
 	int Progress;
 	bool bFailed;
+	
+	float TimeSinceReset;
 };

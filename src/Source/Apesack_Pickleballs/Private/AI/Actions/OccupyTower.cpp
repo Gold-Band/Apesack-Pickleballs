@@ -18,7 +18,8 @@ bool FOccupyTowerAction::IsExecutable() const
 void FOccupyTowerAction::Execute(float DeltaTime)
 {
 	AArcherTower* TargetTower = Cast<AArcherTower>(Owner->TargetActor);
-	if (!TargetTower->HasRoom())
+	
+	if (TargetTower == nullptr || !TargetTower->HasRoom())
 	{
 		State = EActionState::Failed;
 		return;

@@ -38,12 +38,20 @@ void FMoveToAction::Execute(float DeltaTime)
 		Timer = 0;
 		if (LineTraceMulti(HitResults))
 		{
-			if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i"), HitResults.Num());
+			if (Owner->bPrintDebug_MoveTo)
+			{
+				FString HitActors;
+				for (auto It = HitResults.CreateConstIterator(); It; ++It)
+				{
+					HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
+				}
+				UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
+				UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
+			}
 			for (const auto& It : HitResults)
 			{
 				AActor* HitActor = It.GetActor();
 				
-				//if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Dist=%f | Other=%s | Target=%s"), It.Distance, *It.GetActor()->GetActorNameOrLabel(), *TargetActor->GetActorNameOrLabel());
 				if (HitActor == TargetActor)
 				{
 					if (It.Distance <= Owner->StopDistance)
@@ -52,7 +60,7 @@ void FMoveToAction::Execute(float DeltaTime)
 						return;
 					}
 				}
-				else if (bUseLineOfSight && HitActor->StaticClass()->IsChildOf(AWall::StaticClass()))
+				else if (bUseLineOfSight && Cast<AWall>(HitActor) != nullptr)
 				{
 					if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("no line of sight"));
 					State = EActionState::Failed;
@@ -82,7 +90,7 @@ bool FMoveToAction::LineTraceMulti(TArray<FHitResult>& OutHits) const
 		Owner->GetWorld(), // world
 		Owner->GetActorLocation(), // start 
 		TargetActor->GetActorLocation(), // end 
-		UEngineTypes::ConvertToTraceType(ECC_Destructible), // channel
+		UEngineTypes::ConvertToTraceType(ECC_Visibility), // channel
 		false,
 		TArray<AActor*>{Owner}, // ignore 
 		Owner->bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
