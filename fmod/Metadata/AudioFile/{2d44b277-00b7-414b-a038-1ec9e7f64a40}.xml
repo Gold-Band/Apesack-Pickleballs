@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{2d44b277-00b7-414b-a038-1ec9e7f64a40}">
+		<property name="assetPath">
+			<value>ESM_CH_fx_impacts_combat_slaps_field_flesh_swing_01.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.23965624999999999</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{331af6e8-867d-4efe-9576-894b6fb57018}</destination>
+		</relationship>
+	</object>
+</objects>

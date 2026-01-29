@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{582e185c-da3e-46f2-b499-00de2a4c2b5e}">
+		<property name="assetPath">
+			<value>ESM_Empire_Game_Warfare_Dead_Body_Drop_2_Cloth_Leather_Impact_Foley_Collapse.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.68215625000000002</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{331af6e8-867d-4efe-9576-894b6fb57018}</destination>
+		</relationship>
+	</object>
+</objects>
