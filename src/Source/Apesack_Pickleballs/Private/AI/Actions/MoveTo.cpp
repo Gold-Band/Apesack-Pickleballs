@@ -1,5 +1,6 @@
 #include "AI/Actions/MoveTo.h"
 #include "AI/NPC/Npc.h"
+#include "Buildings/Wall.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 FMoveToAction::FMoveToAction(ANpc* OwnerNpc)
@@ -32,15 +33,18 @@ void FMoveToAction::Execute(float DeltaTime)
 	
 	// 
 	// check line of sight / Are we there yet?
-	if (Timer >= Owner->RaycastInterval)
+	if (Timer >= Owner->RaycastInterval && (ProbeDistanceCondition() || bUseLineOfSight))
 	{
 		Timer = 0;
-		if ((bUseLineOfSight || ProbeDistanceCondition()) && LineTraceMulti(HitResults))
+		if (LineTraceMulti(HitResults))
 		{
+			if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i"), HitResults.Num());
 			for (const auto& It : HitResults)
 			{
-				if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Dist=%f | Other=%s | Target=%s"), It.Distance, *It.GetActor()->GetActorNameOrLabel(), *TargetActor->GetActorNameOrLabel());
-				if (It.GetActor() == TargetActor)
+				AActor* HitActor = It.GetActor();
+				
+				//if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Dist=%f | Other=%s | Target=%s"), It.Distance, *It.GetActor()->GetActorNameOrLabel(), *TargetActor->GetActorNameOrLabel());
+				if (HitActor == TargetActor)
 				{
 					if (It.Distance <= Owner->StopDistance)
 					{
@@ -48,7 +52,7 @@ void FMoveToAction::Execute(float DeltaTime)
 						return;
 					}
 				}
-				else if (bUseLineOfSight)
+				else if (bUseLineOfSight && HitActor->StaticClass()->IsChildOf(AWall::StaticClass()))
 				{
 					if (Owner->bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("no line of sight"));
 					State = EActionState::Failed;
@@ -74,11 +78,16 @@ void FMoveToAction::Reset()
 
 bool FMoveToAction::LineTraceMulti(TArray<FHitResult>& OutHits) const
 {
-	const FVector StartLocation = Owner->GetActorLocation();	
-	const FVector EndLocation = TargetActor->GetActorLocation();
-	const ETraceTypeQuery TraceChannel = bUseLineOfSight? UEngineTypes::ConvertToTraceType(ECC_Destructible) : UEngineTypes::ConvertToTraceType(ECC_Visibility);
-	const TArray<AActor*> IgnoreActors = {Owner};
-	return UKismetSystemLibrary::LineTraceMulti(Owner->GetWorld(),StartLocation, EndLocation, TraceChannel, false, IgnoreActors, EDrawDebugTrace::ForOneFrame, OutHits, true);
+	return UKismetSystemLibrary::LineTraceMulti(
+		Owner->GetWorld(), // world
+		Owner->GetActorLocation(), // start 
+		TargetActor->GetActorLocation(), // end 
+		UEngineTypes::ConvertToTraceType(ECC_Destructible), // channel
+		false,
+		TArray<AActor*>{Owner}, // ignore 
+		Owner->bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
+		OutHits,
+		true);
 }
 
 bool FMoveToAction::ProbeDistanceCondition() const 
