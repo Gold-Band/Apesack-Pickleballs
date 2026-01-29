@@ -26,6 +26,7 @@ enum EClassType : uint8
 	MAX UMETA(Hidden)
 };
 
+/*
 USTRUCT(BlueprintType)
 struct FRankInfo : public FTableRowBase // row name is rank name
 {
@@ -34,6 +35,7 @@ struct FRankInfo : public FTableRowBase // row name is rank name
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> RankIcon;
 };
+*/
 
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc

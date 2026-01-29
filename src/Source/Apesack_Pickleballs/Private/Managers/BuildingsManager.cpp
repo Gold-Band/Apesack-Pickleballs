@@ -1,4 +1,6 @@
 #include "Managers/BuildingsManager.h"
+
+#include "Buildings/ArcherTower.h"
 #include "Buildings/Building.h"
 
 UBuildingsManager::UBuildingsManager()
@@ -17,14 +19,6 @@ UBuildingsManager* UBuildingsManager::Get(const UObject* WorldContextObject)
 		}
 	}
 	return nullptr;
-}
-
-void UBuildingsManager::OnWorldBeginPlay(UWorld& InWorld)
-{
-	Super::OnWorldBeginPlay(InWorld);
-	
-	// cache all buildings
-	
 }
 
 void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType)
@@ -54,7 +48,10 @@ void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType Buildi
 	if (!bInserted) ModifyArray->Add(NewBuilding);
 	
 	const FString Type = BuildingType == EBuildingType::Wall? "Walls" : "Towers";
-	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), *Type, ModifyArray->Num(), *(*ModifyArray)[0]->GetActorName(), *ModifyArray->Last()->GetActorName())
+	
+#if WITH_EDITOR
+	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), *Type, ModifyArray->Num(), *(*ModifyArray)[0]->GetActorNameOrLabel(), *ModifyArray->Last()->GetActorNameOrLabel())
+#endif
 }
 
 void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType)
@@ -71,8 +68,6 @@ void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType Bui
 	}
 	
 	ModifyArray->Remove(OldBuilding);
-	//const int WallIndex = ModifyArray->Find(OldBuilding);
-	//ModifyArray->RemoveAt(WallIndex);
 }
 
 AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide Side)
@@ -90,13 +85,7 @@ AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide S
 	
 	if (SearchArray->IsEmpty()) return nullptr;
 	
-	// for now
-	return Cast<AActor>((*SearchArray)[0]);
-// TODO(adam): unreachable
-#if 0
 	ABuilding* Result = nullptr;
-	
-	
 	
 	// test to make sure they are on the correct side
 	if (Side == EOriginSide::Right)
@@ -117,12 +106,16 @@ AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide S
 	}
 		
 	return nullptr;
-#endif
 }
 
-bool UBuildingsManager::TowersExist() const
+bool UBuildingsManager::DoVacantTowersExist() const
 {
-	return AllTowers.Num() > 0;
+	for (const auto Tower: AllTowers)
+	{
+		if (Cast<AArcherTower>(Tower)->HasRoom()) return true;
+	}
+	
+	return false;
 }
 
 bool UBuildingsManager::WallsExist() const

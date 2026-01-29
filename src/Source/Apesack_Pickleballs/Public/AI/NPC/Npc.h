@@ -18,6 +18,7 @@
 #include "AI/Actions/OccupyTower.h"
 #include "AI/Actions/RangedAttack.h"
 #include "AI/Actions/TargetFarthestTower.h"
+#include "AI/Actions/TargetNearestAttackable.h"
 #include "Engine/Texture.h"
 #include "Engine/DataTable.h"
 #include "Managers/BuildingsManager.h"
@@ -224,10 +225,14 @@ public:
 	//*
 	FTargetPlayerAction TargetPlayerAction{this};
 	FTargetNearestEnemyAction TargetNearestEnemyAction{this};
+	FTargetNearestAttackableAction TargetNearestAttackableAction{this};
 	FTargetFarthestTowerAction TargetFarthestTowerAction{this};
 	
 	UPROPERTY(VisibleAnywhere, Category="Action Properties|Targeting")
-	TObjectPtr<AActor> TargetActor = nullptr;
+	AActor* TargetActor = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Targeting")
+	float SenseRadius = 0;
 	
 	//*
 	//* Attack
@@ -284,9 +289,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Enemy", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetNearestEnemy = false;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Friendly", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_TargetNearestFriendly = false;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Tower", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetFurthestTower = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetPlayer = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Any", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_TargetNearestAny = false;
 };

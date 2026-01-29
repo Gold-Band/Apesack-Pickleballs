@@ -40,7 +40,7 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 		CurrentTask->Run(DeltaTime);
 		if (CurrentTask->Failed())
 		{
-			
+			CurrentTask->Reset();
 		}
 	}
 }

@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Buildings/ArcherTower.h"
-
 #include "AI/NPC/Npc.h"
 
 AArcherTower::AArcherTower()
@@ -11,6 +10,7 @@ AArcherTower::AArcherTower()
 	TowerMesh->SetupAttachment(RootComponent);
 	
 	Name = FString("Archer Tower");
+	BuildingType = EBuildingType::Tower;
 }
 
 bool AArcherTower::HasRoom() const
@@ -41,21 +41,12 @@ void AArcherTower::AddSpot(USceneComponent* NewSpot)
  
 TArray<UListItemObject*> AArcherTower::GetInfo() const
 {
-	// hp
-	// num occupans / max occupants
 	return Super::GetInfo();
+	// num occupans / max occupants
 }
 
 TArray<UListItemObject*> AArcherTower::GetActions() 
 {
 	// upgrades
 	return Super::GetActions();
-}
-
-void AArcherTower::BeginPlay()
-{
-	Super::BeginPlay();
-	
-	UE_LOG(LogTemp, Warning, TEXT("Building ArcherTower"));
-	UBuildingsManager::Get(GetWorld())->AddBuilding(this, EBuildingType::Tower);
 }

@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/ClickableActor.h"
+#include "Managers/BuildingsManager.h"
 #include "Building.generated.h"
 
 class ADefaultGameMode;
@@ -29,6 +30,7 @@ protected:
 	void OnActorClicked();
 	
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int BuildCost = 0;
@@ -38,4 +40,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<USceneComponent> Root;
+	
+	EBuildingType BuildingType;
 };

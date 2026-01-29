@@ -23,7 +23,6 @@ public:
 	virtual TArray<UListItemObject*> GetActions() override;
 	
 protected:
-	virtual void BeginPlay() override;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UStaticMeshComponent> WallMesh;
