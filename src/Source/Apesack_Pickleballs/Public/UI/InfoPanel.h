@@ -18,8 +18,10 @@ class APESACK_PICKLEBALLS_API UInfoPanel : public UUserWidget
 	
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnActionEntryClicked();
-	
+	void OnActionEntryClicked(int Cost);
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere);
+	bool bTransactionSucceeded;
 	
 protected:
 	
