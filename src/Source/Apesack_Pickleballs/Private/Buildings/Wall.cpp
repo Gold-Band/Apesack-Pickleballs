@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Buildings/Wall.h"
 
+#include "AI/HTN/ListItemObject.h"
+
 AWall::AWall()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -18,5 +20,14 @@ TArray<UListItemObject*> AWall::GetActions()
 
 TArray<UListItemObject*> AWall::GetInfo() const
 {
+	/*TArray<UListItemObject*> Info{};
+	
+	// hp
+	UListItemObject* HpInfo = NewObject<UListItemObject>();
+	HpInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Hp: %i/%i"), FMath::RoundToInt(Stats->GetHealth()), FMath::RoundToInt(Stats->GetMaxHealth())));
+	
+	Info.Add(HpInfo);
+	
+	return Info;*/
 	return Super::GetInfo();
 }

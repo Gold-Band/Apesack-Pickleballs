@@ -32,7 +32,7 @@ public:
 	void OnLanded();
 	
 	UFUNCTION(BlueprintCallable)
-	virtual void LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
+	virtual bool LaunchAt(const TArray<AActor*>& IgnoreActors, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
 	
 	UPROPERTY(EditAnywhere)
 	float Speed = 1000.0f;

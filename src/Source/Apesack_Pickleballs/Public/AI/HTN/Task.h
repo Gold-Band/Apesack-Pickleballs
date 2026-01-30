@@ -9,6 +9,9 @@ class FAction;
 /**
  * Container of required actions to perform this task
  */
+
+DECLARE_DELEGATE(FResetSignature)
+
 class APESACK_PICKLEBALLS_API FTask
 {
 public:
@@ -18,13 +21,24 @@ public:
 	bool CanPerform() const;
 	FString GetName() const {return Name;}
 	bool Failed() const {return bFailed;}
+	bool Succeeded() const {return bSuccess;}
+	
 	void Reset();
+	void SoftReset();
 	
 	TArray<FAction*> Actions;
+	bool bAutoReset;
+	float AutoResetInterval;
+	bool bPrintDebug = false;
+	bool bResetOnFail = false;
 	
 private:
+	bool AutoResetCondition() const;
 	
 	FString Name;
 	int Progress;
 	bool bFailed;
+	bool bSuccess;
+	
+	float TimeSinceReset;
 };

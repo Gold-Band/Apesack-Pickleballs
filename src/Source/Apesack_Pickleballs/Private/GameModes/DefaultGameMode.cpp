@@ -50,5 +50,5 @@ void ADefaultGameMode::BeginPlay()
 	WorldClock->AllowClockTicking(bEnableClock);
 	
 	// setup an arrow pool
-	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 10);
+	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 50);
 }
