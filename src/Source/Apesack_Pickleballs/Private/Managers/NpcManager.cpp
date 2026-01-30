@@ -70,7 +70,7 @@ void UNpcManager::Tick(float DeltaTime)
 	LeftMostVulnerableAsset = GetMostVulnerableAsset(EOriginSide::Left);
 	if (LeftMostVulnerableAsset != PreviousLeftMostVulnerableAsset)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+		//UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(LeftMostVulnerableAsset, EOriginSide::Left);
 	}
 	
@@ -80,7 +80,7 @@ void UNpcManager::Tick(float DeltaTime)
 	RightMostVulnerableAsset = GetMostVulnerableAsset(EOriginSide::Right);
 	if (RightMostVulnerableAsset != PreviousRightMostVulnerableAsset)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+		//UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(RightMostVulnerableAsset, EOriginSide::Right);
 	}
 	
