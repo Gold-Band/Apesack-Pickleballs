@@ -18,7 +18,7 @@ public:
 	// Sets default values for this actor's properties
 	ABuilding();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Building Properties")
 	float DistanceFromOrigin;
 	
 	virtual void OnClicked() override;
@@ -32,14 +32,18 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Properties")
 	int BuildCost = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Properties")
 	FString Name;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<USceneComponent> Root;
 	
+	UPROPERTY(VisibleAnywhere, Category="Building Properties")
 	EBuildingType BuildingType;
+	
+	UPROPERTY(VisibleAnywhere, Category="Building Properties")
+	EOriginSide BuildingSide;
 };

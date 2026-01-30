@@ -5,26 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Interfaces/ClickableActor.h"
-#include "AI/HTN/Task.h"
-
-#include "AI/Actions/MeleeAttack.h"
-#include "AI/Actions/MoveTimed.h"
-#include "AI/Actions/MoveTo.h"
-#include "AI/Actions/TargetNearestEnemy.h"
-#include "AI/Actions/TargetPlayer.h"
-#include "AI/Actions/Cooldown.h"
 
 #include "GameplayTagContainer.h"
-#include "AI/Actions/OccupyTower.h"
-#include "AI/Actions/RangedAttack.h"
-#include "AI/Actions/TargetFarthestTower.h"
-#include "AI/Actions/TargetNearestAttackable.h"
 #include "Engine/Texture.h"
 #include "Engine/DataTable.h"
-#include "Managers/BuildingsManager.h"
 
 #include "Npc.generated.h"
 
+class FAction;
 class UHTNComponent;
 class UStatsComponent;
 class UNpcManager;
@@ -86,6 +74,8 @@ enum class ECharacterType : uint8
 };
 
 
+enum class ENpcTag : uint8;
+enum class EOriginSide : uint8;
 
 
 UCLASS()
@@ -124,9 +114,14 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-
+	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnActorClicked();
+	
+	virtual void BindActions();
+	virtual void CreateBehaviours();
 	
 public:
 	virtual void OnClicked() override;
@@ -141,26 +136,29 @@ private:
 	float OriginDirection = 0;
 	
 protected:
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	//*
+	//* General Properties
+	//*
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category = "Character Properties")
 	FString CharacterName;
+	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Targeting")
+	AActor* TargetActor = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
+	EOriginSide MainSide;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
+	ENpcTag NpcType;
+	
+	float Timer = 0;
+	
+	int MoveDirection = 1;
+	
+	TArray<FHitResult> HitResults;
 	
 	UPROPERTY()
 	TObjectPtr<UNpcManager> NpcManager = nullptr;
-	
-
-	//**
-	//** My Tasks
-	//**
-	FTask WanderTask{"Wander"};
-	FTask FollowTask{"Follow"};
-	
-	FTask MeleeAttackTask{"Melee Attack"};
-	FTask RangedAttackTask{"Ranged Attack"};
-	FTask BuildTask{"Build/Repair"};
-	FTask HideTask{"Hide"};
-	FTask OccupyTowerTask{"Man Archer Tower"};
-	FTask DefendWallTask{"Defend Wall"};
 	
 	
 	//**
@@ -180,124 +178,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
-
-	
-	// Actions
-public:
-	//*
-	//* General Properties
-	//*
-	UPROPERTY(EditAnywhere, Category = "Action Properties|General")
-	EOriginSide MainSide;
-	
-	
-	
-	//*
-	//* Move
-	//*
-	FMoveTimedAction MoveTimedAction{this};
-	FMoveToAction MoveToAction{this};
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move Timed")
-	float WanderSpeed = 0.3f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move Timed")
-	float WanderTimeMin = 0.5f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move Timed")
-	float WanderTimeMax = 3.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
-	float StopDistance = 50.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
-	float StartRaycastingDistanceSquared = 50000.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
-	float RaycastInterval = 0.2f;
-	
-	UPROPERTY(VisibleAnywhere)
-	bool bCanMove = true;
-	
-	
-	//*
-	//* Targeting
-	//*
-	FTargetPlayerAction TargetPlayerAction{this};
-	FTargetNearestEnemyAction TargetNearestEnemyAction{this};
-	FTargetNearestAttackableAction TargetNearestAttackableAction{this};
-	FTargetFarthestTowerAction TargetFarthestTowerAction{this};
-	
-	UPROPERTY(VisibleAnywhere, Category="Action Properties|Targeting")
-	AActor* TargetActor = nullptr;
-	
-	UPROPERTY(VisibleAnywhere, Category="Action Properties|Targeting")
-	float SenseRadius = 0;
-	
-	//*
-	//* Attack
-	//*
-	FMeleeAttackAction MeleeAttackAction{this};
-	FRangedAttackAction RangedAttackAction{this};
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
-	float Cooldown_MeleeAttack = 0.75f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Base Damage"))
-	float BaseDamage_MeleeAttack = 1;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack")
-	float Cooldown_RangedAttack = 0.75f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Base Damage"))
-	float BaseDamage_RangedAttack = 1;
-	
-	//*
-	//* Delay
-	//*
-	FCooldownAction CooldownAction{this};
-	float Delay;
-	
-	//*
-	//* Archer
-	//*
-	FOccupyTowerAction OccupyTowerAction{this};
-	
-	
-	//*
-	//* Build
-	//*
-	
-	//*
-	//* Debug
-	//*
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_MoveTo = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move Timed", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_MoveTimed = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_MeleeAttack = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_RangedAttack = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Cooldown", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_Cooldown = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Enemy", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_TargetNearestEnemy = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Friendly", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_TargetNearestFriendly = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Tower", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_TargetFurthestTower = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_TargetPlayer = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Any", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_TargetNearestAny = false;
 };

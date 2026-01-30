@@ -11,20 +11,27 @@ enum class EActionState : uint8
 	Failed
 };
 
+DECLARE_DELEGATE_OneParam(FExecutionFunctionSignature, float);
+DECLARE_DELEGATE_RetVal(bool, FConditionCheckSignature);
+DECLARE_DELEGATE(FResetSignature);
+
 class APESACK_PICKLEBALLS_API FAction // does one little thing
 {
 
 public:
-	virtual ~FAction() {}
+	explicit FAction(const FString& ActionName);
+	~FAction();
 	
-	virtual bool IsExecutable() const {return true;} // condition - check the world state dependency (NOT the result of a dependent action) 
-	virtual void Execute(float DeltaTime) = 0; // function that does or calls the one thing on owner
-	virtual void Reset() { State = EActionState::InProgress; }
-	
+	void Reset();
+	bool CanExecute() const;
+
+	FString GetName() const {return Name;}
 	EActionState State;
 	
-	FString GetName() const {return Name;}
+	FExecutionFunctionSignature ExecutionDelegate;
+	FConditionCheckSignature ConditionDelegate;
+	FResetSignature ResetDelegate;
 	
-protected:
+private:
 	FString Name = "Action Base";
 };

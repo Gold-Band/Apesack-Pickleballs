@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Task.h"
 #include "HTNComponent.generated.h"
 
+
+class FTask;
 
 // The HTN Domain for the parent actor.
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -17,7 +18,7 @@ class APESACK_PICKLEBALLS_API UHTNComponent : public UActorComponent
 public:
 	UHTNComponent();
 
-	void AssignTask(const FTask& Task, int Priority = -1);
+	void AssignTask(FTask* Task, int Priority = -1);
 
 	void UpdatePlan();
 	
@@ -28,7 +29,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 private:
-	TArray<FTask> Tasks;
+	TArray<FTask*> Tasks;
 
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="true"), Category = "HTN")
 	bool bPrintDebug = false;

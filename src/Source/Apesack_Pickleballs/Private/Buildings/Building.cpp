@@ -32,11 +32,13 @@ void ABuilding::BeginPlay()
 	Super::BeginPlay();
 	
 	DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
-	UBuildingsManager::Get(GetWorld())->AddBuilding(this, BuildingType);
+	BuildingSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right; 
+	
+	UBuildingsManager::Get(GetWorld())->AddBuilding(this, BuildingType, BuildingSide);
 }
 
 void ABuilding::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	UBuildingsManager::Get(GetWorld())->RemoveBuilding(this, BuildingType);
+	UBuildingsManager::Get(GetWorld())->RemoveBuilding(this, BuildingType, BuildingSide);
 	Super::EndPlay(EndPlayReason);
 }

@@ -27,7 +27,7 @@ void AProjectile::Tick(float DeltaTime)
 		
 		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * AppliedForce;
 		const FVector CurrentPos = GetActorLocation();
-		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
+		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera);
 		const TArray<AActor*> IgnoreActors = {this, ShooterActor};
 		FHitResult Hit;
 		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),CurrentPos, NextPos, TraceChannel, false, IgnoreActors, EDrawDebugTrace::None,Hit,true))
@@ -65,7 +65,7 @@ void AProjectile::Tick(float DeltaTime)
 }
 
 // @todo: if no solution, return false
-void AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy)
+bool AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy)
 {
 	bPathSucceeded = true;
 	ShooterActor = Caller;
@@ -78,13 +78,13 @@ void AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const F
 	//Params.bAcceptClosestOnNoSolutions = true;
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No solution for projectile"))
 		bPathSucceeded = false;
-		//return;
+		return false;
 	}
 	
 	SetActorLocation(StartLocation);
 	Enable();
+	return true;
 }
 
 FOnPooledActorSelfDisabled& AProjectile::GetOnActorDisabled()

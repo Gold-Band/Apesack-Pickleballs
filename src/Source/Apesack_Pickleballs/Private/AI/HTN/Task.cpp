@@ -7,6 +7,7 @@ FTask::FTask(const FString& TaskName) : Name(TaskName)
 {
 	Progress = 0;
 	bFailed = false;
+	bSuccess = false;
 	bAutoReset = false;
 	AutoResetInterval = 0.2f;
 	TimeSinceReset = 0;
@@ -16,20 +17,26 @@ bool FTask::CanPerform() const
 {
 	for (const auto Action : Actions)
 	{
-		if (Action->IsExecutable() == false) return false; 
+		if (Action->CanExecute() == false) return false; 
 	}
 	return true;
 }
 
 void FTask::Reset()
 {
+	SoftReset();
 	TimeSinceReset = 0;
-	bFailed=false;
-	Progress = 0;
+	Progress=0;
 	for (const auto Action : Actions)
 	{
 		Action->Reset(); 
 	}
+}
+
+void FTask::SoftReset()
+{
+	bFailed=false;
+	bSuccess=false;
 }
 
 // returns true if we want to reset
@@ -40,22 +47,25 @@ bool FTask::AutoResetCondition() const
 
 void FTask::Run(float DeltaTime)
 {
-	if (!Actions.IsValidIndex(Progress) || AutoResetCondition()) Reset();
+	if (!Actions.IsValidIndex(Progress)) Reset();
 	
 	FAction* CurrentAction = Actions[Progress];
-	//UE_LOG(LogTemp, Log, TEXT("Executing \"%s\" (from %s)"), *CurrentAction->GetName(), *Name);
-	CurrentAction->Execute(DeltaTime);
+	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Executing \"%s\" (from %s)"), *CurrentAction->GetName(), *Name);
+	CurrentAction->ExecutionDelegate.Execute(DeltaTime);
 	
 	switch (CurrentAction->State)
 	{
 	case EActionState::Failed:
-		UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\"!"), *Name, *CurrentAction->GetName());
+		if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\"!"), *Name, *CurrentAction->GetName());
 		bFailed = true;
 		break;
 	case EActionState::Succeeded:
 		Progress++;
+		bSuccess = true;
 	default: ;
 	}
+	
+	//if (Progress == Actions.Num() && !bFailed) bSuccess = true;
 	
 	if (bAutoReset) TimeSinceReset += DeltaTime;
 }
