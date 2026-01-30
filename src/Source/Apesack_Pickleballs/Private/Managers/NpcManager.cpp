@@ -208,6 +208,26 @@ AActor* UNpcManager::GetFarthestNpc(ENpcSearchOption SearchFilter, EOriginSide S
 	return (*SearchArray)[0];
 }
 
+TArray<AActor*> UNpcManager::GetNpcs(ENpcSearchOption SearchFilter, EOriginSide Side) const
+{
+	const TArray<AActor*>* SearchArray = nullptr;
+	
+	switch (SearchFilter)
+	{
+	case ENpcSearchOption::AnyHostile:
+		if (Side == EOriginSide::Right)	SearchArray = &RightHostiles;
+		else SearchArray = &LeftHostiles;
+		break;
+	case ENpcSearchOption::AnyFriendly:
+		if (Side == EOriginSide::Right) SearchArray = &RightFriendlies;
+		else SearchArray = &LeftFriendlies;
+		break;
+	default:; 
+	}
+	
+	return *SearchArray;
+}
+
 AActor* UNpcManager::GetMostVulnerableAsset(const EOriginSide Side)
 {
 	// Get farthest Npc

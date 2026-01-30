@@ -57,6 +57,10 @@ protected:
 	virtual void BindActions() override;
 	virtual void CreateBehaviours() override;
 	
+public:
+	virtual TArray<UListItemObject*> GetInfo() const override;
+	virtual TArray<UListItemObject*> GetActions() override;
+	
 private:
 	UFUNCTION()
 	void OnNightStarted();

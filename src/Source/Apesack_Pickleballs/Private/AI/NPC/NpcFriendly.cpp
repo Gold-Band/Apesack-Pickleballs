@@ -4,6 +4,7 @@
 #include "StatsComponent.h"
 #include "AI/Actions/Action.h"
 #include "AI/HTN/HTNComponent.h"
+#include "AI/HTN/ListItemObject.h"
 #include "Buildings/ArcherTower.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -109,6 +110,7 @@ void ANpcFriendly::CreateBehaviours()
 	OccupyTowerTask.Actions.Add(&TargetFarthestTowerAction);
 	OccupyTowerTask.Actions.Add(&MoveToAction);
 	OccupyTowerTask.Actions.Add(&OccupyTowerAction);
+	OccupyTowerTask.bPrintDebug = bPrintDebug_TargetFurthestTower;
 	HtnDomain->AssignTask(&OccupyTowerTask);
 	
 	
@@ -116,12 +118,81 @@ void ANpcFriendly::CreateBehaviours()
 	RangedAttackTask.Actions.Add(&TargetNearestEnemyAction);
 	RangedAttackTask.Actions.Add(&RangedAttackAction);
 	RangedAttackTask.Actions.Add(&CooldownAction);
-	RangedAttackTask.bPrintDebug = false;
+	RangedAttackTask.bPrintDebug = bPrintDebug_RangedAttack;
 	HtnDomain->AssignTask(&RangedAttackTask);
 	
 	// Wander
 	WanderTask.Actions.Add(&MoveTimedAction);
 	HtnDomain->AssignTask(&WanderTask);
+}
+
+TArray<UListItemObject*> ANpcFriendly::GetInfo() const
+{
+	TArray<UListItemObject*> Info{};
+	
+	// hp
+	UListItemObject* HpInfo = NewObject<UListItemObject>();
+	HpInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Hp: %i/%i"), FMath::RoundToInt(Stats->GetHealth()), FMath::RoundToInt(Stats->GetMaxHealth())));
+	
+	// class
+	UListItemObject* ClassInfo = NewObject<UListItemObject>();
+	ClassInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Class: %s"), TEXT("Peasant")));
+	
+	// rank
+	UListItemObject* RankInfo = NewObject<UListItemObject>();
+	RankInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Rank: %s"), TEXT("None")));
+	
+	// proficiency
+	UListItemObject* ProficiencyInfo = NewObject<UListItemObject>();
+	ProficiencyInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Proficient As: %s"), TEXT("Builder")));
+	
+	//sum
+	Info.Add(HpInfo);
+	Info.Add(ClassInfo);
+	Info.Add(RankInfo);
+	Info.Add(ProficiencyInfo);
+	
+	return Info;	
+}
+
+TArray<UListItemObject*> ANpcFriendly::GetActions()
+{
+	TArray<UListItemObject*> Actions{};
+	
+	{ // set peasant
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Peasant;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	{ // set archer
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Archer"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	{ // set fighter
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Fighter;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	{ // set builder
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Builder;};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	
+	return Actions;
 }
 
 void ANpcFriendly::OnNightStarted()
@@ -323,7 +394,7 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 
 bool ANpcFriendly::MeleeAttackCondition() const
 {
-	return CharacterClass == ECharacterType::Fighter;
+	return CharacterClass == ECharacterType::Fighter/* && NpcManager->CanSeeHostiles(GetActorLocation(), 5000.f)*/;
 }
 
 
@@ -349,9 +420,10 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	
 	//* 2. Get my statsComponent and pass some information down to the arrow
 	Arrow->Damage = Stats->GetRangedDamage(BaseDamage_MeleeAttack);
+	Arrow->bDrawPathDebug = bPrintDebug_RangedAttack;
 	
 	//* 3. Call Launch At
-	if (Arrow->LaunchAt(this, GetProjectileSpawnLocation(), TargetActor->GetActorLocation()))
+	if (Arrow->LaunchAt(NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide), GetProjectileSpawnLocation(), TargetActor->GetActorLocation()))
 	{
 		RangedAttackAction.State = EActionState::Succeeded;
 		Delay = Cooldown_RangedAttack;
@@ -359,6 +431,7 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	else
 	{
 		RangedAttackAction.State = EActionState::Failed;
+		Arrow->Disable();
 	}
 }
 
@@ -384,7 +457,7 @@ void ANpcFriendly::OccupyTower(float DeltaTime)
 	{
 		TargetTower->AddOccupant(this);
 		bCanMove = false;
-		NpcManager->RemoveNpc(this, ENpcTag::Friendly, MainSide);
+		NpcManager->RemoveNpc(this, ENpcTag::Friendly, MainSide); // causes freeze if an enemy targets this
 	}
 	OccupyTowerAction.State = EActionState::Succeeded;
 }

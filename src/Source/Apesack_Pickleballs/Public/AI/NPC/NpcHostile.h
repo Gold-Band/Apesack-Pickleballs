@@ -18,6 +18,8 @@ class APESACK_PICKLEBALLS_API ANpcHostile : public ANpc
 public:
 	ANpcHostile();
 	
+	virtual TArray<UListItemObject*> GetInfo() const override;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -44,12 +46,10 @@ protected:
 	//* Walk *//
 	FAction WalkAction{FString("Walk")};
 	void Walk(float DeltaTime);
-	bool WalkCondition();
 	
 	//* Delay *//
 	FAction CooldownAction{FString("Cooldown")};
 	void Cooldown(float DeltaTime);
-	bool CooldownCondition() const;
 	void CooldownReset();
 	float Delay;
 	

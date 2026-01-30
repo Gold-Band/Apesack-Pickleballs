@@ -97,6 +97,8 @@ public:
 	
 	AActor* GetFarthestNpc(ENpcSearchOption SearchFilter, EOriginSide Side);
 	
+	TArray<AActor*> GetNpcs(ENpcSearchOption SearchFilter, EOriginSide Side) const;
+	
 	float RaidDetectionDistance = 10000;
 	
 private:

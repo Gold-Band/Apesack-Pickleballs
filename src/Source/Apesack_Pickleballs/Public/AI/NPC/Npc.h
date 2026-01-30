@@ -108,7 +108,7 @@ public:
 	void MoveForwardScaled(float Scale);
 	
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
 	ECharacterType CharacterClass;
 	
 	
@@ -126,8 +126,6 @@ protected:
 public:
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
-	virtual TArray<UListItemObject*> GetInfo() const override;
-	virtual TArray<UListItemObject*> GetActions() override;
 
 private:
 	float Radius = 0;

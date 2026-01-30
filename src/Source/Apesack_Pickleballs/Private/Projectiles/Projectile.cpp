@@ -64,18 +64,17 @@ void AProjectile::Tick(float DeltaTime)
 	}
 }
 
-// @todo: if no solution, return false
-bool AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy)
+bool AProjectile::LaunchAt(const TArray<AActor*>& IgnoreActors, const FVector& StartLocation,
+	const FVector& TargetLocation, float Accuracy)
 {
 	bPathSucceeded = true;
-	ShooterActor = Caller;
 	
 	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, Speed};
-	Params.ActorsToIgnore = TArray{Caller};
+	Params.ActorsToIgnore = IgnoreActors;
 	Params.bDrawDebug = bDrawPathDebug;
 	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
 	Params.CollisionRadius = 0;
-	//Params.bAcceptClosestOnNoSolutions = true;
+	Params.bAcceptClosestOnNoSolutions = false;
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
 		bPathSucceeded = false;

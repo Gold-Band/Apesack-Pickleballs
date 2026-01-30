@@ -3,6 +3,7 @@
 
 #include "StatsComponent.h"
 #include "AI/HTN/HTNComponent.h"
+#include "AI/HTN/ListItemObject.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Managers/NpcManager.h"
 
@@ -13,6 +14,20 @@ ANpcHostile::ANpcHostile()
 	
 	CharacterClass = ECharacterType::Fighter;
 	NpcType = ENpcTag::Hostile;
+	CharacterName = "Aggressive Cube";
+}
+
+TArray<UListItemObject*> ANpcHostile::GetInfo() const
+{
+	TArray<UListItemObject*> Info{};
+	
+	// hp
+	UListItemObject* HpInfo = NewObject<UListItemObject>();
+	HpInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Hp: %i/%i"), FMath::RoundToInt(Stats->GetHealth()), FMath::RoundToInt(Stats->GetMaxHealth())));
+	
+	Info.Add(HpInfo);
+	
+	return Info;
 }
 
 void ANpcHostile::BeginPlay()
@@ -41,7 +56,6 @@ void ANpcHostile::BindActions()
 	MeleeAttackAction.ConditionDelegate.BindUObject(this, &ThisClass::MeleeAttackCondition);
 	MeleeAttackAction.ExecutionDelegate.BindUObject(this, &ThisClass::MeleeAttack);
 	
-	CooldownAction.ConditionDelegate.BindUObject(this, &ThisClass::CooldownCondition);
 	CooldownAction.ExecutionDelegate.BindUObject(this, &ThisClass::Cooldown);
 	CooldownAction.ResetDelegate.BindUObject(this, &ThisClass::CooldownReset);
 	
@@ -58,12 +72,12 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	MeleeAttackTask.Actions.Add(&CooldownAction);
-	MeleeAttackTask.bPrintDebug = false;
+	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
 	HtnDomain->AssignTask(&MeleeAttackTask);
 	
 	// Walk
 	MoveForwardTask.Actions.Add(&WalkAction);
-	MoveForwardTask.bPrintDebug = false;
+	MoveForwardTask.bPrintDebug = bPrintDebug_MoveTo;
 	HtnDomain->AssignTask(&MoveForwardTask);
 }
 
@@ -89,10 +103,6 @@ void ANpcHostile::Walk(float DeltaTime)
 	else MoveForwardScaled(-1);
 }
 
-bool ANpcHostile::WalkCondition()
-{
-	return true;
-}
 
 void ANpcHostile::Cooldown(float DeltaTime)
 {
@@ -100,10 +110,6 @@ void ANpcHostile::Cooldown(float DeltaTime)
 	if (Timer >= Delay) CooldownAction.State = EActionState::Succeeded;
 }
 
-bool ANpcHostile::CooldownCondition() const
-{
-	return true;
-}
 
 void ANpcHostile::CooldownReset()
 {
@@ -206,7 +212,7 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 
 bool ANpcHostile::MeleeAttackCondition() const
 {
-	return true;
+	return NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide) != nullptr;
 }
 
 void ANpcHostile::TargetAttackable(float DeltaTime)
