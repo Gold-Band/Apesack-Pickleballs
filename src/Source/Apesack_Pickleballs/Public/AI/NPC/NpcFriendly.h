@@ -11,6 +11,7 @@
 #include "NpcFriendly.generated.h"
 
 
+class AArcherTower;
 class UBuildingsManager;
 
 UENUM(BlueprintType)
@@ -77,6 +78,10 @@ protected:
 	//**
 	//** My Actions
 	//**
+	
+	//* Wait *//
+	FAction WaitAction{FString("Wait")};
+	void Wait(float DeltaTime);
 	
 	
 	//* Delay *//
@@ -174,6 +179,7 @@ protected:
 	//** My Tasks
 	//**
 	FTask WanderTask{"Wander"};
+	FTask WaitTask{"Wait"};
 	FTask FollowTask{"Follow"};
 	
 	FTask MeleeAttackTask{"Melee Attack"};

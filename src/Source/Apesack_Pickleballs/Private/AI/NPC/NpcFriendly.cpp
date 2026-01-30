@@ -16,7 +16,6 @@ ANpcFriendly::ANpcFriendly()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
-	
 	NpcType = ENpcTag::Friendly;
 }
 
@@ -60,6 +59,8 @@ void ANpcFriendly::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ANpcFriendly::BindActions()
 {
 	Super::BindActions();
+	
+	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
 	
 	TargetPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetPlayer);
 	
@@ -111,6 +112,7 @@ void ANpcFriendly::CreateBehaviours()
 	OccupyTowerTask.Actions.Add(&MoveToAction);
 	OccupyTowerTask.Actions.Add(&OccupyTowerAction);
 	OccupyTowerTask.bPrintDebug = bPrintDebug_TargetFurthestTower;
+	OccupyTowerTask.bResetOnFail = true;
 	HtnDomain->AssignTask(&OccupyTowerTask);
 	
 	
@@ -123,7 +125,12 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// Wander
 	WanderTask.Actions.Add(&MoveTimedAction);
-	HtnDomain->AssignTask(&WanderTask);
+	//HtnDomain->AssignTask(&WanderTask);
+	
+	// Wait
+	WaitTask.Actions.Add(&WaitAction);
+	WaitTask.bPrintDebug = false;
+	HtnDomain->AssignTask(&WaitTask);
 }
 
 TArray<UListItemObject*> ANpcFriendly::GetInfo() const
@@ -218,6 +225,11 @@ void ANpcFriendly::OnRaidDetected(EOriginSide Side)
 //*
 
 
+void ANpcFriendly::Wait(float DeltaTime)
+{
+	WaitAction.State = EActionState::Succeeded;
+}
+
 void ANpcFriendly::Cooldown(float DeltaTime)
 {
 	Timer += DeltaTime;
@@ -247,7 +259,7 @@ void ANpcFriendly::MoveTimed(float DeltaTime)
 
 bool ANpcFriendly::MoveTimedCondition() const
 {
-	return bCanMove;	
+	return bCanMove == true;	
 }
 
 void ANpcFriendly::MoveTimedReset()
@@ -319,7 +331,7 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 
 bool ANpcFriendly::MoveToCondition() const
 {
-	return bCanMove;
+	return bCanMove == true;
 }
 
 void ANpcFriendly::MoveToReset()
@@ -431,6 +443,7 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	else
 	{
 		RangedAttackAction.State = EActionState::Failed;
+		if (bPrintDebug_RangedAttack) UE_LOG(LogTemp, Warning, TEXT("no solution to hit %s"), *TargetActor->GetActorNameOrLabel());
 		Arrow->Disable();
 	}
 }
@@ -457,12 +470,13 @@ void ANpcFriendly::OccupyTower(float DeltaTime)
 	{
 		TargetTower->AddOccupant(this);
 		bCanMove = false;
-		NpcManager->RemoveNpc(this, ENpcTag::Friendly, MainSide); // causes freeze if an enemy targets this
+		NpcManager->RemoveNpc(this, NpcType, MainSide); // causes freeze if an enemy targets this
 	}
 	OccupyTowerAction.State = EActionState::Succeeded;
+	RangedAttackTask.Reset();
 }
 
 bool ANpcFriendly::OccupyTowerCondition() const
 {
-	return CharacterClass == ECharacterType::Archer;
+	return CharacterClass == ECharacterType::Archer && bCanMove;
 }

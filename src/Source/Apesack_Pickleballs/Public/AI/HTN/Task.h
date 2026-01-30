@@ -30,6 +30,7 @@ public:
 	bool bAutoReset;
 	float AutoResetInterval;
 	bool bPrintDebug = false;
+	bool bResetOnFail = false;
 	
 private:
 	bool AutoResetCondition() const;

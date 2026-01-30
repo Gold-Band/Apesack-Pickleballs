@@ -176,4 +176,5 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
+	
 };

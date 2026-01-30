@@ -22,7 +22,8 @@ bool UHTNComponent::UpdatePlan()
 		if (!Task->CanPerform()) continue;
 		if (Task->Failed())
 		{
-			Task->SoftReset();
+			if (Task->bResetOnFail) Task->Reset();
+			else Task->SoftReset();
 			continue;
 		}
 		
@@ -42,17 +43,11 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	bool bHasValidTask = false;
 	while (bHasValidTask == false) // default is false
 	{
-		//if (bPrintDebug) UE_LOG(LogTemp, Error, TEXT("tick"));
-		
 		bHasValidTask = UpdatePlan(); // sets has valid task (to true)
 		
 		if (bHasValidTask)
 		{
 			CurrentTask->Run(DeltaTime);
-			/*if (CurrentTask->Succeeded())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("%s Succeeded"), *CurrentTask->GetName())
-			}*/
 			if (CurrentTask->Failed())
 			{
 				// but do the next action right away

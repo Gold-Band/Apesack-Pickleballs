@@ -47,7 +47,7 @@ bool FTask::AutoResetCondition() const
 
 void FTask::Run(float DeltaTime)
 {
-	if (!Actions.IsValidIndex(Progress)) Reset();
+	if (!Actions.IsValidIndex(Progress) || AutoResetCondition()) Reset();
 	
 	FAction* CurrentAction = Actions[Progress];
 	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Executing \"%s\" (from %s)"), *CurrentAction->GetName(), *Name);
