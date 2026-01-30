@@ -166,7 +166,7 @@ AActor* UNpcManager::FindNearestNpc(const FVector& FromLocation, ENpcSearchOptio
 		{
 			const float FastDistA = FVector::DistSquared(FromLocation, A.GetActorLocation());
 			const float FastDistB = FVector::DistSquared(FromLocation, B.GetActorLocation());
-			return (FastDistA > FastDistB);
+			return (FastDistA < FastDistB);
 		});
 	}
 	

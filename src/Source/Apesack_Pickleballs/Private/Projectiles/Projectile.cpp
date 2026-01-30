@@ -25,7 +25,7 @@ void AProjectile::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("Travelling"))
 		// raycast and move
 		
-		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * AppliedForce;
+		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * FMath::RandRange(AppliedForce*0.5f, AppliedForce*2.f);
 		const FVector CurrentPos = GetActorLocation();
 		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera);
 		const TArray<AActor*> IgnoreActors = {this, ShooterActor};
@@ -69,7 +69,8 @@ bool AProjectile::LaunchAt(const TArray<AActor*>& IgnoreActors, const FVector& S
 {
 	bPathSucceeded = true;
 	
-	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, Speed};
+	const float ProjectileSpeed = FMath::RandRange(Speed*0.8f, Speed*1.2f);
+	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, ProjectileSpeed};
 	Params.ActorsToIgnore = IgnoreActors;
 	Params.bDrawDebug = bDrawPathDebug;
 	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;

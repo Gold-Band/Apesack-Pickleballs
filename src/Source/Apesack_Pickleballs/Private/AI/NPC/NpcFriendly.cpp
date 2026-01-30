@@ -435,7 +435,9 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	Arrow->bDrawPathDebug = bPrintDebug_RangedAttack;
 	
 	//* 3. Call Launch At
-	if (Arrow->LaunchAt(NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide), GetProjectileSpawnLocation(), TargetActor->GetActorLocation()))
+	TArray<AActor*> IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide);
+	IgnoreActors.Add(this);
+	if (Arrow->LaunchAt(IgnoreActors, GetProjectileSpawnLocation(), TargetActor->GetActorLocation()))
 	{
 		RangedAttackAction.State = EActionState::Succeeded;
 		Delay = Cooldown_RangedAttack;
