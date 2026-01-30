@@ -5,7 +5,7 @@
 
 FTask::FTask(const FString& TaskName) : Name(TaskName)
 {
-	Progress = 0.0f;
+	Progress = 0;
 	bFailed = false;
 }
 
@@ -43,7 +43,6 @@ void FTask::Run(float DeltaTime)
 		break;
 	case EActionState::Succeeded:
 		Progress++;
-		//UE_LOG(LogTemp, Log, TEXT("Done!"));
-	default: bFailed = false;
+	default: ;
 	}
 }

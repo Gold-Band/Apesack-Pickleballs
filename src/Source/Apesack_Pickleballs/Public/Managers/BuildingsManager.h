@@ -32,16 +32,12 @@ public:
 	
 	static UBuildingsManager* Get(const UObject* WorldContextObject);
 
-	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
-
 	void AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType);
 	void RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType);
 	
-	FVector WorldOrigin;
-	
 	AActor* GetFarthestBuilding(EBuildingType Type, EOriginSide Side);
 	
-	bool TowersExist() const;
+	bool DoVacantTowersExist() const;
 	bool WallsExist() const;
 	
 private:

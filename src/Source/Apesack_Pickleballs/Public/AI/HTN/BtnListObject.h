@@ -29,4 +29,6 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UUserWidget> Parent;
+	
+	int Cost;
 };

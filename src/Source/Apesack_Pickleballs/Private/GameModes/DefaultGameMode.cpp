@@ -4,10 +4,10 @@
 #include "GameModes/DefaultGameMode.h"
 
 #include "AI/NPC/NpcName.h"
-#include "Managers/BuildingsManager.h"
-#include "Managers/NpcManager.h"
 #include "WorldClock/WorldClockSubsystem.h"
 
+
+FVector ADefaultGameMode::WorldOriginNormal = FVector(0.0f, 1.0f, 0.0f);
 
 FString ADefaultGameMode::GetRandomNpcName() const
 {
@@ -28,6 +28,11 @@ float ADefaultGameMode::GetAngleBetweenVectors(const FVector& A, const FVector& 
 	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
 }
 
+float ADefaultGameMode::GetDistanceToOrigin(const FVector& FromLocation)
+{
+	return GetAngleBetweenVectors(FromLocation, WorldOriginNormal);
+}
+
 // eventually change this into GetProjectile(EProjectileType type)
 AActor* ADefaultGameMode::GetArrow()
 {
@@ -44,21 +49,6 @@ void ADefaultGameMode::BeginPlay()
 	WorldClock->SetTimeScale(GameTimeScale);
 	WorldClock->AllowClockTicking(bEnableClock);
 	
-	if (!BuildingsManager) InitializeLocalBuildingsManagerReference();
-	if (!NpcManager) InitializeLocalNpcManagerReference();
-
 	// setup an arrow pool
 	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 10);
-}
-
-void ADefaultGameMode::InitializeLocalBuildingsManagerReference()
-{
-	BuildingsManager = UBuildingsManager::Get(this);
-	BuildingsManager->WorldOrigin = WorldOriginNormal;
-}
-
-void ADefaultGameMode::InitializeLocalNpcManagerReference()
-{
-	NpcManager = UNpcManager::Get(this);
-	NpcManager->SetWorldOrigin(WorldOriginNormal);
 }

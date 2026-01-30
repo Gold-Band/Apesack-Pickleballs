@@ -16,8 +16,13 @@ public:
 	virtual void Execute(float DeltaTime) override;
 	virtual void Reset() override;
 
+	bool bUseLineOfSight;
+	
 private:
-	TObjectPtr<ANpc> Owner;
+	bool LineTraceMulti(TArray<FHitResult>& OutHits) const;
+	bool ProbeDistanceCondition() const;
+	
+	ANpc* Owner;
 	AActor* TargetActor;
 	TArray<FHitResult> HitResults;
 	float Timer;

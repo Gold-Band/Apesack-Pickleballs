@@ -13,10 +13,10 @@ FTargetFarthestTowerAction::FTargetFarthestTowerAction(ANpc* OwnerNpc)
 
 bool FTargetFarthestTowerAction::IsExecutable() const
 {
-	// do towers exist?
+	// do towers exist? and are they vacant
 	const UBuildingsManager* BuildingsManager = UBuildingsManager::Get(Owner->GetWorld());
-	if (Owner->bPrintDebug_TargetFurthestTower) UE_LOG(LogTemp, Warning, TEXT("tower exists? %s"), FarthestTower? TEXT("yes"): TEXT("no"));
-	return BuildingsManager->TowersExist();
+	//if (Owner->bPrintDebug_TargetFurthestTower) UE_LOG(LogTemp, Warning, TEXT("tower exists? %s"), FarthestTower? TEXT("yes"): TEXT("no"));
+	return BuildingsManager->DoVacantTowersExist();
 }
 
 void FTargetFarthestTowerAction::Execute(float DeltaTime)
@@ -28,6 +28,8 @@ void FTargetFarthestTowerAction::Execute(float DeltaTime)
 		UBuildingsManager* BuildingsManager = UBuildingsManager::Get(World);
 		FarthestTower= Owner->TargetActor = BuildingsManager->GetFarthestBuilding(EBuildingType::Tower, Owner->MainSide);
 	}
+	
+	if (Owner->bPrintDebug_TargetFurthestTower) UE_LOG(LogTemp, Warning, TEXT("Targeting %s"), *FarthestTower->GetActorNameOrLabel());
 	
 	if (FarthestTower != nullptr) State = EActionState::Succeeded;
 	else State = EActionState::Failed;

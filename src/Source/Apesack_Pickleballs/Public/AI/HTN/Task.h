@@ -21,6 +21,7 @@ public:
 	void Reset();
 	
 	TArray<FAction*> Actions;
+	
 private:
 	
 	FString Name;

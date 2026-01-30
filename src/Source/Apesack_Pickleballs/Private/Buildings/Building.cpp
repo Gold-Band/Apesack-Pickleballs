@@ -1,5 +1,4 @@
 #include "Buildings/Building.h"
-
 #include "GameModes/DefaultGameMode.h"
 #include "Managers/BuildingsManager.h"
 
@@ -22,6 +21,7 @@ FString ABuilding::GetActorName() const
 	return Name;
 }
 
+
 int ABuilding::GetBuildCost() const
 {
 	return BuildCost;
@@ -30,7 +30,13 @@ int ABuilding::GetBuildCost() const
 void ABuilding::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Building"));
 	
-	DistanceFromOrigin = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), UBuildingsManager::Get(GetWorld())->WorldOrigin);
+	DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	UBuildingsManager::Get(GetWorld())->AddBuilding(this, BuildingType);
+}
+
+void ABuilding::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UBuildingsManager::Get(GetWorld())->RemoveBuilding(this, BuildingType);
+	Super::EndPlay(EndPlayReason);
 }

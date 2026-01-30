@@ -78,7 +78,7 @@ AActor* UNpcManager::FindNearestNpc(FVector FromLocation, ENpcSearchOption Searc
 		});
 	}
 	
-	return AllHostiles[0];
+	return (*SearchArray)[0];
 }
 
 void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)

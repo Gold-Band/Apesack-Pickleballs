@@ -9,10 +9,7 @@
 #include "DefaultGameMode.generated.h"
 
 struct FTimestamp;
-class UNpcManager;
-class UBuildingsManager;
 class AProjectile;
-class UNpcDelegates;
 class UWorldClockSubsystem;
 
 
@@ -29,7 +26,9 @@ public:
 
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
-	const FVector WorldOriginNormal = FVector(0.0f, 1.0f, 0.0f);
+	static float GetDistanceToOrigin(const FVector& FromLocation);
+	
+	static FVector WorldOriginNormal;
 	
 	UFUNCTION(BlueprintPure)
 	AActor* GetArrow();
@@ -47,20 +46,10 @@ protected:
 	float GameTimeScale = 1000.f;
 	
 private:
-	void InitializeLocalBuildingsManagerReference();
-	void InitializeLocalNpcManagerReference();
-	
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	TSoftObjectPtr<UDataTable> NpcNames;
 
 
-	// cached manager instances
-	UPROPERTY()
-	TObjectPtr<UBuildingsManager> BuildingsManager;
-	
-	UPROPERTY()
-	TObjectPtr<UNpcManager> NpcManager;
-	
 	UPROPERTY()
 	TObjectPtr<UWorldClockSubsystem> WorldClock;
 
