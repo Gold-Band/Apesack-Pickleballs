@@ -43,6 +43,7 @@ struct FRankInfo : public FTableRowBase // row name is rank name
 };
 */
 
+
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc
 {
@@ -50,6 +51,8 @@ class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc
 
 public:
 	ANpcFriendly();
+	
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -74,10 +77,19 @@ private:
 	UPROPERTY()
 	UBuildingsManager* BuildingsManager;
 	
+	float GetSideInterval = 1;
+	float GetSideTimer;
+	
 protected:
+	
+	void JoinParty();
+	void LeaveParty();
+	
+	
 	//**
 	//** My Actions
 	//**
+	
 	
 	//* Wait *//
 	FAction WaitAction{FString("Wait")};
@@ -89,8 +101,6 @@ protected:
 	void Cooldown(float DeltaTime);
 	void CooldownReset();
 	float Delay;
-	
-	
 	
 	
 	//* Move Timed *//
@@ -112,7 +122,9 @@ protected:
 	
 	//* Move To *//
 	FAction MoveToAction{FString("Move To")};
+	FAction MoveToVectorAction{FString("Move To Vector")};
 	void MoveTo(float DeltaTime);
+	void MoveToVector(float DeltaTime);
 	bool MoveToCondition() const;
 	void MoveToReset();
 	
@@ -125,9 +137,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
 	float RaycastInterval = 0.2f;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
 	bool bCanMove = true;
 	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
+	FVector TargetLocation;
 	
 	
 	
@@ -135,6 +149,15 @@ protected:
 	//* Target Player *//
 	FAction TargetPlayerAction{FString("Target Player")};
 	void TargetPlayer(float DeltaTime);
+	bool TargetPlayerCondition() const;
+	
+	bool bEnabled_FollowPlayer = true;
+	float Cooldown_FollowPlayer = 1;
+	float CooldownTimer_FollowPlayer;
+	
+	
+	bool bIsPartyMember = false;
+	
 	
 	//* Target Enemy *//
 	FAction TargetNearestEnemyAction{FString("Target Enemy")};
@@ -151,8 +174,12 @@ protected:
 	void MeleeAttack(float DeltaTime);
 	bool MeleeAttackCondition() const;
 	
+	bool bEnabled_MeleeAttack = true;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
 	float Cooldown_MeleeAttack = 0.75f;
+	
+	float CooldownTimer_MeleeAttack;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_MeleeAttack = 1;
@@ -162,8 +189,12 @@ protected:
 	void RangedAttack(float DeltaTime);
 	bool RangedAttackCondition() const;
 	
+	bool bEnabled_RangedAttack = true;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack")
 	float Cooldown_RangedAttack = 0.75f;
+	
+	float CooldownTimer_RangedAttack;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_RangedAttack = 1;
@@ -173,6 +204,26 @@ protected:
 	void OccupyTower(float DeltaTime);
 	bool OccupyTowerCondition() const;
 	
+	
+	//* Defend Wall *//
+	FAction GetDefensePositionAction{FString("Get Defense Position")};
+	FAction OnAssumedDefensePositionAction{FString("On Got Defense Position")};
+	void GetDefensePosition(float DeltaTime);
+	bool GetDefensePositionCondition() const;
+	void OnAssumedDefensePosition(float DeltaTime);
+	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Defend Wall")
+	bool bIsNighttime = false;
+	
+	UPROPERTY(EditAnywhere, Category="Action Properties|Defend Wall")
+	float MinDistance = 0.2f; //angle away from the wall
+	
+	UPROPERTY(EditAnywhere, Category="Action Properties|Defend Wall")
+	float ExtraDistancePerPerson = 0.1f; //angle away from the wall
+	
+	bool bAssumedPosition = false;
+	
+	//* Goto Safezone *//
 	
 	
 	//**
@@ -188,6 +239,7 @@ protected:
 	FTask HideTask{"Hide"};
 	FTask OccupyTowerTask{"Man Archer Tower"};
 	FTask DefendWallTask{"Defend Wall"};
+	FTask ReturnToSafeZone{"Return To Safe Zone"};
 
 	
 	
@@ -220,4 +272,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetPlayer = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Defend Wall", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_DefendWall = false;
 };

@@ -41,12 +41,14 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 
 	int r = 0;
 	bool bHasValidTask = false;
+	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT(""));
 	while (bHasValidTask == false) // default is false
 	{
 		bHasValidTask = UpdatePlan(); // sets has valid task (to true)
 		
 		if (bHasValidTask)
 		{
+			CurrentTask->bPrintDebug = bPrintDebug;
 			CurrentTask->Run(DeltaTime);
 			if (CurrentTask->Failed())
 			{

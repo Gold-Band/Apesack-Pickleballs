@@ -63,10 +63,7 @@ void ANpc::BeginPlay()
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	
 	// set mainside
-	const float DistanceToOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
-	if (DistanceToOrigin <= 0) MainSide = EOriginSide::Left;
-	else MainSide = EOriginSide::Right;
-	
+	MainSide = EOriginSide::Any;
 	if (NpcManager) NpcManager->AddNpc(this, NpcType, MainSide);
 	
 	BindActions();

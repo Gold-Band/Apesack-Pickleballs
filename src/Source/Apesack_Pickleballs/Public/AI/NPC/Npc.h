@@ -128,7 +128,6 @@ public:
 	virtual FString GetActorName() const override;
 
 private:
-	float Radius = 0;
 	
 	// direction to the player's town (left or right)
 	float OriginDirection = 0;
@@ -137,6 +136,9 @@ protected:
 	//*
 	//* General Properties
 	//*
+	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
+	float Radius = 0;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category = "Character Properties")
 	FString CharacterName;
 	

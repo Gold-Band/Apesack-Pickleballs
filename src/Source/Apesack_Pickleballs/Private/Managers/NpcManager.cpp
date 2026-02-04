@@ -1,6 +1,5 @@
 #include "Managers/NpcManager.h"
 
-#include "AI/NPC/Npc.h"
 #include "Buildings/Building.h"
 #include "GameModes/DefaultGameMode.h"
 
@@ -47,7 +46,7 @@ FOnRaidDetectedSignature UNpcManager::OnRaidDetectedDelegate;
 
 UNpcManager::UNpcManager()
 {
-	
+		
 }
 
 ETickableTickType UNpcManager::GetTickableTickType() const
@@ -64,13 +63,21 @@ void UNpcManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	Timer+=DeltaTime;
+	
+	if (Timer < TickInterval) return;
+	Timer = 0;
+	
+	//* Sort
+	SortByOriginAngle(&AllFriendlies);
+	
 	//*
 	//* Left Side : Most Vulnerable Asset
 	PreviousLeftMostVulnerableAsset = LeftMostVulnerableAsset;
 	LeftMostVulnerableAsset = GetMostVulnerableAsset(EOriginSide::Left);
 	if (LeftMostVulnerableAsset != PreviousLeftMostVulnerableAsset)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+		UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(LeftMostVulnerableAsset, EOriginSide::Left);
 	}
 	
@@ -80,11 +87,9 @@ void UNpcManager::Tick(float DeltaTime)
 	RightMostVulnerableAsset = GetMostVulnerableAsset(EOriginSide::Right);
 	if (RightMostVulnerableAsset != PreviousRightMostVulnerableAsset)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+		UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(RightMostVulnerableAsset, EOriginSide::Right);
 	}
-	
-	
 }
 
 UNpcManager* UNpcManager::Get(const UObject* WorldContextObject)
@@ -115,8 +120,7 @@ void UNpcManager::AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side)
 {
 	if (Tag == ENpcTag::Friendly)
 	{
-		if (Side == EOriginSide::Right) RightFriendlies.Add(Npc);
-		else LeftFriendlies.Add(Npc);
+		AllFriendlies.Add(Npc);
 	}
 	else if (Tag == ENpcTag::Hostile)
 	{
@@ -129,8 +133,7 @@ void UNpcManager::RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side)
 {
 	if (Tag == ENpcTag::Friendly)
 	{
-		if (Side == EOriginSide::Right) RightFriendlies.Remove(Npc);
-		else LeftFriendlies.Remove(Npc);
+		AllFriendlies.Remove(Npc);
 	}
 	else if (Tag == ENpcTag::Hostile)
 	{
@@ -150,8 +153,7 @@ AActor* UNpcManager::FindNearestNpc(const FVector& FromLocation, ENpcSearchOptio
 		else SearchArray = &LeftHostiles;
 		break;
 	case ENpcSearchOption::AnyFriendly:
-		if (Side == EOriginSide::Right) SearchArray = &RightFriendlies;
-		else SearchArray = &LeftFriendlies;
+		SearchArray = &AllFriendlies;
 		break;
 	default: 
 		return nullptr;
@@ -166,46 +168,54 @@ AActor* UNpcManager::FindNearestNpc(const FVector& FromLocation, ENpcSearchOptio
 		{
 			const float FastDistA = FVector::DistSquared(FromLocation, A.GetActorLocation());
 			const float FastDistB = FVector::DistSquared(FromLocation, B.GetActorLocation());
-			return (FastDistA < FastDistB);
+			return FastDistA < FastDistB;
 		});
 	}
 	
 	return (*SearchArray)[0];
 }
 
-AActor* UNpcManager::GetFarthestNpc(ENpcSearchOption SearchFilter, EOriginSide Side)
+AActor* UNpcManager::GetFarthestFriendlyNpc(EOriginSide Side)
 {
-	TArray<AActor*>* SearchArray = nullptr;
+	if (AllFriendlies.IsEmpty()) return nullptr;
 	
-	switch (SearchFilter)
+	// assumes AllFriendlies is sorted
+	const FVector FromLocation = FVector{0,19000, 0};
+	
+	if (Side == EOriginSide::Right)
 	{
-	case ENpcSearchOption::AnyHostile:
-		if (Side == EOriginSide::Right)	SearchArray = &RightHostiles;
-		else SearchArray = &LeftHostiles;
-		break;
-	case ENpcSearchOption::AnyFriendly:
-		if (Side == EOriginSide::Right) SearchArray = &RightFriendlies;
-		else SearchArray = &LeftFriendlies;
-		break;
-	default: 
-		return nullptr;
-	}
-	
-	if (SearchArray->IsEmpty()) return nullptr;
-	
-	// sort objects array 
-	if (SearchArray->Num() > 1)
-	{
-		const FVector FromLocation = WorldOrigin * 10000; 
-		SearchArray->Sort([FromLocation](const AActor& A, const AActor& B)
+		const float ActualAngle = ADefaultGameMode::GetAngleBetweenVectors(FromLocation, AllFriendlies.Last()->GetActorLocation());
+		if (ActualAngle < 0)
 		{
-			const float FastDistA = FVector::DistSquared(FromLocation, A.GetActorLocation());
-			const float FastDistB = FVector::DistSquared(FromLocation, B.GetActorLocation());
-			return (FastDistA < FastDistB);
-		});
+			//UE_LOG(LogTemp, Warning, TEXT("Right - %f"), ActualAngle);
+			DrawDebugLine(GetWorld(), FromLocation, AllFriendlies.Last()->GetActorLocation(), FColor::Green, false, TickInterval);
+			return AllFriendlies.Last();
+		}
 	}
 	
-	return (*SearchArray)[0];
+	if (Side == EOriginSide::Left)
+	{
+		const float ActualAngle = ADefaultGameMode::GetAngleBetweenVectors(FromLocation, AllFriendlies[0]->GetActorLocation());
+		if (ActualAngle > 0)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Left - %f"), ActualAngle);
+			DrawDebugLine(GetWorld(), FromLocation, AllFriendlies[0]->GetActorLocation(), FColor::Green, false, TickInterval);
+			return AllFriendlies[0];
+		}
+	}
+
+	return nullptr;
+}
+
+void UNpcManager::SortByOriginAngle(TArray<AActor*>* SortArray)
+{
+	const FVector FromLocation = FVector{0,19000.0f, 0}; 
+	SortArray->Sort([FromLocation](const AActor& A, const AActor& B)
+	{
+		const float AngleA = ADefaultGameMode::GetAngleBetweenVectors(FromLocation, A.GetActorLocation());
+		const float AngleB = ADefaultGameMode::GetAngleBetweenVectors(FromLocation, B.GetActorLocation());
+		return AngleA > AngleB;
+	});
 }
 
 TArray<AActor*> UNpcManager::GetNpcs(ENpcSearchOption SearchFilter, EOriginSide Side) const
@@ -219,8 +229,7 @@ TArray<AActor*> UNpcManager::GetNpcs(ENpcSearchOption SearchFilter, EOriginSide 
 		else SearchArray = &LeftHostiles;
 		break;
 	case ENpcSearchOption::AnyFriendly:
-		if (Side == EOriginSide::Right) SearchArray = &RightFriendlies;
-		else SearchArray = &LeftFriendlies;
+		SearchArray = &AllFriendlies;
 		break;
 	default:; 
 	}
@@ -228,10 +237,16 @@ TArray<AActor*> UNpcManager::GetNpcs(ENpcSearchOption SearchFilter, EOriginSide 
 	return *SearchArray;
 }
 
+EOriginSide UNpcManager::SuggestOccupySide() const
+{
+	if (AllFriendlies.Num() % 2 == 0) return EOriginSide::Left;
+	return EOriginSide::Right;
+}
+
 AActor* UNpcManager::GetMostVulnerableAsset(const EOriginSide Side)
 {
 	// Get farthest Npc
-	AActor* Npc = GetFarthestNpc(ENpcSearchOption::AnyFriendly, Side);
+	AActor* Npc = GetFarthestFriendlyNpc(Side);
 
 	// Get farthest wall
 	ABuilding* Building = Cast<ABuilding>(BuildingsManager->GetFarthestBuilding(EBuildingType::Wall, Side)); 

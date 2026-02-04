@@ -14,9 +14,45 @@
 // Sets default values
 ANpcFriendly::ANpcFriendly()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	
 	
 	NpcType = ENpcTag::Friendly;
+}
+
+void ANpcFriendly::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Melee cooldown
+	if (!bEnabled_MeleeAttack &&
+		(CooldownTimer_MeleeAttack += DeltaSeconds) >= Cooldown_MeleeAttack)
+	{
+		bEnabled_MeleeAttack = true;
+	}
+	
+	// Ranged Cooldown
+	if (!bEnabled_RangedAttack &&
+		(CooldownTimer_RangedAttack += DeltaSeconds) >= Cooldown_RangedAttack)
+	{
+		bEnabled_RangedAttack = true;
+	}
+	
+	// Follow Player Cooldown
+	if (bIsPartyMember && 
+		!bEnabled_FollowPlayer &&
+		(CooldownTimer_FollowPlayer += DeltaSeconds) >= Cooldown_FollowPlayer)
+	{
+		bEnabled_FollowPlayer = true;
+	}
+	
+	// where am i?
+	if ((GetSideTimer += DeltaSeconds) >= GetSideInterval && !bAssumedPosition)
+	{
+		GetSideTimer = 0;
+		const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+		MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right; 
+	}
 }
 
 void ANpcFriendly::BeginPlay()
@@ -63,10 +99,14 @@ void ANpcFriendly::BindActions()
 	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
 	
 	TargetPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetPlayer);
+	TargetPlayerAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetPlayerCondition);
 	
 	MoveToAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
 	MoveToAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveTo);
 	MoveToAction.ResetDelegate.BindUObject(this, &ThisClass::MoveToReset);
+	
+	//MoveToVectorAction.ConditionDelegate.BindUObject(this, &ThisClass::)
+	MoveToVectorAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveToVector);
 	
 	TargetNearestEnemyAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetNearestEnemy);
 	
@@ -89,22 +129,37 @@ void ANpcFriendly::BindActions()
 	MoveTimedAction.ExecutionDelegate.BindUObject(this,&ThisClass::MoveTimed);
 	MoveTimedAction.ResetDelegate.BindUObject(this, &ThisClass::MoveTimedReset);
 	
+	GetDefensePositionAction.ConditionDelegate.BindUObject(this, &ThisClass::GetDefensePositionCondition);
+	GetDefensePositionAction.ExecutionDelegate.BindUObject(this, &ThisClass::GetDefensePosition);
+	
+	OnAssumedDefensePositionAction.ExecutionDelegate.BindUObject(this, &ThisClass::OnAssumedDefensePosition);
 }
 
 void ANpcFriendly::CreateBehaviours()
 {
 	Super::CreateBehaviours();
 	
+	// goto safe zone
+	
+	
+	// defend wall
+	DefendWallTask.Actions.Add(&GetDefensePositionAction);
+	DefendWallTask.Actions.Add(&MoveToVectorAction);
+	DefendWallTask.Actions.Add(&OnAssumedDefensePositionAction);
+	//DefendWallTask.bPrintDebug = true;
+	HtnDomain->AssignTask(&DefendWallTask);
+	
 	// Follow 
 	FollowTask.Actions.Add(&TargetPlayerAction);
 	FollowTask.Actions.Add(&MoveToAction);
-	//HtnDomain->AssignTask(FollowTask, 0);
+	//FollowTask.bPrintDebug=true;
+	HtnDomain->AssignTask(&FollowTask);
 	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(&TargetNearestEnemyAction);
 	MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
-	MeleeAttackTask.Actions.Add(&CooldownAction);
+	//MeleeAttackTask.Actions.Add(&CooldownAction);
 	HtnDomain->AssignTask(&MeleeAttackTask);
 	
 	// Occupy Tower
@@ -115,21 +170,20 @@ void ANpcFriendly::CreateBehaviours()
 	OccupyTowerTask.bResetOnFail = true;
 	HtnDomain->AssignTask(&OccupyTowerTask);
 	
-	
 	// Ranged Attack
 	RangedAttackTask.Actions.Add(&TargetNearestEnemyAction);
 	RangedAttackTask.Actions.Add(&RangedAttackAction);
-	RangedAttackTask.Actions.Add(&CooldownAction);
+	//RangedAttackTask.Actions.Add(&CooldownAction);
 	RangedAttackTask.bPrintDebug = bPrintDebug_RangedAttack;
 	HtnDomain->AssignTask(&RangedAttackTask);
 	
 	// Wander
 	WanderTask.Actions.Add(&MoveTimedAction);
-	//HtnDomain->AssignTask(&WanderTask);
+	HtnDomain->AssignTask(&WanderTask);
 	
 	// Wait
 	WaitTask.Actions.Add(&WaitAction);
-	WaitTask.bPrintDebug = false;
+	//WaitTask.bPrintDebug = false;
 	HtnDomain->AssignTask(&WaitTask);
 }
 
@@ -186,7 +240,11 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
 		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Fighter;};
+		const TFunction<void()> Func = [&]()
+		{
+			CharacterClass = ECharacterType::Fighter;
+			MainSide = NpcManager->SuggestOccupySide();
+		};
 		Action->OnActionCalledFunction = Func;
 		Actions.Add(Action);
 	}
@@ -198,18 +256,39 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		Action->OnActionCalledFunction = Func;
 		Actions.Add(Action);
 	}
+	if (CharacterClass != ECharacterType::Peasant && !bIsPartyMember)
+	{ // join party
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Join Party"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){JoinParty();};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	else if (bIsPartyMember) 
+	{ // leave party
+		UListItemObject* Action = NewObject<UListItemObject>();
+		Action->DisplayText = FText::FromString(TEXT("Leave Party"));
+		Action->ContextActor = this;
+		const TFunction<void()> Func = [&](){LeaveParty();};
+		Action->OnActionCalledFunction = Func;
+		Actions.Add(Action);
+	}
+	
 	
 	return Actions;
 }
 
 void ANpcFriendly::OnNightStarted()
 {
-	
+	bIsNighttime = true;	
+	//bAssumedPosition = false;
 }
 
 void ANpcFriendly::OnNightEnded()
 {
-	
+	bIsNighttime = false;	
+	// = false;
 }
 
 void ANpcFriendly::OnRaidDetected(EOriginSide Side)
@@ -217,6 +296,28 @@ void ANpcFriendly::OnRaidDetected(EOriginSide Side)
 	if (Side != MainSide) return;
 	bRaid = true;
 	// code
+}
+
+
+void ANpcFriendly::JoinParty()
+{
+	bIsPartyMember = true;
+	
+	bAssumedPosition = false;
+	DefendWallTask.Reset();
+	
+	bEnabled_FollowPlayer = true;
+	//MainSide = EOriginSide::Any;
+	//NpcType = ENpcTag::Party;
+}
+
+void ANpcFriendly::LeaveParty()
+{
+	bIsPartyMember = false;
+	//NpcType = ENpcTag::Friendly;
+	
+	FollowTask.Reset();
+	
 }
 
 
@@ -259,7 +360,7 @@ void ANpcFriendly::MoveTimed(float DeltaTime)
 
 bool ANpcFriendly::MoveTimedCondition() const
 {
-	return bCanMove == true;	
+	return bCanMove && !bIsPartyMember && !bIsNighttime && !bAssumedPosition;	
 }
 
 void ANpcFriendly::MoveTimedReset()
@@ -285,7 +386,7 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 	{
 		Timer = 0;
 		
-		if (UKismetSystemLibrary::LineTraceMulti(
+		UKismetSystemLibrary::LineTraceMulti(
 			GetWorld(), // world
 			GetActorLocation(), // start 
 			TargetActor->GetActorLocation(), // end 
@@ -294,30 +395,34 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 			TArray<AActor*>{this}, // ignore 
 			bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
 			HitResults,
-			true))
+			true);
+		
+		if (bPrintDebug_MoveTo)
 		{
-			if (bPrintDebug_MoveTo)
+			FString HitActors;
+			for (auto It = HitResults.CreateConstIterator(); It; ++It)
 			{
-				FString HitActors;
-				for (auto It = HitResults.CreateConstIterator(); It; ++It)
-				{
-					HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
-				}
-				UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
-				UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
+				HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
 			}
+			UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
+			UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
+		}
+		
+		for (const auto& It : HitResults)
+		{
+			AActor* HitActor = It.GetActor();
 			
-			for (const auto& It : HitResults)
+			if (HitActor == TargetActor)
 			{
-				AActor* HitActor = It.GetActor();
-				
-				if (HitActor == TargetActor)
+				if (It.Distance <= StopDistance)
 				{
-					if (It.Distance <= StopDistance)
+					MoveToAction.State = EActionState::Succeeded;
+					if (bIsPartyMember)
 					{
-						MoveToAction.State = EActionState::Succeeded;
-						return;
+						CooldownTimer_FollowPlayer = 0;
+						bEnabled_FollowPlayer = false;
 					}
+					return;
 				}
 			}
 		}
@@ -326,6 +431,21 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 	
 	// Move
 	const float Direction = FVector::DotProduct(TargetActor->GetActorLocation() - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
+	MoveForwardScaled(Direction);
+}
+
+void ANpcFriendly::MoveToVector(float DeltaTime)
+{
+	// Are we there yet?
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetLocation);
+	if (DistanceSquared <= StopDistance)
+	{
+		MoveToVectorAction.State = EActionState::Succeeded;
+		return;
+	}
+	
+	// Move
+	const float Direction = FVector::DotProduct(TargetLocation - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
 	MoveForwardScaled(Direction);
 }
 
@@ -351,6 +471,10 @@ void ANpcFriendly::TargetPlayer(float DeltaTime)
 	else TargetPlayerAction.State = EActionState::Failed;
 }
 
+bool ANpcFriendly::TargetPlayerCondition() const
+{
+	return bIsPartyMember && bEnabled_FollowPlayer;
+}
 
 
 void ANpcFriendly::TargetNearestEnemy(float DeltaTime)
@@ -386,6 +510,8 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	if (TargetActor == nullptr)
 	{
 		MeleeAttackAction.State = EActionState::Failed;
+		CooldownTimer_MeleeAttack = 0;
+		bEnabled_MeleeAttack = false;
 		return;
 	}
 	
@@ -394,6 +520,8 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	if (TargetStatComponent == nullptr)
 	{
 		MeleeAttackAction.State = EActionState::Failed;
+		CooldownTimer_MeleeAttack = 0;
+		bEnabled_MeleeAttack = false;
 		return;		
 	}
 	
@@ -401,12 +529,14 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	TargetStatComponent->ApplyDamagePatch(Damage);
 	
 	MeleeAttackAction.State = EActionState::Succeeded;
-	Delay = Cooldown_MeleeAttack;
+	CooldownTimer_MeleeAttack = 0;
+	bEnabled_MeleeAttack = false;
+	//Delay = Cooldown_MeleeAttack;
 }
 
 bool ANpcFriendly::MeleeAttackCondition() const
 {
-	return CharacterClass == ECharacterType::Fighter/* && NpcManager->CanSeeHostiles(GetActorLocation(), 5000.f)*/;
+	return CharacterClass == ECharacterType::Fighter && bEnabled_MeleeAttack;
 }
 
 
@@ -418,6 +548,8 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	if (TargetActor == nullptr)
 	{
 		RangedAttackAction.State = EActionState::Failed;
+		bEnabled_RangedAttack = false;
+		CooldownTimer_RangedAttack = 0;
 		return;
 	}
 	
@@ -427,6 +559,8 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	{
 		if (bPrintDebug_RangedAttack) UE_LOG(LogTemp, Warning, TEXT("Can't get an arrow"));
 		RangedAttackAction.State = EActionState::Failed;
+		bEnabled_RangedAttack = false;
+		CooldownTimer_RangedAttack = 0;
 		return;
 	}
 	
@@ -440,7 +574,7 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	if (Arrow->LaunchAt(IgnoreActors, GetProjectileSpawnLocation(), TargetActor->GetActorLocation()))
 	{
 		RangedAttackAction.State = EActionState::Succeeded;
-		Delay = Cooldown_RangedAttack;
+	//	Delay = Cooldown_RangedAttack;
 	}
 	else
 	{
@@ -448,11 +582,13 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 		if (bPrintDebug_RangedAttack) UE_LOG(LogTemp, Warning, TEXT("no solution to hit %s"), *TargetActor->GetActorNameOrLabel());
 		Arrow->Disable();
 	}
+	CooldownTimer_RangedAttack = 0;
+	bEnabled_RangedAttack = false;
 }
 
 bool ANpcFriendly::RangedAttackCondition() const
 {
-	return CharacterClass == ECharacterType::Archer;
+	return CharacterClass == ECharacterType::Archer && bEnabled_RangedAttack;
 }
 
 
@@ -481,4 +617,44 @@ void ANpcFriendly::OccupyTower(float DeltaTime)
 bool ANpcFriendly::OccupyTowerCondition() const
 {
 	return CharacterClass == ECharacterType::Archer && bCanMove;
+}
+
+void ANpcFriendly::GetDefensePosition(float DeltaTime)
+{
+	const AActor* WallToDefend = BuildingsManager->GetFarthestBuilding(EBuildingType::Wall, MainSide);
+	if (WallToDefend == nullptr)
+	{
+		GetDefensePositionAction.State = EActionState::Failed;
+		return;
+	}
+	
+	// get the wall's position vector and rotate it a random amount and make it the npc's radius
+	
+	FVector RotateAxis = FVector::UpVector;
+	if (MainSide == EOriginSide::Left) RotateAxis = FVector::DownVector;
+
+	const float MaxDistance = 0.5f + ExtraDistancePerPerson * (NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide).Num()/2); 
+	TargetLocation = WallToDefend->GetActorLocation().RotateAngleAxis(FMath::RandRange(MinDistance, MaxDistance), RotateAxis).GetUnsafeNormal2D() * Radius;
+	
+	if (bPrintDebug_DefendWall)
+	{
+		const FVector Min = WallToDefend->GetActorLocation().RotateAngleAxis(MinDistance, RotateAxis);
+		const FVector Max = WallToDefend->GetActorLocation().RotateAngleAxis(MaxDistance, RotateAxis);
+		DrawDebugLine(GetWorld(), Min, Min + FVector::UpVector * 100.0f, FColor::Yellow, false, 5.f);
+		DrawDebugLine(GetWorld(), Max, Max + FVector::UpVector * 100.0f, FColor::Yellow, false, 5.f);
+	}
+	
+	GetDefensePositionAction.State = EActionState::Succeeded;
+}	
+
+bool ANpcFriendly::GetDefensePositionCondition() const
+{
+	return (CharacterClass == ECharacterType::Fighter || CharacterClass == ECharacterType::Archer) 
+			&& !bIsPartyMember && !bAssumedPosition;
+}
+
+void ANpcFriendly::OnAssumedDefensePosition(float DeltaTime)
+{
+	bAssumedPosition = true;
+	OnAssumedDefensePositionAction.State = EActionState::Succeeded;
 }

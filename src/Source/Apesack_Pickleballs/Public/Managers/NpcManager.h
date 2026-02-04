@@ -24,6 +24,7 @@ enum class ENpcTag : uint8
 	None = 0,
 	Hostile = 1,
 	Friendly = 2,
+	Party = 3
 };
 
 /*
@@ -95,9 +96,13 @@ public:
 	void RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
 	AActor* FindNearestNpc(const FVector& FromLocation, ENpcSearchOption SearchFilter, EOriginSide Side);
 	
-	AActor* GetFarthestNpc(ENpcSearchOption SearchFilter, EOriginSide Side);
+	AActor* GetFarthestFriendlyNpc(EOriginSide Side);
+	
+	void SortByOriginAngle(TArray<AActor*>* SortArray);
 	
 	TArray<AActor*> GetNpcs(ENpcSearchOption SearchFilter, EOriginSide Side) const;
+	
+	EOriginSide SuggestOccupySide() const;
 	
 	float RaidDetectionDistance = 10000;
 	
@@ -122,9 +127,14 @@ private:
 	TArray<AActor*> LeftHostiles;
 	
 	UPROPERTY()
-	TArray<AActor*> RightFriendlies;
+	TArray<AActor*> AllFriendlies;
 	
-	UPROPERTY()
-	TArray<AActor*> LeftFriendlies;
+	//UPROPERTY()
+	//TArray<AActor*> PartyMembers;
+	
+	
+	// tick interval
+	float TickInterval = 0.2f;
+	float Timer;
 	
 };
