@@ -4,17 +4,18 @@
 #include "StatsComponent.h"
 #include "AI/HTN/HTNComponent.h"
 #include "AI/HTN/ListItemObject.h"
+#include "GameModes/DefaultGameMode.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Managers/NpcManager.h"
 
 // Sets default values
 ANpcHostile::ANpcHostile()
 {
-	PrimaryActorTick.bCanEverTick = false;
-	
 	CharacterClass = ECharacterType::Fighter;
 	NpcType = ENpcTag::Hostile;
 	CharacterName = "Aggressive Cube";
+	
+	GetSideInterval = 1;
 }
 
 TArray<UListItemObject*> ANpcHostile::GetInfo() const
@@ -32,6 +33,9 @@ TArray<UListItemObject*> ANpcHostile::GetInfo() const
 
 void ANpcHostile::BeginPlay()
 {
+	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
+	
 	Super::BeginPlay();
 	
 	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
@@ -41,6 +45,11 @@ void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	UNpcManager::OnMostVulnerableAssetChangedDelegate.RemoveAll(this);
 	Super::EndPlay(EndPlayReason);
+}
+
+bool ANpcHostile::GetSideCheckCondition()
+{
+	return true;
 }
 
 void ANpcHostile::BindActions()

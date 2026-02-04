@@ -77,11 +77,8 @@ private:
 	UPROPERTY()
 	UBuildingsManager* BuildingsManager;
 	
-	float GetSideInterval = 1;
-	float GetSideTimer;
-	
 protected:
-	
+	virtual bool GetSideCheckCondition() override;
 	void JoinParty();
 	void LeaveParty();
 	

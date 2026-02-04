@@ -4,9 +4,7 @@
 #include "AI/NPC/Npc.h"
 #include "PaperSpriteComponent.h"
 #include "StatsComponent.h"
-#include "AI/Actions/Action.h"
 #include "AI/HTN/HTNComponent.h"
-#include "AI/HTN/ListItemObject.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Managers/NpcManager.h"
 #include "Movement/CircularPawnMovementComponent.h"
@@ -14,7 +12,7 @@
 // Sets default values
 ANpc::ANpc()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	
 	Root = CreateDefaultSubobject<USceneComponent>(FName("Root"));
 	SetRootComponent(Root);
@@ -27,6 +25,19 @@ ANpc::ANpc()
 	MovementComp->MaxSpeed = 200;
 	
 	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));
+}
+
+void ANpc::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	// where am i?
+	if (GetSideCheckCondition() && (GetSideTimer += DeltaSeconds) >= GetSideInterval)
+	{
+		GetSideTimer = 0;
+		const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+		MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
+	}
 }
 
 float ANpc::GetCharacterPreferredRadius() const
@@ -62,8 +73,6 @@ void ANpc::BeginPlay()
 	Radius = GetActorLocation().Size2D();
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	
-	// set mainside
-	MainSide = EOriginSide::Any;
 	if (NpcManager) NpcManager->AddNpc(this, NpcType, MainSide);
 	
 	BindActions();
@@ -82,6 +91,11 @@ void ANpc::BindActions()
 
 void ANpc::CreateBehaviours()
 {
+}
+
+bool ANpc::GetSideCheckCondition()
+{
+	return true;
 }
 
 void ANpc::OnClicked()

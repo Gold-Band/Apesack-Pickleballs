@@ -14,10 +14,9 @@
 // Sets default values
 ANpcFriendly::ANpcFriendly()
 {
-	PrimaryActorTick.bCanEverTick = true;
-	
-	
 	NpcType = ENpcTag::Friendly;
+	
+	GetSideInterval = 1;
 }
 
 void ANpcFriendly::Tick(float DeltaSeconds)
@@ -44,14 +43,6 @@ void ANpcFriendly::Tick(float DeltaSeconds)
 		(CooldownTimer_FollowPlayer += DeltaSeconds) >= Cooldown_FollowPlayer)
 	{
 		bEnabled_FollowPlayer = true;
-	}
-	
-	// where am i?
-	if ((GetSideTimer += DeltaSeconds) >= GetSideInterval && !bAssumedPosition)
-	{
-		GetSideTimer = 0;
-		const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
-		MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right; 
 	}
 }
 
@@ -157,8 +148,8 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(&TargetNearestEnemyAction);
-	MeleeAttackTask.Actions.Add(&MoveToAction);
-	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
+	//MeleeAttackTask.Actions.Add(&MoveToAction);
+	//MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	//MeleeAttackTask.Actions.Add(&CooldownAction);
 	HtnDomain->AssignTask(&MeleeAttackTask);
 	
@@ -179,7 +170,7 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// Wander
 	WanderTask.Actions.Add(&MoveTimedAction);
-	HtnDomain->AssignTask(&WanderTask);
+	//HtnDomain->AssignTask(&WanderTask);
 	
 	// Wait
 	WaitTask.Actions.Add(&WaitAction);
@@ -298,6 +289,11 @@ void ANpcFriendly::OnRaidDetected(EOriginSide Side)
 	// code
 }
 
+
+bool ANpcFriendly::GetSideCheckCondition()
+{
+	return !bAssumedPosition && bCanMove;
+}
 
 void ANpcFriendly::JoinParty()
 {
@@ -479,9 +475,13 @@ bool ANpcFriendly::TargetPlayerCondition() const
 
 void ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 {
-	TargetActor = NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyHostile, MainSide);
+	TargetActor = NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyHostile, EOriginSide::Right, 10000);
 	
-	if (bPrintDebug_TargetNearestEnemy) UE_LOG(LogTemp, Warning, TEXT("NearestEnemy = %s"), TargetActor? TEXT("Valid"): TEXT("Null"));
+	if (bPrintDebug_TargetNearestEnemy)
+	{
+		if (TargetActor) DrawDebugLine(GetWorld(), GetActorLocation(), TargetActor->GetActorLocation(), FColor::Yellow, false, 0.05f);
+		UE_LOG(LogTemp, Warning, TEXT("NearestEnemy = %s"), TargetActor? TEXT("Valid"): TEXT("Null"));
+	}
 	
 	if (TargetActor != nullptr) TargetNearestEnemyAction.State = EActionState::Succeeded;
 	else TargetNearestEnemyAction.State = EActionState::Failed;

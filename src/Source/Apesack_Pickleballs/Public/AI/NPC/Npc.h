@@ -87,6 +87,8 @@ public:
 	// Sets default values for this pawn's properties
 	ANpc();
 	
+	virtual void Tick(float DeltaSeconds) override;
+	
 	UFUNCTION(BlueprintPure)
 	float GetCharacterPreferredRadius() const;
 	
@@ -122,6 +124,7 @@ protected:
 	
 	virtual void BindActions();
 	virtual void CreateBehaviours();
+	virtual bool GetSideCheckCondition();
 	
 public:
 	virtual void OnClicked() override;
@@ -136,6 +139,9 @@ protected:
 	//*
 	//* General Properties
 	//*
+	float GetSideInterval = 1;
+	float GetSideTimer;
+	
 	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
 	float Radius = 0;
 	

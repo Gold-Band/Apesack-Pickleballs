@@ -94,7 +94,7 @@ public:
 	
 	void AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
 	void RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
-	AActor* FindNearestNpc(const FVector& FromLocation, ENpcSearchOption SearchFilter, EOriginSide Side);
+	AActor* FindNearestNpc(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float SearchRadius = UE_MAX_FLT);
 	
 	AActor* GetFarthestFriendlyNpc(EOriginSide Side);
 	
@@ -107,6 +107,10 @@ public:
 	float RaidDetectionDistance = 10000;
 	
 private:
+	bool IsCorrectSide(const EOriginSide Side, const FVector& WorldLocation) const;
+	
+	TArray<AActor*>* GetArray(ENpcSearchOption SearchFilter);
+	
 	AActor* GetMostVulnerableAsset(const EOriginSide Side);
 	
 	UPROPERTY()
@@ -121,10 +125,7 @@ private:
 	FVector WorldOrigin;
 	
 	UPROPERTY()
-	TArray<AActor*> RightHostiles;
-	
-	UPROPERTY()
-	TArray<AActor*> LeftHostiles;
+	TArray<AActor*> AllHostiles;
 	
 	UPROPERTY()
 	TArray<AActor*> AllFriendlies;
