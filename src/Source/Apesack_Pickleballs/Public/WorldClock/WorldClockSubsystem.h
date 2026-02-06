@@ -86,7 +86,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnTimeTickedSignature OnTimeTickedDelegate;
 	
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnNightStartedSignature OnNightStartedDelegate;
 	
 	UPROPERTY(BlueprintAssignable)

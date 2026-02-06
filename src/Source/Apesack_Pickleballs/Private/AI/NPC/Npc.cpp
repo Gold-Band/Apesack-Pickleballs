@@ -21,7 +21,7 @@ ANpc::ANpc()
 	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	SpriteComp->SetupAttachment(Root);
 
-	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
+	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Circle Move"));
 	MovementComp->MaxSpeed = 200;
 	
 	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));

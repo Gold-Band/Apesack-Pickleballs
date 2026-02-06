@@ -1,5 +1,6 @@
 #include "Managers/NpcManager.h"
 
+#include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Buildings/Building.h"
 #include "GameModes/DefaultGameMode.h"
 
@@ -110,6 +111,7 @@ void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
 	BuildingsManager = UBuildingsManager::Get(GetWorld());
+	PlayerRef = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 }
 
 void UNpcManager::SetWorldOrigin(const FVector& NewWorldOrigin)
@@ -142,7 +144,7 @@ void UNpcManager::RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side)
 }
 
 AActor* UNpcManager::FindNearestNpc(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side,
-	const float SearchRadius)
+	const float CheckRadiusSquared)
 {
 	TArray<AActor*>* SearchArray = GetArray(SearchFilter);
 	
@@ -151,59 +153,82 @@ AActor* UNpcManager::FindNearestNpc(const FVector& FromLocation, const ENpcSearc
 	// assume the array is sorted from left npcs -> right npcs
 	if (SearchArray->Num() > 1)
 	{
-		for (int a = SearchArray->Num()/2, Closest = -1; SearchArray->IsValidIndex(a) ; )
+		int ContinueSearchFromIndex = -1;
+		
+		for (int a = FMath::DivideAndRoundDown(SearchArray->Num(), 2), Closest = -1; SearchArray->IsValidIndex(a) ; )
 		{
 			const int b = a-1 >= 0? a-1 : a+1 < SearchArray->Num()? a+1 : -1;
 			if (b == -1) break;
 		
 			// compare left and right
-			const float FastDistA = FVector::DistSquared2D(FromLocation, (*SearchArray)[a]->GetActorLocation());
-			const float FastDistB = FVector::DistSquared2D(FromLocation, (*SearchArray)[b]->GetActorLocation());
+			const float FastDistA = FVector::DistSquared(FromLocation, (*SearchArray)[a]->GetActorLocation());
+			const float FastDistB = FVector::DistSquared(FromLocation, (*SearchArray)[b]->GetActorLocation());
 			
-			// check closest
 			if (FastDistA > FastDistB)
 			{
-				if (Closest == b && FastDistB <= FMath::Square(SearchRadius))
+				if (Closest == b) // found the closest
 				{
-					if (IsCorrectSide(Side, (*SearchArray)[b]->GetActorLocation()))
-					{
-						return (*SearchArray)[b];
-					}
-					// else check a
-					if (IsCorrectSide(Side, (*SearchArray)[a]->GetActorLocation()))
-					{
-						return (*SearchArray)[a];
-					}
-					// if not a then no solution
-					return nullptr;
+					// check b - the closest
+					AActor* ClosestActor = (*SearchArray)[b];
+					if (IsActorValidNearest(ClosestActor, Side, FastDistB, CheckRadiusSquared)) return ClosestActor;
+					
+					// start moving left or right until we find an actor that passes the inspection
+					ContinueSearchFromIndex = Closest;
+					break;
 				}
 				Closest = b;
 				a--;
 			}
 			else
 			{
-				if (Closest == a && FastDistA <= FMath::Square(SearchRadius))
+				if (Closest == a) // found the closest
 				{
-					if (IsCorrectSide(Side, (*SearchArray)[a]->GetActorLocation()))
-					{
-						return (*SearchArray)[a];
-					}
-					// else check b
-					if (IsCorrectSide(Side, (*SearchArray)[b]->GetActorLocation()))
-					{
-						return (*SearchArray)[b];
-					}
-					// if not b then no solution
-					return nullptr;
+					// check a - the closest
+					AActor* ClosestActor = (*SearchArray)[a];
+					if (IsActorValidNearest(ClosestActor, Side, FastDistA, CheckRadiusSquared)) return ClosestActor;
+					
+					// start moving left or right until we find an actor that passes the inspection
+					ContinueSearchFromIndex = Closest;
+					break;
 				}
 				Closest = a;
 				a++;
 			}
+			
 		}
-		if (IsCorrectSide(Side, SearchArray->Last()->GetActorLocation())) return SearchArray->Last();
+		
+		// if we found the closest but it's not on the correct side
+		if (ContinueSearchFromIndex != -1)
+		{
+			for (int i = Side == EOriginSide::Right? ContinueSearchFromIndex+1 : ContinueSearchFromIndex-1; 
+				SearchArray->IsValidIndex(i); i = Side == EOriginSide::Right? i+1 : i-1)
+			{
+				AActor* CheckActor = (*SearchArray)[i];
+				const float FastDist = FVector::DistSquared(FromLocation, CheckActor->GetActorLocation());
+				
+				// is Actor out of range?
+				if (FastDist > CheckRadiusSquared) break;
+				
+				// skip if incorrect side
+				if (!IsCorrectSide(Side, CheckActor->GetActorLocation())) continue;
+				
+				return CheckActor;
+			}
+			
+			return nullptr;	
+		}
+		
+		// the last index is the closest but needs a final inspection 
+		AActor* CheckActor = SearchArray->Last();
+		const float FastDist = FVector::DistSquared(FromLocation, CheckActor->GetActorLocation());
+		if (IsActorValidNearest(CheckActor, Side, FastDist, CheckRadiusSquared)) return CheckActor;
 		return nullptr;
 	}
-	if (IsCorrectSide(Side, (*SearchArray)[0]->GetActorLocation())) return (*SearchArray)[0];
+	
+	// inspection for the one item in the array
+	AActor* CheckActor = (*SearchArray)[0];
+	const float FastDist = FVector::DistSquared(FromLocation, CheckActor->GetActorLocation());
+	if (IsActorValidNearest(CheckActor, Side, FastDist, CheckRadiusSquared)) return CheckActor;
 	return nullptr;
 }
 
@@ -274,6 +299,23 @@ EOriginSide UNpcManager::SuggestOccupySide() const
 	if (AllFriendlies.Num() % 2 == 0) return EOriginSide::Left;
 	return EOriginSide::Right;
 }
+
+APlayerCharacter* UNpcManager::GetPlayer() const
+{
+	return PlayerRef;
+}
+
+bool UNpcManager::IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist,
+                                      const float CheckRadius) const
+{
+	if (CheckDist <= CheckRadius && 
+				IsCorrectSide(CheckSide, CheckActor->GetActorLocation()))
+	{
+		return true;
+	}
+	return false;	
+}
+
 
 bool UNpcManager::IsCorrectSide(const EOriginSide Side, const FVector& WorldLocation) const
 {

@@ -61,4 +61,7 @@ private:
 	bool bIsEnabled = true;
 	bool bPathSucceeded = false;
 	bool bLanded = false;
+	
+	UPROPERTY()
+	TArray<AActor*> ProjectileIgnoredActors;
 };

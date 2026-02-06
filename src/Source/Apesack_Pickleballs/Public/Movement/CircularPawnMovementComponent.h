@@ -16,9 +16,6 @@ class APESACK_PICKLEBALLS_API UCircularPawnMovementComponent : public UFloatingP
 public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	float GetDefaultRadius() const {return Radius;}
-	
 protected:
 
 	virtual void BeginPlay() override;

@@ -6,8 +6,6 @@
 #include "Npc.h"
 #include "AI/Actions/Action.h"
 #include "AI/HTN/Task.h"
-
-
 #include "NpcFriendly.generated.h"
 
 
@@ -84,9 +82,16 @@ protected:
 	
 	
 	//**
+	//** General Properties
+	//**
+	UPROPERTY(EditAnywhere, Category = "Character Properties")
+	ECharacterType CharacterClass;
+	
+	
+	
+	//**
 	//** My Actions
 	//**
-	
 	
 	//* Wait *//
 	FAction WaitAction{FString("Wait")};
@@ -120,10 +125,16 @@ protected:
 	//* Move To *//
 	FAction MoveToAction{FString("Move To")};
 	FAction MoveToVectorAction{FString("Move To Vector")};
-	void MoveTo(float DeltaTime);
-	void MoveToVector(float DeltaTime);
+	FAction MoveToOffsetAction{FString("Move To Vector")};
+	void MoveTo(float DeltaTime); // move to an actor
+	void MoveToVector(float DeltaTime); // move to a point
+	void MoveToOffset(float DeltaTime); // move to an actor with an offset
 	bool MoveToCondition() const;
 	void MoveToReset();
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
+	float MoveSpeed = 200.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
 	float StopDistance = 50.0f;
@@ -140,26 +151,32 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
 	FVector TargetLocation;
 	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
+	float OffsetAngle;
+	
+	int PartyIndex;
 	
 	
 	
 	//* Target Player *//
 	FAction TargetPlayerAction{FString("Target Player")};
+	FAction OnJoinedPlayerAction{FString("On Joined Player")};
 	void TargetPlayer(float DeltaTime);
 	bool TargetPlayerCondition() const;
+	void OnJoinedPlayer(float DeltaTime);
+	void CopyPlayerMovement(float Direction, float Speed);
 	
 	bool bEnabled_FollowPlayer = true;
 	float Cooldown_FollowPlayer = 1;
 	float CooldownTimer_FollowPlayer;
 	
-	
 	bool bIsPartyMember = false;
-	
 	
 	//* Target Enemy *//
 	FAction TargetNearestEnemyAction{FString("Target Enemy")};
 	void TargetNearestEnemy(float DeltaTime);
 	bool bRaid;
+	float TargetingDistance;
 	
 	//* Target Tower *//
 	FAction TargetFarthestTowerAction{FString("Target Tower")};
@@ -168,8 +185,10 @@ protected:
 	
 	//* Melee Attack *//
 	FAction MeleeAttackAction{FString("Attack")};
+	FAction SetMeleeParamsAction{FString("Set Melee Params")};
 	void MeleeAttack(float DeltaTime);
 	bool MeleeAttackCondition() const;
+	void SetMeleeParams(float DeltaTime);
 	
 	bool bEnabled_MeleeAttack = true;
 	
@@ -181,10 +200,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_MeleeAttack = 1;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Range"))
+	float TargetingDistance_Melee = 200.0f;
+	
 	//* Ranged Attack *//
 	FAction RangedAttackAction{FString("Shoot")};
+	FAction SetRangedParamsAction{FString("Set Ranged Params")};
 	void RangedAttack(float DeltaTime);
 	bool RangedAttackCondition() const;
+	void SetRangedParams(float DeltaTime);
 	
 	bool bEnabled_RangedAttack = true;
 	
@@ -195,6 +219,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_RangedAttack = 1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Targeting Distance"))
+	float TargetingDistance_Ranged = 1000.0f;
 	
 	//* Occupy Tower Spot *//
 	FAction OccupyTowerAction{FString("Occupy Tower")};

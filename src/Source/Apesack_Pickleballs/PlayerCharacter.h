@@ -8,6 +8,9 @@
 class UCameraComponent;
 class UCircularPawnMovementComponent;
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMovedSignature, float, float);
+
+
 UCLASS()
 class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
 	GENERATED_BODY()
@@ -29,6 +32,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	FOnMovedSignature OnMovedDelegate;
+	TArray<bool> PartyOrder{false, false, false, false};
+	int PartySize = 0;
+	
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool LoggingEnabled;
@@ -37,7 +45,6 @@ protected:
 	virtual void BeginDestroy() override;
 	
 private:
-	
 	FVector CharacterLastPosition;
 	
 	UPROPERTY(EditAnywhere)

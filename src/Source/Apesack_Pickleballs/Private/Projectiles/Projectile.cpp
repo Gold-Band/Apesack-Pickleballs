@@ -28,9 +28,8 @@ void AProjectile::Tick(float DeltaTime)
 		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * FMath::RandRange(AppliedForce*0.5f, AppliedForce*2.f);
 		const FVector CurrentPos = GetActorLocation();
 		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera);
-		const TArray<AActor*> IgnoreActors = {this, ShooterActor};
 		FHitResult Hit;
-		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),CurrentPos, NextPos, TraceChannel, false, IgnoreActors, EDrawDebugTrace::None,Hit,true))
+		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),CurrentPos, NextPos, TraceChannel, false, ProjectileIgnoredActors, EDrawDebugTrace::None,Hit,true))
 		{
 			// hit - set next pos			
 			NextPos = Hit.ImpactPoint;
@@ -71,7 +70,8 @@ bool AProjectile::LaunchAt(const TArray<AActor*>& IgnoreActors, const FVector& S
 	
 	const float ProjectileSpeed = FMath::RandRange(Speed*0.8f, Speed*1.2f);
 	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, ProjectileSpeed};
-	Params.ActorsToIgnore = IgnoreActors;
+	ProjectileIgnoredActors = Params.ActorsToIgnore = IgnoreActors;
+	ProjectileIgnoredActors.Add(this);
 	Params.bDrawDebug = bDrawPathDebug;
 	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
 	Params.CollisionRadius = 0;

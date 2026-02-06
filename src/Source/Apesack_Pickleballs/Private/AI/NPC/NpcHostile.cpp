@@ -11,7 +11,6 @@
 // Sets default values
 ANpcHostile::ANpcHostile()
 {
-	CharacterClass = ECharacterType::Fighter;
 	NpcType = ENpcTag::Hostile;
 	CharacterName = "Aggressive Cube";
 	
@@ -180,6 +179,7 @@ void ANpcHostile::MoveTo(float DeltaTime)
 	MoveToTimer+=DeltaTime;
 	
 	// Move
+	if (!TargetActor || !this || !GetParentActor() || !GetWorld() || !GetOwner()) return; // weird bug - skip
 	const float Direction = FVector::DotProduct(TargetActor->GetActorLocation() - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
 	MoveForwardScaled(Direction);
 }

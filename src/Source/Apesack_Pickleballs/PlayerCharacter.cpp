@@ -86,6 +86,7 @@ void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
 	}
 	
 	AddMovementInput(Value.X * GetActorForwardVector());
+	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Value.X, MovementComp->MaxSpeed);
 }
 
 

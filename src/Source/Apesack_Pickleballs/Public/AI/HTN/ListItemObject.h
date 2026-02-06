@@ -29,4 +29,8 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, Category="Data")
 	UUserWidget* Parent;
+	
+	UPROPERTY(BlueprintReadWrite, Category="Data")
+	bool bDisable;
+	
 };

@@ -110,10 +110,6 @@ public:
 	void MoveForwardScaled(float Scale);
 	
 	
-	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
-	ECharacterType CharacterClass;
-	
-	
 protected:
 	virtual void BeginPlay() override;
 	

@@ -6,6 +6,7 @@
 #include "NpcManager.generated.h"
 
 
+class APlayerCharacter;
 class ANpc;
 class ANpcFriendly;
 
@@ -106,7 +107,11 @@ public:
 	
 	float RaidDetectionDistance = 10000;
 	
+	APlayerCharacter* GetPlayer() const;
+	
 private:
+	// Returns CheckActor if it passes the inspection. Else, it returns null.
+	bool IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist, const float CheckRadiusSquared) const;
 	bool IsCorrectSide(const EOriginSide Side, const FVector& WorldLocation) const;
 	
 	TArray<AActor*>* GetArray(ENpcSearchOption SearchFilter);
@@ -137,5 +142,7 @@ private:
 	// tick interval
 	float TickInterval = 0.2f;
 	float Timer;
+	
+	APlayerCharacter* PlayerRef = nullptr;
 	
 };
