@@ -25,9 +25,9 @@ void AProjectile::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("Travelling"))
 		// raycast and move
 		
-		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * AppliedForce;
+		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * FMath::RandRange(AppliedForce*0.5f, AppliedForce*2.f);
 		const FVector CurrentPos = GetActorLocation();
-		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
+		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera);
 		const TArray<AActor*> IgnoreActors = {this, ShooterActor};
 		FHitResult Hit;
 		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),CurrentPos, NextPos, TraceChannel, false, IgnoreActors, EDrawDebugTrace::None,Hit,true))
@@ -64,27 +64,27 @@ void AProjectile::Tick(float DeltaTime)
 	}
 }
 
-// @todo: if no solution, return false
-void AProjectile::LaunchAt(AActor* Caller, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy)
+bool AProjectile::LaunchAt(const TArray<AActor*>& IgnoreActors, const FVector& StartLocation,
+	const FVector& TargetLocation, float Accuracy)
 {
 	bPathSucceeded = true;
-	ShooterActor = Caller;
 	
-	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, Speed};
-	Params.ActorsToIgnore = TArray{Caller};
+	const float ProjectileSpeed = FMath::RandRange(Speed*0.8f, Speed*1.2f);
+	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, ProjectileSpeed};
+	Params.ActorsToIgnore = IgnoreActors;
 	Params.bDrawDebug = bDrawPathDebug;
 	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
 	Params.CollisionRadius = 0;
-	//Params.bAcceptClosestOnNoSolutions = true;
+	Params.bAcceptClosestOnNoSolutions = false;
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No solution for projectile"))
 		bPathSucceeded = false;
-		//return;
+		return false;
 	}
 	
 	SetActorLocation(StartLocation);
 	Enable();
+	return true;
 }
 
 FOnPooledActorSelfDisabled& AProjectile::GetOnActorDisabled()

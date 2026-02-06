@@ -4,8 +4,10 @@
 #include "AI/NPC/Npc.h"
 #include "PaperSpriteComponent.h"
 #include "StatsComponent.h"
+#include "AI/Actions/Action.h"
 #include "AI/HTN/HTNComponent.h"
 #include "AI/HTN/ListItemObject.h"
+#include "GameModes/DefaultGameMode.h"
 #include "Managers/NpcManager.h"
 #include "Movement/CircularPawnMovementComponent.h"
 
@@ -59,6 +61,30 @@ void ANpc::BeginPlay()
 	NpcManager = UNpcManager::Get(GetWorld());
 	Radius = GetActorLocation().Size2D();
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
+	
+	// set mainside
+	const float DistanceToOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	if (DistanceToOrigin <= 0) MainSide = EOriginSide::Left;
+	else MainSide = EOriginSide::Right;
+	
+	if (NpcManager) NpcManager->AddNpc(this, NpcType, MainSide);
+	
+	BindActions();
+	CreateBehaviours();
+}
+
+void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);
+	Super::EndPlay(EndPlayReason);
+}
+
+void ANpc::BindActions()
+{
+}
+
+void ANpc::CreateBehaviours()
+{
 }
 
 void ANpc::OnClicked()
@@ -69,92 +95,4 @@ void ANpc::OnClicked()
 FString ANpc::GetActorName() const
 {
 	return GetCharacterName();
-}
-
-TArray<UListItemObject*> ANpc::GetInfo() const 
-{
-	TArray<UListItemObject*> Info{};
-	
-	// hp
-	UListItemObject* HpInfo = NewObject<UListItemObject>();
-	HpInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Hp: %i/%i"), FMath::RoundToInt(Stats->GetHealth()), FMath::RoundToInt(Stats->GetMaxHealth())));
-	
-	// class
-	UListItemObject* ClassInfo = NewObject<UListItemObject>();
-	ClassInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Class: %s"), TEXT("Peasant")));
-	
-	// rank
-	UListItemObject* RankInfo = NewObject<UListItemObject>();
-	RankInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Rank: %s"), TEXT("None")));
-	
-	// proficiency
-	UListItemObject* ProficiencyInfo = NewObject<UListItemObject>();
-	ProficiencyInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Proficient As: %s"), TEXT("Builder")));
-	
-	//sum
-	Info.Add(HpInfo);
-	Info.Add(ClassInfo);
-	Info.Add(RankInfo);
-	Info.Add(ProficiencyInfo);
-	
-	return Info;
-}
-
-TArray<UListItemObject*> ANpc::GetActions() 
-{
-	TArray<UListItemObject*> Actions{};
-	
-	// orders
-	// upgrades
-	
-	/*int i = 0;
-	for (auto Option : CompatibleBuildings)
-	{
-		if (!Option) continue;
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(Option.GetDefaultObject()->GetActorName());
-		Action->Cost = Option.GetDefaultObject()->GetBuildCost();
-		Action->ContextActor = this;
-
-		const TFunction<void()> Func = [&, i](){SpawnBuilding(i);};
-		Action->OnActionCalledFunction = Func;
-
-		Actions.Add(Action);
-		i++;
-	}*/
-
-	{ // set peasant
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Peasant;};
-		Action->OnActionCalledFunction = Func;
-		Actions.Add(Action);
-	}
-	{ // set archer
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Archer"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
-		Action->OnActionCalledFunction = Func;
-		Actions.Add(Action);
-	}
-	{ // set fighter
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Fighter;};
-		Action->OnActionCalledFunction = Func;
-		Actions.Add(Action);
-	}
-	{ // set builder
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Builder;};
-		Action->OnActionCalledFunction = Func;
-		Actions.Add(Action);
-	}
-	
-	return Actions;
 }

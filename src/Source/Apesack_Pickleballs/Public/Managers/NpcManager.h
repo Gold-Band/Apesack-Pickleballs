@@ -2,12 +2,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildingsManager.h"
 #include "NpcManager.generated.h"
 
 
 class ANpc;
 class ANpcFriendly;
-
 
 
 UENUM(BlueprintType)
@@ -26,9 +26,7 @@ enum class ENpcTag : uint8
 	Friendly = 2,
 };
 
-//*
-//* Binary tree test
-//*
+/*
 class FNode
 {
 public:
@@ -51,41 +49,82 @@ public:
 	void Remove(AActor* Actor, ENpcTag Tag);
 	//void Sort();	
 	//void Get();	
-};
+};*/
 
-//*
-//*
-//*
+
+
+// delegate for when an npc or building is the newly most exposed to the enemy
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMostVulnerableAssetChangedSignature, AActor*, EOriginSide);
+
+// delegate for when enemies are spotted near a wall
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnRaidDetectedSignature, EOriginSide);
+
 
 
 UCLASS()
-class UNpcManager: public UWorldSubsystem
+class UNpcManager: public UTickableWorldSubsystem
 {
 	GENERATED_BODY()
 	
 public:
 	UNpcManager();
 	
+	
+	//* 
+	//* Npc Delegates
+	//*
+	static FOnMostVulnerableAssetChangedSignature OnMostVulnerableAssetChangedDelegate;
+	static AActor* LeftMostVulnerableAsset;
+	static AActor* RightMostVulnerableAsset;
+	
+	static FOnRaidDetectedSignature OnRaidDetectedDelegate;
+
+	virtual ETickableTickType GetTickableTickType() const override;
+	
+	virtual TStatId GetStatId() const override;
+	
+	virtual void Tick(float DeltaTime) override;
+	
 	static UNpcManager* Get(const UObject* WorldContextObject);
 
-	AActor* FindNearestNpc(FVector FromLocation, ENpcSearchOption SearchFilter);
-	
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 	void SetWorldOrigin(const FVector& NewWorldOrigin);	
 	
-	void AddNpc(AActor* Npc, ENpcTag Tag);
-	void RemoveNpc(AActor* Npc, ENpcTag Tag);
-	bool SenseNpc(const FVector& FromLocation, ENpcSearchOption SearchFilter, float SenseRadiusSquared);
+	void AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
+	void RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
+	AActor* FindNearestNpc(const FVector& FromLocation, ENpcSearchOption SearchFilter, EOriginSide Side);
+	
+	AActor* GetFarthestNpc(ENpcSearchOption SearchFilter, EOriginSide Side);
+	
+	TArray<AActor*> GetNpcs(ENpcSearchOption SearchFilter, EOriginSide Side) const;
+	
+	float RaidDetectionDistance = 10000;
 	
 private:
+	AActor* GetMostVulnerableAsset(const EOriginSide Side);
+	
+	UPROPERTY()
+	AActor* PreviousLeftMostVulnerableAsset;
+	
+	UPROPERTY()
+	AActor* PreviousRightMostVulnerableAsset; 
+	
+	UPROPERTY()
+	UBuildingsManager* BuildingsManager;
+	
 	FVector WorldOrigin;
 	
-	//FActorTernaryTree AllNpcs = FActorTernaryTree{}; // might not use this
+	UPROPERTY()
+	TArray<AActor*> RightHostiles;
 	
 	UPROPERTY()
-	TArray<AActor*> AllHostiles;
+	TArray<AActor*> LeftHostiles;
+	
 	UPROPERTY()
-	TArray<AActor*> AllFriendlies;
+	TArray<AActor*> RightFriendlies;
+	
+	UPROPERTY()
+	TArray<AActor*> LeftFriendlies;
 	
 };

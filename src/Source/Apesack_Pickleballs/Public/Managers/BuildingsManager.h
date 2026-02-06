@@ -22,6 +22,15 @@ enum class EOriginSide : uint8
 	Right
 };
 
+
+// delegate for when an archer tower is built
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnNewArcherTowerBuiltSignature, AArcherTower*, EOriginSide);
+
+// delegate for when a wall is built
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnNewWallBuiltSignature, AWall*, EOriginSide);
+
+
+
 UCLASS()
 class UBuildingsManager: public UWorldSubsystem
 {
@@ -30,21 +39,30 @@ class UBuildingsManager: public UWorldSubsystem
 public:
 	UBuildingsManager();
 	
+	static FOnNewArcherTowerBuiltSignature OnNewArcherTowerBuiltDelegate;
+	static FOnNewWallBuiltSignature OnNewWallBuiltDelegate;
+	
 	static UBuildingsManager* Get(const UObject* WorldContextObject);
 
-	void AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType);
-	void RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType);
+	void AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType, EOriginSide Side);
+	void RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType, EOriginSide Side);
 	
 	AActor* GetFarthestBuilding(EBuildingType Type, EOriginSide Side);
 	
-	bool DoVacantTowersExist() const;
-	bool WallsExist() const;
+	bool DoVacantTowersExist(EOriginSide Side) const;
+	bool WallsExist(EOriginSide Side) const;
 	
 private:
 	
 	UPROPERTY()
-	TArray<ABuilding*> AllWalls;
+	TArray<ABuilding*> RightWalls;
 	
 	UPROPERTY()
-	TArray<ABuilding*> AllTowers;
+	TArray<ABuilding*> LeftWalls;
+	
+	UPROPERTY()
+	TArray<ABuilding*> RightTowers;
+	
+	UPROPERTY()
+	TArray<ABuilding*> LeftTowers;
 };

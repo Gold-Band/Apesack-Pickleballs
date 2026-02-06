@@ -21,50 +21,77 @@ UBuildingsManager* UBuildingsManager::Get(const UObject* WorldContextObject)
 	return nullptr;
 }
 
-void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType)
+void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType, EOriginSide Side)
 {
 	TArray<ABuilding*>* ModifyArray;
 	
 	if (BuildingType == EBuildingType::Wall)
 	{
-		ModifyArray = &AllWalls;
+		if (Side == EOriginSide::Left) ModifyArray = &LeftWalls;
+		else ModifyArray = &RightWalls;
 	}
 	else
 	{
-		ModifyArray = &AllTowers;
+		if (Side == EOriginSide::Left) ModifyArray = &LeftTowers;
+		else ModifyArray = &RightTowers;
 	}
 	
 	bool bInserted = false;
 	// insert in array based on distance
 	for (int i = 0; i < ModifyArray->Num(); ++i)
 	{
-		if (NewBuilding->DistanceFromOrigin < (*ModifyArray)[i]->DistanceFromOrigin)
+		const bool InsertCond = Side == EOriginSide::Left? 
+		NewBuilding->DistanceFromOrigin < (*ModifyArray)[i]->DistanceFromOrigin:
+		NewBuilding->DistanceFromOrigin > (*ModifyArray)[i]->DistanceFromOrigin;
+		
+		if (InsertCond)
 		{
-			ModifyArray->Insert(NewBuilding, i);
+			ModifyArray->Add(NewBuilding);
 			bInserted = true;
 			break;
 		}
 	}
 	if (!bInserted) ModifyArray->Add(NewBuilding);
 	
-	const FString Type = BuildingType == EBuildingType::Wall? "Walls" : "Towers";
+	
+	// print	
+	FString TypeString;
+	TArray<ABuilding*>* LeftArray;
+	TArray<ABuilding*>* RightArray;
+	if (BuildingType == EBuildingType::Wall)
+	{
+		TypeString = "Walls";
+		LeftArray = &LeftWalls;
+		RightArray = &RightWalls;
+	}
+	else
+	{
+		TypeString = "Towers";
+		LeftArray = &LeftTowers;
+		RightArray = &RightTowers;
+	}
 	
 #if WITH_EDITOR
-	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), *Type, ModifyArray->Num(), *(*ModifyArray)[0]->GetActorNameOrLabel(), *ModifyArray->Last()->GetActorNameOrLabel())
+	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), 
+		*TypeString, LeftArray->Num()+RightArray->Num(), 
+		LeftArray->IsEmpty()? TEXT("Nothing") : *LeftArray->Last()->GetActorNameOrLabel(), 
+		RightArray->IsEmpty()? TEXT("Nothing") : *RightArray->Last()->GetActorNameOrLabel());
 #endif
 }
 
-void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType)
+void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType, EOriginSide Side)
 {
 	TArray<ABuilding*>* ModifyArray;
 	
 	if (BuildingType == EBuildingType::Wall)
 	{
-		ModifyArray = &AllWalls;
+		if (Side == EOriginSide::Left) ModifyArray = &LeftWalls;
+		else ModifyArray = &RightWalls;
 	}
 	else
 	{
-		ModifyArray = &AllTowers;
+		if (Side == EOriginSide::Left) ModifyArray = &LeftTowers;
+		else ModifyArray = &RightTowers;
 	}
 	
 	ModifyArray->Remove(OldBuilding);
@@ -76,41 +103,28 @@ AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide S
 	
 	if (Type == EBuildingType::Wall)
 	{
-		SearchArray = &AllWalls;
+		if (Side == EOriginSide::Left) SearchArray = &LeftWalls;
+		else SearchArray = &RightWalls;
 	}
 	else
 	{
-		SearchArray = &AllTowers;
+		if (Side == EOriginSide::Left) SearchArray = &LeftTowers;
+		else SearchArray = &RightTowers;
 	}
 	
 	if (SearchArray->IsEmpty()) return nullptr;
 	
-	ABuilding* Result = nullptr;
-	
-	// test to make sure they are on the correct side
-	if (Side == EOriginSide::Right)
-	{
-		Result = SearchArray->Last();
-		if (Result->DistanceFromOrigin > 0)
-		{
-			return Result;
-		}
-	}
-	else
-	{
-		Result = (*SearchArray)[0];
-		if (Result->DistanceFromOrigin < 0)
-		{
-			return Result;
-		}
-	}
-		
-	return nullptr;
+	return SearchArray->Last();
 }
 
-bool UBuildingsManager::DoVacantTowersExist() const
+bool UBuildingsManager::DoVacantTowersExist(EOriginSide Side) const
 {
-	for (const auto Tower: AllTowers)
+	const TArray<ABuilding*>* SearchArray;
+	
+	if (Side == EOriginSide::Left) SearchArray = &LeftTowers;
+	else SearchArray = &RightTowers;
+	
+	for (const auto Tower: *SearchArray)
 	{
 		if (Cast<AArcherTower>(Tower)->HasRoom()) return true;
 	}
@@ -118,7 +132,8 @@ bool UBuildingsManager::DoVacantTowersExist() const
 	return false;
 }
 
-bool UBuildingsManager::WallsExist() const
+bool UBuildingsManager::WallsExist(EOriginSide Side) const
 {
-	return AllWalls.Num() > 0;
+	if (Side == EOriginSide::Left) return !LeftWalls.IsEmpty();
+	return !RightWalls.IsEmpty();
 }

@@ -6,26 +6,32 @@ UHTNComponent::UHTNComponent()
 {
 	bWantsInitializeComponent = true;
 	PrimaryComponentTick.bCanEverTick = true;
+	
 }
 
-void UHTNComponent::AssignTask(const FTask& Task, int Priority)
+void UHTNComponent::AssignTask(FTask* Task, int Priority)
 {
 	if (Priority >= 0) Tasks.Insert(Task, Priority);
 	else Tasks.Add(Task);
 }
 
-void UHTNComponent::UpdatePlan()
+bool UHTNComponent::UpdatePlan()
 {
-	bHasValidTask = false;
-	
-	for (auto& Task : Tasks)
+	for (const auto Task : Tasks)
 	{
-		if (!Task.CanPerform()) continue;
+		if (!Task->CanPerform()) continue;
+		if (Task->Failed())
+		{
+			if (Task->bResetOnFail) Task->Reset();
+			else Task->SoftReset();
+			continue;
+		}
 		
-		CurrentTask = &Task;
-		bHasValidTask = true;
-		break;
+		CurrentTask = Task;
+		return true;
 	}
+	
+	return false;
 }
 
 
@@ -33,14 +39,21 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UpdatePlan();
-	
-	if (bHasValidTask)
+	int r = 0;
+	bool bHasValidTask = false;
+	while (bHasValidTask == false) // default is false
 	{
-		CurrentTask->Run(DeltaTime);
-		if (CurrentTask->Failed())
+		bHasValidTask = UpdatePlan(); // sets has valid task (to true)
+		
+		if (bHasValidTask)
 		{
-			CurrentTask->Reset();
+			CurrentTask->Run(DeltaTime);
+			if (CurrentTask->Failed())
+			{
+				// but do the next action right away
+				bHasValidTask = false;
+				if (bPrintDebug) UE_LOG(LogTemp, Error, TEXT("Try the next task.. (recursions=%i)"),++r);
+			}
 		}
 	}
 }
