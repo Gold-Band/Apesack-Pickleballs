@@ -194,7 +194,7 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 		MeleeAttackAction.State = EActionState::Failed;
 		return;
 	}
-	
+
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (TargetStatComponent == nullptr)
@@ -203,7 +203,7 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 		return;		
 	}
 	
-	
+		OnMeleeAttack();
 FDamagePatch DamagePatch = Stats->GetDamagePatch();
 
 // 2. OVERRIDE specific fields

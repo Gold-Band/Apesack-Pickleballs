@@ -19,6 +19,9 @@ public:
 	ANpcHostile();
 	
 	virtual TArray<UListItemObject*> GetInfo() const override;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnMeleeAttack();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -69,7 +72,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
 	float RaycastInterval = 0.2f;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool bCanMove = true;
 	
 	float MoveToTimer = 0;
