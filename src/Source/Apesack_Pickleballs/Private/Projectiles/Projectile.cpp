@@ -27,7 +27,7 @@ void AProjectile::Tick(float DeltaTime)
 		
 		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * FMath::RandRange(AppliedForce*0.5f, AppliedForce*2.f);
 		const FVector CurrentPos = GetActorLocation();
-		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera);
+		const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel2);
 		const TArray<AActor*> IgnoreActors = {this, ShooterActor};
 		FHitResult Hit;
 		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),CurrentPos, NextPos, TraceChannel, false, IgnoreActors, EDrawDebugTrace::None,Hit,true))
