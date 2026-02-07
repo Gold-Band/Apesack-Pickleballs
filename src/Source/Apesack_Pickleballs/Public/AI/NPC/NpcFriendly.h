@@ -299,8 +299,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Defend Wall", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_DefendWall = false;
-	
-	// My Components
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
 };

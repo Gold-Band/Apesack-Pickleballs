@@ -69,12 +69,39 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			Input->BindAction(Sprint, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprinting);
 			Input->BindAction(Sprint, ETriggerEvent::Canceled, this, &APlayerCharacter::StopSprinting);
 		}
+		if (!LazyMoveAction.IsNull())
+		{
+			Input->BindAction(LazyMoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::LazyMove);
+		}
 	}
 }
 
 void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
 	FVector Value = Instance.GetValue().Get<FVector>();
 
+	Move(Value);
+}
+
+void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
+{
+	float x, y;
+	
+	if (Cast<APlayerController>(GetController())->GetMousePosition(x,y))
+	{
+		FVector2D Size;
+		GetWorld()->GetGameViewport()->GetViewportSize(Size);
+		if (x > Size.X*0.95 || x < Size.X*0.05) StartSprinting(Instance);
+		else StopSprinting(Instance);
+
+		x = x > Size.X/2? 1: -1;
+		const FVector Value {x,0,0};	
+		
+		Move(Value);
+	}
+}
+
+void APlayerCharacter::Move(const FVector& Direction)
+{
 	if (MovementComp) {
 		if (bIsSprinting) {
 			MovementComp->MaxSpeed = DefaultSpeed * SprintMultiplier;
@@ -85,10 +112,9 @@ void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
 		}
 	}
 	
-	AddMovementInput(Value.X * GetActorForwardVector());
-	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Value.X, MovementComp->MaxSpeed);
+	AddMovementInput(Direction.X * GetActorForwardVector());
+	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Direction.X, MovementComp->MaxSpeed);
 }
-
 
 
 void APlayerCharacter::PrintCoins() const {

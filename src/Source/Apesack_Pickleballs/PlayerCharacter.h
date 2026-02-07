@@ -55,7 +55,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputAction> MoveAction;
-
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TSoftObjectPtr<UInputAction> LazyMoveAction;
+	
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputAction> SprintAction;
 	
@@ -74,6 +77,11 @@ void StopSprinting(const struct FInputActionInstance& Instance);
 
 	UFUNCTION()
 	void HandleMove(const FInputActionInstance& Instance);
+	
+	UFUNCTION()
+	void LazyMove(const FInputActionInstance& Instance);
+	
+	void Move(const FVector& Direction);
 	
 	void PrintCoins() const;
 };
