@@ -34,6 +34,8 @@ private:
 	float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
 protected:
+	TArray<AActor*> IgnoreActors;
+	
 	//**
 	//** My Tasks
 	//**
@@ -44,6 +46,11 @@ protected:
 	//**
 	//** My Actions
 	//**
+	
+	//* Knockback *//
+	FAction KnockbackAction{FString("Knockback")};
+	void Knockback(float DeltaTime);
+	bool KnockbackCondition() const;
 	
 	//* Walk *//
 	FAction WalkAction{FString("Walk")};

@@ -246,7 +246,7 @@ AActor* UNpcManager::GetFarthestFriendlyNpc(EOriginSide Side)
 		if (ActualAngle < 0)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Right - %f"), ActualAngle);
-			DrawDebugLine(GetWorld(), FromLocation, AllFriendlies.Last()->GetActorLocation(), FColor::Green, false, TickInterval);
+			//DrawDebugLine(GetWorld(), FromLocation, AllFriendlies.Last()->GetActorLocation(), FColor::Green, false, TickInterval);
 			return AllFriendlies.Last();
 		}
 	}
@@ -257,7 +257,7 @@ AActor* UNpcManager::GetFarthestFriendlyNpc(EOriginSide Side)
 		if (ActualAngle > 0)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Left - %f"), ActualAngle);
-			DrawDebugLine(GetWorld(), FromLocation, AllFriendlies[0]->GetActorLocation(), FColor::Green, false, TickInterval);
+			//DrawDebugLine(GetWorld(), FromLocation, AllFriendlies[0]->GetActorLocation(), FColor::Green, false, TickInterval);
 			return AllFriendlies[0];
 		}
 	}

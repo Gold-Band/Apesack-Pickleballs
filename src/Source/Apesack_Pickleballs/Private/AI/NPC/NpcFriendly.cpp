@@ -437,7 +437,7 @@ void ANpcFriendly::MoveTimed(float DeltaTime)
 
 bool ANpcFriendly::MoveTimedCondition() const
 {
-	return bCanMove && !bIsPartyMember && !bIsNighttime && !bAssumedPosition;	
+	return bCanMove && !bIsPartyMember && !bIsNighttime/* && !bAssumedPosition*/;	
 }
 
 void ANpcFriendly::MoveTimedReset()

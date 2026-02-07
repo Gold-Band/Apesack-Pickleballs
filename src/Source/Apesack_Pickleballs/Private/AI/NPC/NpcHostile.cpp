@@ -38,6 +38,9 @@ void ANpcHostile::BeginPlay()
 	Super::BeginPlay();
 	
 	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
+	
+	IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
+	IgnoreActors.Add(this);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -75,6 +78,9 @@ void ANpcHostile::CreateBehaviours()
 {
 	Super::CreateBehaviours();
 	
+	// knockback
+	
+	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(&TargetAttackableAction);
 	MeleeAttackTask.Actions.Add(&MoveToAction);
@@ -82,7 +88,7 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(&CooldownAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
 	HtnDomain->AssignTask(&MeleeAttackTask);
-	
+	 
 	// Walk
 	MoveForwardTask.Actions.Add(&WalkAction);
 	MoveForwardTask.bPrintDebug = bPrintDebug_MoveTo;
@@ -103,6 +109,18 @@ float ANpcHostile::GetAngleBetweenVectors(const FVector& A, const FVector& B)
 	const float Dot = FVector::DotProduct(A, B);
 	const float CrossDot = FVector::CrossProduct(A, B).Dot(FVector::UpVector);
 	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
+}
+
+void ANpcHostile::Knockback(float DeltaTime)
+{
+
+	// stun movement;
+	
+}
+
+bool ANpcHostile::KnockbackCondition() const
+{
+	return false;
 }
 
 void ANpcHostile::Walk(float DeltaTime)
@@ -135,17 +153,16 @@ void ANpcHostile::MoveTo(float DeltaTime)
 	
 	// Are we there yet?
 	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation());
-	if (MoveToTimer >= RaycastInterval && DistanceSquared <= StartRaycastingDistanceSquared)
+	if (DistanceSquared <= StartRaycastingDistanceSquared && MoveToTimer >= RaycastInterval)
 	{
 		MoveToTimer = 0;
-		
 		if (UKismetSystemLibrary::LineTraceMulti(
 			GetWorld(), // world
 			GetActorLocation(), // start 
 			TargetActor->GetActorLocation(), // end 
 			UEngineTypes::ConvertToTraceType(ECC_Visibility), // channel
 			false,
-			TArray<AActor*>{this}, // ignore 
+			IgnoreActors, // ignore 
 			bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
 			HitResults,
 			true))
@@ -179,7 +196,12 @@ void ANpcHostile::MoveTo(float DeltaTime)
 	MoveToTimer+=DeltaTime;
 	
 	// Move
-	if (!TargetActor || !this || !GetParentActor() || !GetWorld() || !GetOwner()) return; // weird bug - skip
+	/*if (!TargetActor || !this || !GetParentActor() || !GetWorld() || !GetOwner())
+	{
+		
+		return;
+		// weird bug - skip
+	}*/
 	const float Direction = FVector::DotProduct(TargetActor->GetActorLocation() - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
 	MoveForwardScaled(Direction);
 }
