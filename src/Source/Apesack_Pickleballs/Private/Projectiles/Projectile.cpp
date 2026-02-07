@@ -38,7 +38,23 @@ void AProjectile::Tick(float DeltaTime)
 			
 			// try to damage what we hit
 			UStatsComponent* DamageReceiver = Cast<UStatsComponent>(Hit.GetActor()->GetComponentByClass<UStatsComponent>());
-			if (DamageReceiver != nullptr) DamageReceiver->ApplyDamagePatch(TransferDamage);
+			if (DamageReceiver != nullptr) DamageReceiver->ApplyDamagePatch(
+		Damage,
+		SelfLifeStealPercent,
+		BaseCritChance,
+		CritMultiplier,
+		TotalDamageScale,
+		ProficiencyDamageType,
+		RangedDamageScale,
+		MeleeDamageScale,
+		FireDamageScale,
+		PoisonDamageScale,
+		MagicDamageScale,
+		FireDamage,
+		PoisonDamage,
+		MagicDamage,
+		DebuffDuration
+	);
 		}
 		
 		if (NextPos.Z <= 0)

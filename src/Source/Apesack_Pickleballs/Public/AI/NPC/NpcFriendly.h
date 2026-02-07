@@ -51,6 +51,12 @@ class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc
 public:
 	ANpcFriendly();
 
+//* Adam F's for animations
+UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnMeleeAttack();
+UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnBowAttack(bool bIsFacingTarget);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -220,4 +226,11 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetPlayer = false;
+
+
+
+
+
+
+
 };
