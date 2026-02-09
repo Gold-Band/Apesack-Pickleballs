@@ -52,6 +52,12 @@ public:
 	
 	virtual void Tick(float DeltaSeconds) override;
 
+//* Adam F's for animations
+UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnMeleeAttack();
+UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnBowAttack(bool bIsFacingTarget);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

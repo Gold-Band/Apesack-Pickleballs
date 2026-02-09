@@ -225,7 +225,7 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 		MeleeAttackAction.State = EActionState::Failed;
 		return;
 	}
-	
+
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (TargetStatComponent == nullptr)
@@ -234,9 +234,31 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 		return;		
 	}
 	
-	const float Damage = Stats->GetMeleeDamage(BaseDamage_MeleeAttack);
-	TargetStatComponent->ApplyDamagePatch(Damage);
-	
+		OnMeleeAttack();
+FDamagePatch DamagePatch = Stats->GetDamagePatch();
+
+// 2. OVERRIDE specific fields
+DamagePatch.NormalDamage = 5.f;
+DamagePatch.ProficiencyDamageType = 0.f;
+
+// 3. APPLY to target by unpacking struct fields
+TargetStatComponent->ApplyDamagePatch(
+    DamagePatch.NormalDamage,
+    DamagePatch.SelfLifeStealPercent,
+    DamagePatch.BaseCritChance,
+    DamagePatch.CritMultiplier,
+    DamagePatch.TotalDamageScale,
+    DamagePatch.ProficiencyDamageType,
+    DamagePatch.RangedDamageScale,
+    DamagePatch.MeleeDamageScale,
+    DamagePatch.FireDamageScale,
+    DamagePatch.PoisonDamageScale,
+    DamagePatch.MagicDamageScale,
+    DamagePatch.FireDamage,
+    DamagePatch.PoisonDamage,
+    DamagePatch.MagicDamage,
+    DamagePatch.DebuffDuration
+);
 	MeleeAttackAction.State = EActionState::Succeeded;
 	Delay = Cooldown_MeleeAttack;
 }

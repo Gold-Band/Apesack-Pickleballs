@@ -628,33 +628,58 @@ bool ANpcFriendly::TargetFarthestTowerCondition() const
 
 void ANpcFriendly::MeleeAttack(float DeltaTime)
 {
-	// get target
-	if (TargetActor == nullptr)
+	if (!TargetActor || !Stats)
 	{
 		MeleeAttackAction.State = EActionState::Failed;
 		CooldownTimer_MeleeAttack = 0;
 		bEnabled_MeleeAttack = false;
 		return;
 	}
-	
-	// get target's stat component
-	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
-	if (TargetStatComponent == nullptr)
+
+	UStatsComponent* TargetStatComponent =
+		TargetActor->GetComponentByClass<UStatsComponent>();
+
+	if (!TargetStatComponent)
 	{
 		MeleeAttackAction.State = EActionState::Failed;
 		CooldownTimer_MeleeAttack = 0;
 		bEnabled_MeleeAttack = false;
 		return;		
 	}
-	
-	const float Damage = Stats->GetMeleeDamage(BaseDamage_MeleeAttack);
-	TargetStatComponent->ApplyDamagePatch(Damage);
-	
+// 1. GET stats as struct
+FDamagePatch DamagePatch = Stats->GetDamagePatch();
+
+// 2. OVERRIDE specific fields
+DamagePatch.NormalDamage = 5.f;
+DamagePatch.ProficiencyDamageType = 0.f;
+
+// 3. APPLY to target by unpacking struct fields
+TargetStatComponent->ApplyDamagePatch(
+    DamagePatch.NormalDamage,
+    DamagePatch.SelfLifeStealPercent,
+    DamagePatch.BaseCritChance,
+    DamagePatch.CritMultiplier,
+    DamagePatch.TotalDamageScale,
+    DamagePatch.ProficiencyDamageType,
+    DamagePatch.RangedDamageScale,
+    DamagePatch.MeleeDamageScale,
+    DamagePatch.FireDamageScale,
+    DamagePatch.PoisonDamageScale,
+    DamagePatch.MagicDamageScale,
+    DamagePatch.FireDamage,
+    DamagePatch.PoisonDamage,
+    DamagePatch.MagicDamage,
+    DamagePatch.DebuffDuration
+);
+
+
 	MeleeAttackAction.State = EActionState::Succeeded;
 	CooldownTimer_MeleeAttack = 0;
 	bEnabled_MeleeAttack = false;
 	//Delay = Cooldown_MeleeAttack;
 }
+
+
 
 bool ANpcFriendly::MeleeAttackCondition() const
 {
@@ -676,41 +701,119 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 		RangedAttackAction.State = EActionState::Failed;
 		bEnabled_RangedAttack = false;
 		CooldownTimer_RangedAttack = 0;
+		OnBowAttack(false);
 		return;
 	}
-	
+
+FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
+ToTarget.Z = 0.f;
+
+const FVector LocalToTarget = GetActorTransform().InverseTransformVectorNoScale(ToTarget);
+
+
+const bool bIsFacingTarget = LocalToTarget.X > 0.f;
+
+OnBowAttack(bIsFacingTarget);
+
+
+
 	//* 1. Get an arrow from the gamemode
-	AArrow* Arrow = Cast<AArrow>(Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode())->GetArrow());
+	AArrow* Arrow = Cast<AArrow>(
+		Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode())->GetArrow()
+	);
+
 	if (!Arrow)
 	{
-		if (bPrintDebug_RangedAttack) UE_LOG(LogTemp, Warning, TEXT("Can't get an arrow"));
+		if (bPrintDebug_RangedAttack)
+			UE_LOG(LogTemp, Warning, TEXT("Can't get an arrow"));
+
 		RangedAttackAction.State = EActionState::Failed;
 		bEnabled_RangedAttack = false;
 		CooldownTimer_RangedAttack = 0;
 		return;
 	}
-	
-	//* 2. Get my statsComponent and pass some information down to the arrow
-	Arrow->Damage = Stats->GetRangedDamage(BaseDamage_MeleeAttack);
+
+	//* 2. Pass stats to arrow
+
+// --------------------------------
+// 1. Declare variables
+// --------------------------------
+// --------------------------------
+// 2. GET stats FROM THIS ACTOR
+// --------------------------------
+FDamagePatch DamagePatch = Stats->GetDamagePatch();
+
+// --------------------------------
+// 3. APPLY stats TO ARROW
+// --------------------------------
+
+// Base damage (ranged-scaled)
+Arrow->Damage = 5.f;
+
+// Core scaling
+Arrow->TotalDamageScale = DamagePatch.TotalDamageScale;
+
+// Crit
+Arrow->BaseCritChance = DamagePatch.BaseCritChance;
+Arrow->CritMultiplier = DamagePatch.CritMultiplier;
+
+// Sustain
+Arrow->SelfLifeStealPercent = DamagePatch.SelfLifeStealPercent;
+
+// Damage type
+Arrow->ProficiencyDamageType = DamagePatch.ProficiencyDamageType;
+
+// Damage scaling
+Arrow->RangedDamageScale = DamagePatch.RangedDamageScale;
+Arrow->MeleeDamageScale = DamagePatch.MeleeDamageScale;
+Arrow->FireDamageScale = DamagePatch.FireDamageScale;
+Arrow->PoisonDamageScale = DamagePatch.PoisonDamageScale;
+Arrow->MagicDamageScale = DamagePatch.MagicDamageScale;
+
+// Flat elemental damage
+Arrow->FireDamage = DamagePatch.FireDamage;
+Arrow->PoisonDamage = DamagePatch.PoisonDamage;
+Arrow->MagicDamage = DamagePatch.MagicDamage;
+
+// Effects
+Arrow->DebuffDuration = DamagePatch.DebuffDuration;
+
+
+
+
 	Arrow->bDrawPathDebug = bPrintDebug_RangedAttack;
-	
-	//* 3. Call Launch At
-	TArray<AActor*> IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide);
+
+	//* 3. Launch
+	TArray<AActor*> IgnoreActors =
+		NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide);
 	IgnoreActors.Add(this);
 	IgnoreActors.Add(NpcManager->GetPlayer());
-	if (Arrow->LaunchAt(IgnoreActors, GetProjectileSpawnLocation(), TargetActor->GetActorLocation()))
+	
+	if (Arrow->LaunchAt(
+		IgnoreActors,
+		GetProjectileSpawnLocation(),
+		TargetActor->GetActorLocation()))
 	{
 		RangedAttackAction.State = EActionState::Succeeded;
 	}
 	else
 	{
 		RangedAttackAction.State = EActionState::Failed;
-		if (bPrintDebug_RangedAttack) UE_LOG(LogTemp, Warning, TEXT("no solution to hit %s"), *TargetActor->GetActorNameOrLabel());
+		if (bPrintDebug_RangedAttack)
+		{
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("no solution to hit %s"),
+				*TargetActor->GetActorNameOrLabel()
+			);
+		}
 		Arrow->Disable();
 	}
 	CooldownTimer_RangedAttack = 0;
 	bEnabled_RangedAttack = false;
 }
+
 
 bool ANpcFriendly::RangedAttackCondition() const
 {

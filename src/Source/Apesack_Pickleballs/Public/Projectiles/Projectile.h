@@ -54,6 +54,37 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	bool bDrawPathDebug = false;
+
+
+	// Base / core
+	float Damage = 5.f;
+	float TotalDamageScale = 1.f;
+
+	// Crit
+	float BaseCritChance = 0.f;
+	float CritMultiplier = 1.f;
+
+	// Sustain
+	float SelfLifeStealPercent = 0.f;
+
+	// Damage type scales
+	float RangedDamageScale = 1.f;
+	float MeleeDamageScale = 1.f;
+	float FireDamageScale = 1.f;
+	float PoisonDamageScale = 1.f;
+	float MagicDamageScale = 1.f;
+
+	// Flat elemental damage
+	float FireDamage = 0.f;
+	float PoisonDamage = 0.f;
+	float MagicDamage = 0.f;
+
+	// Effects
+	float DebuffDuration = 0.f;
+
+   float ProficiencyDamageType = 1.f;
+
+
 	
 private:
 	FOnPooledActorSelfDisabled OnActorDisabled;

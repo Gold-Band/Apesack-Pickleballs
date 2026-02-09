@@ -8,6 +8,32 @@
 
 
 // The HTN Domain for the parent actor.
+
+USTRUCT(BlueprintType)
+struct FDamagePatch
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float NormalDamage;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float SelfLifeStealPercent;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float BaseCritChance;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float CritMultiplier;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float TotalDamageScale;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float ProficiencyDamageType;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float RangedDamageScale;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float MeleeDamageScale;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float FireDamageScale;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float PoisonDamageScale;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float MagicDamageScale;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float FireDamage;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float PoisonDamage;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float MagicDamage;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float DebuffDuration;
+};
+
+
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), BlueprintType, Blueprintable)
 class APESACK_PICKLEBALLS_API UStatsComponent : public UActorComponent
 {
@@ -16,8 +42,32 @@ class APESACK_PICKLEBALLS_API UStatsComponent : public UActorComponent
 public:
 	UStatsComponent();
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	void ApplyDamagePatch(float NormalDamage);
+
+UFUNCTION(BlueprintImplementableEvent, Category="Damage")
+void ApplyDamagePatch(
+	float NormalDamage,
+	float SelfLifeStealPercent,
+	float BaseCritChance,
+	float CritMultiplier,
+	float TotalDamageScale,
+	float ProficiencyDamageType,
+	float RangedDamageScale,
+	float MeleeDamageScale,
+	float FireDamageScale,
+	float PoisonDamageScale,
+	float MagicDamageScale,
+	float FireDamage,
+	float PoisonDamage,
+	float MagicDamage,
+	float DebuffDuration
+);
+
+
+    UFUNCTION(BlueprintImplementableEvent, Category="Damage")
+    FDamagePatch GetDamagePatch() const;
+
+
+
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	float GetMeleeDamage(float BaseDamage) const;
