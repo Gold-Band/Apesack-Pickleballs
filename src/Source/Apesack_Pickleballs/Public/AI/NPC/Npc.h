@@ -87,6 +87,8 @@ public:
 	// Sets default values for this pawn's properties
 	ANpc();
 	
+	virtual void Tick(float DeltaSeconds) override;
+	
 	UFUNCTION(BlueprintPure)
 	float GetCharacterPreferredRadius() const;
 	
@@ -108,10 +110,6 @@ public:
 	void MoveForwardScaled(float Scale);
 	
 	
-	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
-	ECharacterType CharacterClass;
-	
-	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -122,13 +120,13 @@ protected:
 	
 	virtual void BindActions();
 	virtual void CreateBehaviours();
+	virtual bool GetSideCheckCondition();
 	
 public:
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
 
 private:
-	float Radius = 0;
 	
 	// direction to the player's town (left or right)
 	float OriginDirection = 0;
@@ -137,6 +135,12 @@ protected:
 	//*
 	//* General Properties
 	//*
+	float GetSideInterval = 1;
+	float GetSideTimer;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
+	float Radius = 0;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category = "Character Properties")
 	FString CharacterName;
 	
@@ -174,7 +178,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHTNComponent> HtnDomain = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
 	
 };

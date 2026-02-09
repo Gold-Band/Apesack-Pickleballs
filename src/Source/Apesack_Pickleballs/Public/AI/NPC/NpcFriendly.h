@@ -6,8 +6,6 @@
 #include "Npc.h"
 #include "AI/Actions/Action.h"
 #include "AI/HTN/Task.h"
-
-
 #include "NpcFriendly.generated.h"
 
 
@@ -43,6 +41,7 @@ struct FRankInfo : public FTableRowBase // row name is rank name
 };
 */
 
+
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc
 {
@@ -50,6 +49,14 @@ class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc
 
 public:
 	ANpcFriendly();
+	
+	virtual void Tick(float DeltaSeconds) override;
+
+//* Adam F's for animations
+UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnMeleeAttack();
+UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnBowAttack(bool bIsFacingTarget);
 
 protected:
 	virtual void BeginPlay() override;
@@ -75,6 +82,19 @@ private:
 	UBuildingsManager* BuildingsManager;
 	
 protected:
+	virtual bool GetSideCheckCondition() override;
+	void JoinParty();
+	void LeaveParty();
+	
+	
+	//**
+	//** General Properties
+	//**
+	UPROPERTY(EditAnywhere, Category = "Character Properties")
+	ECharacterType CharacterClass;
+	
+	
+	
 	//**
 	//** My Actions
 	//**
@@ -89,8 +109,6 @@ protected:
 	void Cooldown(float DeltaTime);
 	void CooldownReset();
 	float Delay;
-	
-	
 	
 	
 	//* Move Timed *//
@@ -112,9 +130,17 @@ protected:
 	
 	//* Move To *//
 	FAction MoveToAction{FString("Move To")};
-	void MoveTo(float DeltaTime);
+	FAction MoveToVectorAction{FString("Move To Vector")};
+	FAction MoveToOffsetAction{FString("Move To Vector")};
+	void MoveTo(float DeltaTime); // move to an actor
+	void MoveToVector(float DeltaTime); // move to a point
+	void MoveToOffset(float DeltaTime); // move to an actor with an offset
 	bool MoveToCondition() const;
 	void MoveToReset();
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
+	float MoveSpeed = 200.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
 	float StopDistance = 50.0f;
@@ -125,21 +151,38 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
 	float RaycastInterval = 0.2f;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
 	bool bCanMove = true;
 	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
+	FVector TargetLocation;
 	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
+	float OffsetAngle;
+	
+	int PartyIndex;
 	
 	
 	
 	//* Target Player *//
 	FAction TargetPlayerAction{FString("Target Player")};
+	FAction OnJoinedPlayerAction{FString("On Joined Player")};
 	void TargetPlayer(float DeltaTime);
+	bool TargetPlayerCondition() const;
+	void OnJoinedPlayer(float DeltaTime);
+	void CopyPlayerMovement(float Direction, float Speed);
+	
+	bool bEnabled_FollowPlayer = true;
+	float Cooldown_FollowPlayer = 1;
+	float CooldownTimer_FollowPlayer;
+	
+	bool bIsPartyMember = false;
 	
 	//* Target Enemy *//
 	FAction TargetNearestEnemyAction{FString("Target Enemy")};
 	void TargetNearestEnemy(float DeltaTime);
 	bool bRaid;
+	float TargetingDistance;
 	
 	//* Target Tower *//
 	FAction TargetFarthestTowerAction{FString("Target Tower")};
@@ -148,31 +191,69 @@ protected:
 	
 	//* Melee Attack *//
 	FAction MeleeAttackAction{FString("Attack")};
+	FAction SetMeleeParamsAction{FString("Set Melee Params")};
 	void MeleeAttack(float DeltaTime);
 	bool MeleeAttackCondition() const;
+	void SetMeleeParams(float DeltaTime);
+	
+	bool bEnabled_MeleeAttack = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
 	float Cooldown_MeleeAttack = 0.75f;
 	
+	float CooldownTimer_MeleeAttack;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_MeleeAttack = 1;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Range"))
+	float TargetingDistance_Melee = 200.0f;
+	
 	//* Ranged Attack *//
 	FAction RangedAttackAction{FString("Shoot")};
+	FAction SetRangedParamsAction{FString("Set Ranged Params")};
 	void RangedAttack(float DeltaTime);
 	bool RangedAttackCondition() const;
+	void SetRangedParams(float DeltaTime);
+	
+	bool bEnabled_RangedAttack = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack")
 	float Cooldown_RangedAttack = 0.75f;
 	
+	float CooldownTimer_RangedAttack;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_RangedAttack = 1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Targeting Distance"))
+	float TargetingDistance_Ranged = 1000.0f;
 	
 	//* Occupy Tower Spot *//
 	FAction OccupyTowerAction{FString("Occupy Tower")};
 	void OccupyTower(float DeltaTime);
 	bool OccupyTowerCondition() const;
 	
+	
+	//* Defend Wall *//
+	FAction GetDefensePositionAction{FString("Get Defense Position")};
+	FAction OnAssumedDefensePositionAction{FString("On Got Defense Position")};
+	void GetDefensePosition(float DeltaTime);
+	bool GetDefensePositionCondition() const;
+	void OnAssumedDefensePosition(float DeltaTime);
+	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Defend Wall")
+	bool bIsNighttime = false;
+	
+	UPROPERTY(EditAnywhere, Category="Action Properties|Defend Wall")
+	float MinDistance = 0.2f; //angle away from the wall
+	
+	UPROPERTY(EditAnywhere, Category="Action Properties|Defend Wall")
+	float ExtraDistancePerPerson = 0.1f; //angle away from the wall
+	
+	bool bAssumedPosition = false;
+	
+	//* Goto Safezone *//
 	
 	
 	//**
@@ -188,6 +269,7 @@ protected:
 	FTask HideTask{"Hide"};
 	FTask OccupyTowerTask{"Man Archer Tower"};
 	FTask DefendWallTask{"Defend Wall"};
+	FTask ReturnToSafeZone{"Return To Safe Zone"};
 
 	
 	
@@ -220,4 +302,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetPlayer = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Defend Wall", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_DefendWall = false;
 };

@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,10 +10,12 @@ class APESACK_PICKLEBALLS_API AArrow : public AProjectile
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
+	// Sets default values
 	AArrow();
 
+	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-	float Damage = 0;	
+
+	// -------- Damage payload (inherited from AProjectile) --------
 };
+

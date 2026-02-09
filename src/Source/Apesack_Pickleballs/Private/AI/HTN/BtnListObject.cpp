@@ -29,6 +29,8 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 	ButtonFunction = ListItem->OnActionCalledFunction;
 	Parent = ListItem->Parent;
 	Cost = ListItem->Cost;
+	
+	ActionBtn->SetIsEnabled(!ListItem->bDisable);
 }
 
 void UBtnListObject::OnButtonClicked()

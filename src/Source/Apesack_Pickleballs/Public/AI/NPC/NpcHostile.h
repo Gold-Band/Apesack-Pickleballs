@@ -19,10 +19,15 @@ public:
 	ANpcHostile();
 	
 	virtual TArray<UListItemObject*> GetInfo() const override;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+void OnMeleeAttack();
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
+	virtual bool GetSideCheckCondition() override;
 	
 	virtual void BindActions() override;
 	virtual void CreateBehaviours() override;
@@ -32,6 +37,8 @@ private:
 	float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
 protected:
+	TArray<AActor*> IgnoreActors;
+	
 	//**
 	//** My Tasks
 	//**
@@ -42,6 +49,11 @@ protected:
 	//**
 	//** My Actions
 	//**
+	
+	//* Knockback *//
+	FAction KnockbackAction{FString("Knockback")};
+	void Knockback(float DeltaTime);
+	bool KnockbackCondition() const;
 	
 	//* Walk *//
 	FAction WalkAction{FString("Walk")};
@@ -69,7 +81,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
 	float RaycastInterval = 0.2f;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool bCanMove = true;
 	
 	float MoveToTimer = 0;

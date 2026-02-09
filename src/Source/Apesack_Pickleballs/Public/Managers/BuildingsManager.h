@@ -19,7 +19,8 @@ UENUM(BlueprintType, Blueprintable)
 enum class EOriginSide : uint8
 {
 	Left,
-	Right
+	Right,
+	Any
 };
 
 

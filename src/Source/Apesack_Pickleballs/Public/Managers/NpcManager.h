@@ -6,6 +6,7 @@
 #include "NpcManager.generated.h"
 
 
+class APlayerCharacter;
 class ANpc;
 class ANpcFriendly;
 
@@ -24,6 +25,7 @@ enum class ENpcTag : uint8
 	None = 0,
 	Hostile = 1,
 	Friendly = 2,
+	Party = 3
 };
 
 /*
@@ -93,15 +95,27 @@ public:
 	
 	void AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
 	void RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
-	AActor* FindNearestNpc(const FVector& FromLocation, ENpcSearchOption SearchFilter, EOriginSide Side);
+	AActor* FindNearestNpc(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float SearchRadius = UE_MAX_FLT);
 	
-	AActor* GetFarthestNpc(ENpcSearchOption SearchFilter, EOriginSide Side);
+	AActor* GetFarthestFriendlyNpc(EOriginSide Side);
+	
+	void SortByOriginAngle(TArray<AActor*>* SortArray);
 	
 	TArray<AActor*> GetNpcs(ENpcSearchOption SearchFilter, EOriginSide Side) const;
 	
+	EOriginSide SuggestOccupySide() const;
+	
 	float RaidDetectionDistance = 10000;
 	
+	APlayerCharacter* GetPlayer() const;
+	
 private:
+	// Returns CheckActor if it passes the inspection. Else, it returns null.
+	bool IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist, const float CheckRadiusSquared) const;
+	bool IsCorrectSide(const EOriginSide Side, const FVector& WorldLocation) const;
+	
+	TArray<AActor*>* GetArray(ENpcSearchOption SearchFilter);
+	
 	AActor* GetMostVulnerableAsset(const EOriginSide Side);
 	
 	UPROPERTY()
@@ -116,15 +130,19 @@ private:
 	FVector WorldOrigin;
 	
 	UPROPERTY()
-	TArray<AActor*> RightHostiles;
+	TArray<AActor*> AllHostiles;
 	
 	UPROPERTY()
-	TArray<AActor*> LeftHostiles;
+	TArray<AActor*> AllFriendlies;
 	
-	UPROPERTY()
-	TArray<AActor*> RightFriendlies;
+	//UPROPERTY()
+	//TArray<AActor*> PartyMembers;
 	
-	UPROPERTY()
-	TArray<AActor*> LeftFriendlies;
+	
+	// tick interval
+	float TickInterval = 0.2f;
+	float Timer;
+	
+	APlayerCharacter* PlayerRef = nullptr;
 	
 };

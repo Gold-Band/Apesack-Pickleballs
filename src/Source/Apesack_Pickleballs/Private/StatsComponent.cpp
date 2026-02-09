@@ -2,4 +2,5 @@
 
 UStatsComponent::UStatsComponent()
 {
+    
 }

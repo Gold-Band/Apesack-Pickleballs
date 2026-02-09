@@ -21,5 +21,5 @@ void UCircularPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelT
 void UCircularPawnMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Radius = GetActorLocation().Length();
+	Radius = GetActorLocation().Size2D();
 }
