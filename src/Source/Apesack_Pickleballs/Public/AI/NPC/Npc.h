@@ -178,7 +178,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHTNComponent> HtnDomain = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
 	
 };

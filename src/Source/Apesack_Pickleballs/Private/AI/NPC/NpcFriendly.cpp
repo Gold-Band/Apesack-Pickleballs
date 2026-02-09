@@ -705,17 +705,12 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 		return;
 	}
 
-FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
-ToTarget.Z = 0.f;
+	FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
+	ToTarget.Z = 0.f;
+	const FVector LocalToTarget = GetActorTransform().InverseTransformVectorNoScale(ToTarget);
+	const bool bIsFacingTarget = LocalToTarget.X > 0.f;
 
-const FVector LocalToTarget = GetActorTransform().InverseTransformVectorNoScale(ToTarget);
-
-
-const bool bIsFacingTarget = LocalToTarget.X > 0.f;
-
-OnBowAttack(bIsFacingTarget);
-
-
+	OnBowAttack(bIsFacingTarget);
 
 	//* 1. Get an arrow from the gamemode
 	AArrow* Arrow = Cast<AArrow>(
@@ -735,51 +730,48 @@ OnBowAttack(bIsFacingTarget);
 
 	//* 2. Pass stats to arrow
 
-// --------------------------------
-// 1. Declare variables
-// --------------------------------
-// --------------------------------
-// 2. GET stats FROM THIS ACTOR
-// --------------------------------
-FDamagePatch DamagePatch = Stats->GetDamagePatch();
+	// --------------------------------
+	// 1. Declare variables
+	// --------------------------------
+	// --------------------------------
+	// 2. GET stats FROM THIS ACTOR
+	// --------------------------------
+	const FDamagePatch DamagePatch = Stats->GetDamagePatch();
 
-// --------------------------------
-// 3. APPLY stats TO ARROW
-// --------------------------------
+	// --------------------------------
+	// 3. APPLY stats TO ARROW
+	// --------------------------------
 
-// Base damage (ranged-scaled)
-Arrow->Damage = 5.f;
+	// Base damage (ranged-scaled)
+	Arrow->Damage = 5.f;
 
-// Core scaling
-Arrow->TotalDamageScale = DamagePatch.TotalDamageScale;
+	// Core scaling
+	Arrow->TotalDamageScale = DamagePatch.TotalDamageScale;
 
-// Crit
-Arrow->BaseCritChance = DamagePatch.BaseCritChance;
-Arrow->CritMultiplier = DamagePatch.CritMultiplier;
+	// Crit
+	Arrow->BaseCritChance = DamagePatch.BaseCritChance;
+	Arrow->CritMultiplier = DamagePatch.CritMultiplier;
 
-// Sustain
-Arrow->SelfLifeStealPercent = DamagePatch.SelfLifeStealPercent;
+	// Sustain
+	Arrow->SelfLifeStealPercent = DamagePatch.SelfLifeStealPercent;
 
-// Damage type
-Arrow->ProficiencyDamageType = DamagePatch.ProficiencyDamageType;
+	// Damage type
+	Arrow->ProficiencyDamageType = DamagePatch.ProficiencyDamageType;
 
-// Damage scaling
-Arrow->RangedDamageScale = DamagePatch.RangedDamageScale;
-Arrow->MeleeDamageScale = DamagePatch.MeleeDamageScale;
-Arrow->FireDamageScale = DamagePatch.FireDamageScale;
-Arrow->PoisonDamageScale = DamagePatch.PoisonDamageScale;
-Arrow->MagicDamageScale = DamagePatch.MagicDamageScale;
+	// Damage scaling
+	Arrow->RangedDamageScale = DamagePatch.RangedDamageScale;
+	Arrow->MeleeDamageScale = DamagePatch.MeleeDamageScale;
+	Arrow->FireDamageScale = DamagePatch.FireDamageScale;
+	Arrow->PoisonDamageScale = DamagePatch.PoisonDamageScale;
+	Arrow->MagicDamageScale = DamagePatch.MagicDamageScale;
 
-// Flat elemental damage
-Arrow->FireDamage = DamagePatch.FireDamage;
-Arrow->PoisonDamage = DamagePatch.PoisonDamage;
-Arrow->MagicDamage = DamagePatch.MagicDamage;
+	// Flat elemental damage
+	Arrow->FireDamage = DamagePatch.FireDamage;
+	Arrow->PoisonDamage = DamagePatch.PoisonDamage;
+	Arrow->MagicDamage = DamagePatch.MagicDamage;
 
-// Effects
-Arrow->DebuffDuration = DamagePatch.DebuffDuration;
-
-
-
+	// Effects
+	Arrow->DebuffDuration = DamagePatch.DebuffDuration;
 
 	Arrow->bDrawPathDebug = bPrintDebug_RangedAttack;
 
@@ -789,10 +781,7 @@ Arrow->DebuffDuration = DamagePatch.DebuffDuration;
 	IgnoreActors.Add(this);
 	IgnoreActors.Add(NpcManager->GetPlayer());
 	
-	if (Arrow->LaunchAt(
-		IgnoreActors,
-		GetProjectileSpawnLocation(),
-		TargetActor->GetActorLocation()))
+	if (Arrow->LaunchAt(IgnoreActors,GetProjectileSpawnLocation(),TargetActor->GetActorLocation()))
 	{
 		RangedAttackAction.State = EActionState::Succeeded;
 	}

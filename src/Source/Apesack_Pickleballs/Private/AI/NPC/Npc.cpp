@@ -18,9 +18,6 @@ ANpc::ANpc()
 	SetRootComponent(Root);
 	Root->Mobility = EComponentMobility::Movable;
 	
-	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
-	SpriteComp->SetupAttachment(Root);
-
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Move"));
 	MovementComp->MaxSpeed = 200;
 	
