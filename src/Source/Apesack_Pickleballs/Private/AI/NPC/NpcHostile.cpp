@@ -41,6 +41,8 @@ void ANpcHostile::BeginPlay()
 	
 	IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
 	IgnoreActors.Add(this);
+	
+	if (Stats) Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)

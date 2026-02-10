@@ -122,11 +122,15 @@ protected:
 	virtual void CreateBehaviours();
 	virtual bool GetSideCheckCondition();
 	
+	UFUNCTION(BlueprintNativeEvent)
+	void OnDeath();
+	
 public:
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
 
 private:
+	void OnDeath_Implementation();
 	
 	// direction to the player's town (left or right)
 	float OriginDirection = 0;
@@ -177,8 +181,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHTNComponent> HtnDomain = nullptr;
-	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//TObjectPtr<UPaperSpriteComponent> SpriteComp = nullptr;
-	
 };

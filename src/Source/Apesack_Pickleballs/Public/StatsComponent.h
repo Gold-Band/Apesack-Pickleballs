@@ -7,6 +7,8 @@
 #include "StatsComponent.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+
 // The HTN Domain for the parent actor.
 
 USTRUCT(BlueprintType)
@@ -66,8 +68,8 @@ void ApplyDamagePatch(
     UFUNCTION(BlueprintImplementableEvent, Category="Damage")
     FDamagePatch GetDamagePatch() const;
 
-
-
+	UPROPERTY(BlueprintCallable)
+	FOnDeathSignature OnDeathDelegate;
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	float GetMeleeDamage(float BaseDamage) const;
@@ -80,6 +82,8 @@ void ApplyDamagePatch(
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	float GetMaxHealth() const;
+	
+	
 	
 private:
 	float Damage;

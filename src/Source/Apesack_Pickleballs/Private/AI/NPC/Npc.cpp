@@ -104,3 +104,8 @@ FString ANpc::GetActorName() const
 {
 	return GetCharacterName();
 }
+
+void ANpc::OnDeath_Implementation()
+{
+	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);
+}
