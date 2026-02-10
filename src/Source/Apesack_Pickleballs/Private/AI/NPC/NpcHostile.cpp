@@ -41,8 +41,6 @@ void ANpcHostile::BeginPlay()
 	
 	IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
 	IgnoreActors.Add(this);
-	
-	if (Stats) Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -236,30 +234,30 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 	}
 	
 		OnMeleeAttack();
-FDamagePatch DamagePatch = Stats->GetDamagePatch();
+	FDamagePatch DamagePatch = Stats->GetDamagePatch();
 
-// 2. OVERRIDE specific fields
-DamagePatch.NormalDamage = 5.f;
-DamagePatch.ProficiencyDamageType = 0.f;
+	// 2. OVERRIDE specific fields
+	DamagePatch.NormalDamage = 5.f;
+	DamagePatch.ProficiencyDamageType = 0.f;
 
-// 3. APPLY to target by unpacking struct fields
-TargetStatComponent->ApplyDamagePatch(
-    DamagePatch.NormalDamage,
-    DamagePatch.SelfLifeStealPercent,
-    DamagePatch.BaseCritChance,
-    DamagePatch.CritMultiplier,
-    DamagePatch.TotalDamageScale,
-    DamagePatch.ProficiencyDamageType,
-    DamagePatch.RangedDamageScale,
-    DamagePatch.MeleeDamageScale,
-    DamagePatch.FireDamageScale,
-    DamagePatch.PoisonDamageScale,
-    DamagePatch.MagicDamageScale,
-    DamagePatch.FireDamage,
-    DamagePatch.PoisonDamage,
-    DamagePatch.MagicDamage,
-    DamagePatch.DebuffDuration
-);
+	// 3. APPLY to target by unpacking struct fields
+	TargetStatComponent->ApplyDamagePatch(
+	    DamagePatch.NormalDamage,
+	    DamagePatch.SelfLifeStealPercent,
+	    DamagePatch.BaseCritChance,
+	    DamagePatch.CritMultiplier,
+	    DamagePatch.TotalDamageScale,
+	    DamagePatch.ProficiencyDamageType,
+	    DamagePatch.RangedDamageScale,
+	    DamagePatch.MeleeDamageScale,
+	    DamagePatch.FireDamageScale,
+	    DamagePatch.PoisonDamageScale,
+	    DamagePatch.MagicDamageScale,
+	    DamagePatch.FireDamage,
+	    DamagePatch.PoisonDamage,
+	    DamagePatch.MagicDamage,
+	    DamagePatch.DebuffDuration
+	);
 	MeleeAttackAction.State = EActionState::Succeeded;
 	Delay = Cooldown_MeleeAttack;
 }

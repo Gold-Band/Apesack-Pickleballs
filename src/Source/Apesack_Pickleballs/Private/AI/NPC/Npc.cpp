@@ -74,6 +74,8 @@ void ANpc::BeginPlay()
 	
 	BindActions();
 	CreateBehaviours();
+	
+	if (Stats) Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
 }
 
 void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
