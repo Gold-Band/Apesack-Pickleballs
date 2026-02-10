@@ -12,7 +12,7 @@
 ANpcHostile::ANpcHostile()
 {
 	NpcType = ENpcTag::Hostile;
-	CharacterName = "Aggressive Cube";
+	CharacterName = "Hostile";
 	
 	GetSideInterval = 1;
 }
@@ -145,18 +145,24 @@ void ANpcHostile::CooldownReset()
 void ANpcHostile::MoveTo(float DeltaTime)
 {
 	// Is destination still valid?
-	if (TargetActor == nullptr)
+	if (bIsFirstTick)
+	{
+		bIsFirstTick = false;
+		return;
+	}
+	
+	if (!TargetActor)
 	{
 		MoveToAction.State = EActionState::Failed;
 		return;
 	}
 	
 	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation());
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation()); // this crashes sometimes on first tick
 	if (DistanceSquared <= StartRaycastingDistanceSquared && MoveToTimer >= RaycastInterval)
 	{
 		MoveToTimer = 0;
-		if (UKismetSystemLibrary::LineTraceMulti(
+		UKismetSystemLibrary::LineTraceMulti(
 			GetWorld(), // world
 			GetActorLocation(), // start 
 			TargetActor->GetActorLocation(), // end 
@@ -165,43 +171,36 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			IgnoreActors, // ignore 
 			bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
 			HitResults,
-			true))
+			true);
+		
+		if (bPrintDebug_MoveTo)
 		{
-			if (bPrintDebug_MoveTo)
+			FString HitActors;
+			for (auto It = HitResults.CreateConstIterator(); It; ++It)
 			{
-				FString HitActors;
-				for (auto It = HitResults.CreateConstIterator(); It; ++It)
-				{
-					HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
-				}
-				UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
-				UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
+				HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
 			}
+			UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
+			UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
+		}
+		
+		for (const auto& It : HitResults)
+		{
+			AActor* HitActor = It.GetActor();
 			
-			for (const auto& It : HitResults)
+			if (HitActor == TargetActor)
 			{
-				AActor* HitActor = It.GetActor();
-				
-				if (HitActor == TargetActor)
+				//if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Distance = %f"), It.Distance);
+				if (It.Distance <= StopDistance)
 				{
-					if (It.Distance <= StopDistance)
-					{
-						MoveToAction.State = EActionState::Succeeded;
-						return;
-					}
+					MoveToAction.State = EActionState::Succeeded;
+					return;
 				}
 			}
 		}
 	}
 	MoveToTimer+=DeltaTime;
 	
-	// Move
-	/*if (!TargetActor || !this || !GetParentActor() || !GetWorld() || !GetOwner())
-	{
-		
-		return;
-		// weird bug - skip
-	}*/
 	const float Direction = FVector::DotProduct(TargetActor->GetActorLocation() - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
 	MoveForwardScaled(Direction);
 }

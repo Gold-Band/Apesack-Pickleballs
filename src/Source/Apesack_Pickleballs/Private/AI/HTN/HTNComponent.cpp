@@ -4,7 +4,7 @@
 
 UHTNComponent::UHTNComponent()
 {
-	bWantsInitializeComponent = true;
+	bWantsInitializeComponent = false;
 	PrimaryComponentTick.bCanEverTick = true;
 	
 }

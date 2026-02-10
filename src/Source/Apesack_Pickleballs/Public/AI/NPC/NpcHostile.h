@@ -36,6 +36,9 @@ private:
 	void OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side);
 	float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
+	// patch for a mysterious bug
+	bool bIsFirstTick = true;
+	
 protected:
 	TArray<AActor*> IgnoreActors;
 	
