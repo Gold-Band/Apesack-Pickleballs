@@ -38,7 +38,7 @@ bool UHTNComponent::UpdatePlan()
 void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	int r = 0;
 	bool bHasValidTask = false;
 	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT(""));

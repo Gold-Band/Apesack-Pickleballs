@@ -108,4 +108,5 @@ FString ANpc::GetActorName() const
 void ANpc::OnDeath_Implementation()
 {
 	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);
+	HtnDomain->SetComponentTickEnabled(false);
 }
