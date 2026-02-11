@@ -113,7 +113,7 @@ float ANpcHostile::GetAngleBetweenVectors(const FVector& A, const FVector& B)
 	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
 }
 
-void ANpcHostile::OnDamaged(float DamageRecieved, float UpdatedHealth)
+void ANpcHostile::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType)
 {
 	if (bWasHit) return;
 	bWasHit = true;
@@ -148,7 +148,6 @@ void ANpcHostile::OnDamaged(float DamageRecieved, float UpdatedHealth)
 	},
 	Duration/4,
 	EFCEase::OutQuad)->SetYoyo(true);
-	
 }
 
 void ANpcHostile::Walk(float DeltaTime)

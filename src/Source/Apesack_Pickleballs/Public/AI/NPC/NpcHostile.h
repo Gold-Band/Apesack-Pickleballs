@@ -40,7 +40,7 @@ private:
 	bool bIsFirstTick = true;
 	
 	UFUNCTION()
-	void OnDamaged(float DamageRecieved, float UpdatedHealth);
+	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType);
 	
 	bool bWasHit;
 	int KnockbackFrames = 5;

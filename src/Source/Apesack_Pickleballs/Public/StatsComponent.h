@@ -8,7 +8,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamagedSignature, float, DamageRecieved,float, UpdatedHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDamagedSignature, float, DamageRecieved,float, UpdatedHealth, int, DamageType);
 
 // The HTN Domain for the parent actor.
 
