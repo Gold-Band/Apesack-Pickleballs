@@ -1,12 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "AI/NPC/NpcHostile.h"
 
+#include "FCTween.h"
 #include "StatsComponent.h"
 #include "AI/HTN/HTNComponent.h"
 #include "AI/HTN/ListItemObject.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Managers/NpcManager.h"
+#include "Movement/CircularPawnMovementComponent.h"
 
 // Sets default values
 ANpcHostile::ANpcHostile()
@@ -30,6 +32,7 @@ TArray<UListItemObject*> ANpcHostile::GetInfo() const
 	return Info;
 }
 
+
 void ANpcHostile::BeginPlay()
 {
 	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
@@ -41,6 +44,8 @@ void ANpcHostile::BeginPlay()
 	
 	IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
 	IgnoreActors.Add(this);
+	
+	if (Stats) Stats->OnDamagedDelegate.AddUniqueDynamic(this, &ThisClass::OnDamaged);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -78,9 +83,6 @@ void ANpcHostile::CreateBehaviours()
 {
 	Super::CreateBehaviours();
 	
-	// knockback
-	
-	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(&TargetAttackableAction);
 	MeleeAttackTask.Actions.Add(&MoveToAction);
@@ -111,16 +113,41 @@ float ANpcHostile::GetAngleBetweenVectors(const FVector& A, const FVector& B)
 	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
 }
 
-void ANpcHostile::Knockback(float DeltaTime)
+void ANpcHostile::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType)
 {
-
-	// stun movement;
+	if (bWasHit) return;
+	bWasHit = true;
+	if (bPrintDebug_Knockback) UE_LOG(LogTemp, Warning, TEXT("Knockback"))
 	
-}
-
-bool ANpcHostile::KnockbackCondition() const
-{
-	return false;
+	
+	const FVector Start = GetActorLocation();
+	const FVector End = Start - GetActorForwardVector() * 200;
+	const float Duration = 0.3f; 
+	// move back
+	FCTween::Play(
+	Start,
+	End,
+	[&](const FVector& t)
+	{
+		SetActorLocation(t);
+	},
+	Duration,
+	EFCEase::OutQuad)->SetOnComplete([&]()
+	{
+		bWasHit = false;
+	});
+	
+	// jump
+	FCTweenInstance* Tween = FCTween::Play(
+	Start,
+	Start + FVector::UpVector * 30,
+	[&](const FVector& t)
+	{
+		const FVector Location = GetActorLocation();
+		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
+	},
+	Duration/4,
+	EFCEase::OutQuad)->SetYoyo(true);
 }
 
 void ANpcHostile::Walk(float DeltaTime)

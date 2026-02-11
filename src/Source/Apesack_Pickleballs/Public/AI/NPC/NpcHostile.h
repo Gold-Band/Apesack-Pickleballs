@@ -21,7 +21,7 @@ public:
 	virtual TArray<UListItemObject*> GetInfo() const override;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
-void OnMeleeAttack();
+	void OnMeleeAttack();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -39,6 +39,14 @@ private:
 	// patch for a mysterious bug
 	bool bIsFirstTick = true;
 	
+	UFUNCTION()
+	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType);
+	
+	bool bWasHit;
+	int KnockbackFrames = 5;
+	int Frame;
+
+	
 protected:
 	TArray<AActor*> IgnoreActors;
 	
@@ -52,11 +60,6 @@ protected:
 	//**
 	//** My Actions
 	//**
-	
-	//* Knockback *//
-	FAction KnockbackAction{FString("Knockback")};
-	void Knockback(float DeltaTime);
-	bool KnockbackCondition() const;
 	
 	//* Walk *//
 	FAction WalkAction{FString("Walk")};
@@ -108,6 +111,8 @@ protected:
 	bool TargetAttackableCondition() const;
 	
 	
+	
+	
 	//*
 	//* Debug
 	//*
@@ -122,4 +127,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetNearestAny = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Knockback", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_Knockback = false;
 };

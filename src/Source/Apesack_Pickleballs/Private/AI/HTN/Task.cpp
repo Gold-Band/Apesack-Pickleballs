@@ -11,6 +11,7 @@ FTask::FTask(const FString& TaskName) : Name(TaskName)
 	bAutoReset = false;
 	AutoResetInterval = 0.2f;
 	TimeSinceReset = 0;
+	bTaskFirst = true;
 }
 
 bool FTask::CanPerform() const
@@ -37,6 +38,13 @@ void FTask::SoftReset()
 {
 	bFailed=false;
 	bSuccess=false;
+	bTaskFirst = true;
+}
+
+void FTask::OnTaskStarted()
+{
+	OnStartedDelegate.ExecuteIfBound();
+	bTaskFirst = false;
 }
 
 // returns true if we want to reset
@@ -47,10 +55,14 @@ bool FTask::AutoResetCondition() const
 
 void FTask::Run(float DeltaTime)
 {
+	if (bTaskFirst) OnTaskStarted();
+	
 	if (!Actions.IsValidIndex(Progress) || AutoResetCondition()) Reset();
 	
 	FAction* CurrentAction = Actions[Progress];
 	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Executing \"%s\" (from %s)"), *CurrentAction->GetName(), *Name);
+	
+	
 	CurrentAction->ExecutionDelegate.Execute(DeltaTime);
 	
 	switch (CurrentAction->State)
@@ -62,10 +74,8 @@ void FTask::Run(float DeltaTime)
 	case EActionState::Succeeded:
 		Progress++;
 		bSuccess = true;
-	default: ;
+	default:; 
 	}
-	
-	//if (Progress == Actions.Num() && !bFailed) bSuccess = true;
 	
 	if (bAutoReset) TimeSinceReset += DeltaTime;
 }

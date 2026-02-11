@@ -8,6 +8,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDamagedSignature, float, DamageRecieved,float, UpdatedHealth, int, DamageType);
 
 // The HTN Domain for the parent actor.
 
@@ -70,6 +71,9 @@ void ApplyDamagePatch(
 
 	UPROPERTY(BlueprintCallable)
 	FOnDeathSignature OnDeathDelegate;
+	
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, meta=(DisplayName="On Damaged"))
+	FOnDamagedSignature OnDamagedDelegate;
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	float GetMeleeDamage(float BaseDamage) const;
