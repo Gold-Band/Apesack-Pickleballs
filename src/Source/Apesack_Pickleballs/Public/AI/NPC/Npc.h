@@ -5,11 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Interfaces/ClickableActor.h"
-
-#include "GameplayTagContainer.h"
 #include "Engine/Texture.h"
 #include "Engine/DataTable.h"
-
 #include "Npc.generated.h"
 
 class FAction;
@@ -31,6 +28,16 @@ enum class ECharacterType : uint8
 enum class ENpcTag : uint8;
 enum class EOriginSide : uint8;
 
+USTRUCT(BlueprintType)
+struct FKnockbackParams
+{
+	GENERATED_BODY()
+		
+	UPROPERTY(EditAnywhere)
+	float KnockedDistance = 100;
+	UPROPERTY(EditAnywhere)
+	float JumpHeight = 30;
+};
 
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpc : public APawn, public IClickableActor
@@ -80,6 +87,10 @@ protected:
 	void OnDeath();
 	
 	virtual void OnDeath_Implementation();
+	
+	UFUNCTION()
+	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
+	
 public:
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
@@ -119,7 +130,17 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UNpcManager> NpcManager = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Properties|Knockback")
+	FKnockbackParams MeleeKnockbackParams;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Properties|Knockback")
+	FKnockbackParams RangedKnockbackParams;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Properties|Knockback", meta=(DisplayName="Print Knockback Debug"))
+	bool bPrintDebug_Knockback = false;
+	
+	bool bWasHit;
 	
 	//**
 	//** My Components
