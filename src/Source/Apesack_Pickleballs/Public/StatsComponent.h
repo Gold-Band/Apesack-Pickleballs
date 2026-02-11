@@ -8,7 +8,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDamagedSignature, float, DamageRecieved,float, UpdatedHealth, int, DamageType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamagedSignature, float, DamageRecieved,float, UpdatedHealth, int, DamageType, AActor*, InstigatorActor);
 
 // The HTN Domain for the parent actor.
 
@@ -48,6 +48,7 @@ public:
 
 UFUNCTION(BlueprintImplementableEvent, Category="Damage")
 void ApplyDamagePatch(
+	AActor* Instigator,
 	float NormalDamage,
 	float SelfLifeStealPercent,
 	float BaseCritChance,

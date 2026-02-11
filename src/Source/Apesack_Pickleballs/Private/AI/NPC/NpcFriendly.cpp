@@ -271,7 +271,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 	if (CharacterClass != ECharacterType::Fighter)
 	{ // set fighter
 		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Fighter (Coming Soon!)"));
+		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
 		Action->ContextActor = this;
 		const TFunction<void()> Func = [&]()
 		{
@@ -279,7 +279,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 			MainSide = NpcManager->SuggestOccupySide();
 		};
 		Action->OnActionCalledFunction = Func;
-		Action->bDisable = true;
+		Action->bDisable = false;
 		Action->Cost = 0;
 		Actions.Add(Action);
 	}
@@ -663,6 +663,7 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 
 	// 3. APPLY to target by unpacking struct fields
 	TargetStatComponent->ApplyDamagePatch(
+		this,
 	    DamagePatch.NormalDamage,
 	    DamagePatch.SelfLifeStealPercent,
 	    DamagePatch.BaseCritChance,
@@ -766,7 +767,7 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	Arrow->SelfLifeStealPercent = DamagePatch.SelfLifeStealPercent;
 
 	// Damage type
-	Arrow->ProficiencyDamageType = DamagePatch.ProficiencyDamageType;
+	Arrow->ProficiencyDamageType = 1;
 
 	// Damage scaling
 	Arrow->RangedDamageScale = DamagePatch.RangedDamageScale;

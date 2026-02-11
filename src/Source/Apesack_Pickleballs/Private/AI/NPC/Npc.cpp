@@ -2,6 +2,8 @@
 
 
 #include "AI/NPC/Npc.h"
+
+#include "FCTween.h"
 #include "StatsComponent.h"
 #include "AI/HTN/HTNComponent.h"
 #include "GameModes/DefaultGameMode.h"
@@ -74,7 +76,11 @@ void ANpc::BeginPlay()
 	BindActions();
 	CreateBehaviours();
 	
-	if (Stats) Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
+	if (Stats)
+	{
+		Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
+		Stats->OnDamagedDelegate.AddUniqueDynamic(this, &ThisClass::OnDamaged);
+	}
 }
 
 void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -110,4 +116,57 @@ void ANpc::OnDeath_Implementation()
 {
 	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);
 	HtnDomain->SetComponentTickEnabled(false);
+}
+
+void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor)
+{
+	if (bWasHit) return; // once at a time
+	bWasHit = true;
+	
+	if (bPrintDebug_Knockback) 
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Knockback"));
+		//UE_LOG(LogTemp, Warning, TEXT("DamageType = %i"), DamageType);
+		if (InstigatorActor) UE_LOG(LogTemp, Warning, TEXT("Hit by = %s"), *InstigatorActor->GetActorNameOrLabel());
+	}
+	
+	int InstigatorDirection = 1;
+	if (InstigatorActor)
+	{
+		float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), InstigatorActor->GetActorLocation());
+		if (Angle > 0) InstigatorDirection = -1;
+	}
+	
+	
+	const float KnockDistance = DamageType == 1? MeleeKnockbackParams.KnockedDistance : RangedKnockbackParams.KnockedDistance;
+	const FVector Start = GetActorLocation();
+	const FVector End = Start - GetActorForwardVector() * KnockDistance * InstigatorDirection;
+	const float Duration = 0.3f; 
+	// move back
+	FCTween::Play(
+	Start,
+	End,
+	[&](const FVector& t)
+	{
+		SetActorLocation(t);
+	},
+	Duration,
+	EFCEase::OutQuad)->SetOnComplete([&]()
+	{
+		bWasHit = false;
+	});
+	
+	// jump
+	FCTweenInstance* Tween = FCTween::Play(
+	Start,
+	Start + FVector::UpVector * (DamageType == 1? 
+		MeleeKnockbackParams.KnockedDistance: 
+		RangedKnockbackParams.KnockedDistance), // more knockback on melee
+	[&](const FVector& t)
+	{
+		const FVector Location = GetActorLocation();
+		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
+	},
+	Duration/4,
+	EFCEase::OutQuad)->SetYoyo(true);
 }

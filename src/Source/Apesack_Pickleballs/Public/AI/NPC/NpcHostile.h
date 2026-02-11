@@ -38,13 +38,6 @@ private:
 	
 	// patch for a mysterious bug
 	bool bIsFirstTick = true;
-	
-	UFUNCTION()
-	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType);
-	
-	bool bWasHit;
-	int KnockbackFrames = 5;
-	int Frame;
 
 	
 protected:
@@ -127,7 +120,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_TargetNearestAny = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Knockback", meta=(DisplayName="Print Debug"))
-	bool bPrintDebug_Knockback = false;
 };
