@@ -2,7 +2,6 @@
 
 
 #include "AI/NPC/Npc.h"
-#include "PaperSpriteComponent.h"
 #include "StatsComponent.h"
 #include "AI/HTN/HTNComponent.h"
 #include "GameModes/DefaultGameMode.h"

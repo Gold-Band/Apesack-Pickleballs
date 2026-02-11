@@ -838,7 +838,7 @@ void ANpcFriendly::OccupyTower(float DeltaTime)
 
 bool ANpcFriendly::OccupyTowerCondition() const
 {
-	return CharacterClass == ECharacterType::Archer && bCanMove;
+	return CharacterClass == ECharacterType::Archer && bCanMove && !bIsPartyMember;
 }
 
 void ANpcFriendly::GetDefensePosition(float DeltaTime)

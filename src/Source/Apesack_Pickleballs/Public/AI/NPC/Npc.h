@@ -18,52 +18,6 @@ class UStatsComponent;
 class UNpcManager;
 class UCircularPawnMovementComponent;
 
-class UPaperSprite;
-class UPaperSpriteComponent;
-
-USTRUCT(BlueprintType)
-struct FToolInfo : public FTableRowBase // row name is tool name
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTag ToolTag;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FDataTableRowHandle NextTool;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UTexture2D> ToolIcon;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UPaperSprite> ToolSprite;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int PurchaseCost = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int ToolDamage = 1;
-};
-
-
-USTRUCT(BlueprintType)
-struct FClassInfo : public FTableRowBase // row name is class name
-{
-	GENERATED_BODY()
-	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//TArray<TSoftObjectPtr<class UTaskAsset>> ClassTasks;
-
-	// not used
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTag ClassTag;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FDataTableRowHandle BaseTool;
-};
-
-
-
 UENUM(BlueprintType)
 enum class ECharacterType : uint8
 {
