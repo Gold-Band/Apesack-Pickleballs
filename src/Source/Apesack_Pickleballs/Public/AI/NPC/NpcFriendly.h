@@ -20,16 +20,6 @@ enum EDefendSide : uint8
 	Left
 };
 
-UENUM(BlueprintType)
-enum EClassType : uint8
-{
-	Class_Peasant,
-	Class_Builder,
-	Class_Melee,
-	Class_Ranger,
-	MAX UMETA(Hidden)
-};
-
 
 UCLASS()
 class APESACK_PICKLEBALLS_API ANpcFriendly : public ANpc
@@ -181,10 +171,9 @@ protected:
 	
 	//* Melee Attack *//
 	FAction MeleeAttackAction{FString("Attack")};
-	FAction SetMeleeParamsAction{FString("Set Melee Params")};
 	void MeleeAttack(float DeltaTime);
 	bool MeleeAttackCondition() const;
-	void SetMeleeParams(float DeltaTime);
+	void SetMeleeParams();
 	
 	bool bEnabled_MeleeAttack = true;
 	
@@ -201,10 +190,9 @@ protected:
 	
 	//* Ranged Attack *//
 	FAction RangedAttackAction{FString("Shoot")};
-	FAction SetRangedParamsAction{FString("Set Ranged Params")};
 	void RangedAttack(float DeltaTime);
 	bool RangedAttackCondition() const;
-	void SetRangedParams(float DeltaTime);
+	void SetRangedParams();
 	
 	bool bEnabled_RangedAttack = true;
 	

@@ -11,6 +11,7 @@ class FAction;
  */
 
 DECLARE_DELEGATE(FResetSignature)
+DECLARE_DELEGATE(FOnStartedSignature)
 
 class APESACK_PICKLEBALLS_API FTask
 {
@@ -32,6 +33,9 @@ public:
 	bool bPrintDebug = false;
 	bool bResetOnFail = false;
 	
+	FOnStartedSignature OnStartedDelegate;
+	void OnTaskStarted();
+	
 private:
 	bool AutoResetCondition() const;
 	
@@ -39,6 +43,7 @@ private:
 	int Progress;
 	bool bFailed;
 	bool bSuccess;
+	bool bTaskFirst;
 	
 	float TimeSinceReset;
 };

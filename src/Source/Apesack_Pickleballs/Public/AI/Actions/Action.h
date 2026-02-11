@@ -11,6 +11,7 @@ enum class EActionState : uint8
 	Failed
 };
 
+
 DECLARE_DELEGATE_OneParam(FExecutionFunctionSignature, float);
 DECLARE_DELEGATE_RetVal(bool, FConditionCheckSignature);
 DECLARE_DELEGATE(FResetSignature);

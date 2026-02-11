@@ -88,11 +88,14 @@ void ANpcFriendly::BindActions()
 {
 	Super::BindActions();
 	
+	// Wait
 	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
 	
+	// Targetting - player
 	TargetPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetPlayer);
 	TargetPlayerAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetPlayerCondition);
 	
+	// Move to
 	MoveToAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
 	MoveToAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveTo);
 	MoveToAction.ResetDelegate.BindUObject(this, &ThisClass::MoveToReset);
@@ -103,13 +106,12 @@ void ANpcFriendly::BindActions()
 	MoveToOffsetAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
 	MoveToOffsetAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveToOffset);
 	
+	// Targetting - Enemy
 	TargetNearestEnemyAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetNearestEnemy);
 	
 	// Melee Attack
 	MeleeAttackAction.ConditionDelegate.BindUObject(this, &ThisClass::MeleeAttackCondition);
 	MeleeAttackAction.ExecutionDelegate.BindUObject(this, &ThisClass::MeleeAttack);
-	
-	SetMeleeParamsAction.ExecutionDelegate.BindUObject(this, &ThisClass::SetMeleeParams);
 	
 	// Cooldown
 	CooldownAction.ExecutionDelegate.BindUObject(this, &ThisClass::Cooldown);
@@ -127,18 +129,18 @@ void ANpcFriendly::BindActions()
 	RangedAttackAction.ConditionDelegate.BindUObject(this, &ThisClass::RangedAttackCondition);
 	RangedAttackAction.ExecutionDelegate.BindUObject(this, &ThisClass::RangedAttack);
 	
-	SetRangedParamsAction.ExecutionDelegate.BindUObject(this, &ThisClass::SetRangedParams);
-	
-	
+	// Move timed (aka wander)
 	MoveTimedAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveTimedCondition);
 	MoveTimedAction.ExecutionDelegate.BindUObject(this,&ThisClass::MoveTimed);
 	MoveTimedAction.ResetDelegate.BindUObject(this, &ThisClass::MoveTimedReset);
 	
+	// Get defense position
 	GetDefensePositionAction.ConditionDelegate.BindUObject(this, &ThisClass::GetDefensePositionCondition);
 	GetDefensePositionAction.ExecutionDelegate.BindUObject(this, &ThisClass::GetDefensePosition);
 	
 	OnAssumedDefensePositionAction.ExecutionDelegate.BindUObject(this, &ThisClass::OnAssumedDefensePosition);
 	
+	// Party
 	OnJoinedPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::OnJoinedPlayer);
 }
 
@@ -164,7 +166,7 @@ void ANpcFriendly::CreateBehaviours()
 	
 	
 	// Melee Attack
-	MeleeAttackTask.Actions.Add(&SetMeleeParamsAction);
+	MeleeAttackTask.OnStartedDelegate.BindUObject(this, &ThisClass::SetMeleeParams);
 	MeleeAttackTask.Actions.Add(&TargetNearestEnemyAction);
 	//MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
@@ -180,7 +182,7 @@ void ANpcFriendly::CreateBehaviours()
 	HtnDomain->AssignTask(&OccupyTowerTask);
 	
 	// Ranged Attack
-	RangedAttackTask.Actions.Add(&SetRangedParamsAction);
+	RangedAttackTask.OnStartedDelegate.BindUObject(this, &ThisClass::SetRangedParams);
 	RangedAttackTask.Actions.Add(&TargetNearestEnemyAction);
 	RangedAttackTask.Actions.Add(&RangedAttackAction);
 	RangedAttackTask.bPrintDebug = bPrintDebug_RangedAttack;
@@ -232,7 +234,7 @@ TArray<UListItemObject*> ANpcFriendly::GetInfo() const
 	UListItemObject* ProficiencyInfo = NewObject<UListItemObject>();
 	ProficiencyInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Proficient As: %s"), TEXT("Builder")));
 	
-	//sum
+	// sum
 	Info.Add(HpInfo);
 	Info.Add(ClassInfo);
 	Info.Add(RankInfo);
@@ -652,37 +654,40 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 		bEnabled_MeleeAttack = false;
 		return;		
 	}
-// 1. GET stats as struct
-FDamagePatch DamagePatch = Stats->GetDamagePatch();
+	// 1. GET stats as struct
+	FDamagePatch DamagePatch = Stats->GetDamagePatch();
 
-// 2. OVERRIDE specific fields
-DamagePatch.NormalDamage = 5.f;
-DamagePatch.ProficiencyDamageType = 0.f;
+	// 2. OVERRIDE specific fields
+	DamagePatch.NormalDamage = 5.f;
+	DamagePatch.ProficiencyDamageType = 0.f;
 
-// 3. APPLY to target by unpacking struct fields
-TargetStatComponent->ApplyDamagePatch(
-    DamagePatch.NormalDamage,
-    DamagePatch.SelfLifeStealPercent,
-    DamagePatch.BaseCritChance,
-    DamagePatch.CritMultiplier,
-    DamagePatch.TotalDamageScale,
-    DamagePatch.ProficiencyDamageType,
-    DamagePatch.RangedDamageScale,
-    DamagePatch.MeleeDamageScale,
-    DamagePatch.FireDamageScale,
-    DamagePatch.PoisonDamageScale,
-    DamagePatch.MagicDamageScale,
-    DamagePatch.FireDamage,
-    DamagePatch.PoisonDamage,
-    DamagePatch.MagicDamage,
-    DamagePatch.DebuffDuration
-);
+	// 3. APPLY to target by unpacking struct fields
+	TargetStatComponent->ApplyDamagePatch(
+	    DamagePatch.NormalDamage,
+	    DamagePatch.SelfLifeStealPercent,
+	    DamagePatch.BaseCritChance,
+	    DamagePatch.CritMultiplier,
+	    DamagePatch.TotalDamageScale,
+	    DamagePatch.ProficiencyDamageType,
+	    DamagePatch.RangedDamageScale,
+	    DamagePatch.MeleeDamageScale,
+	    DamagePatch.FireDamageScale,
+	    DamagePatch.PoisonDamageScale,
+	    DamagePatch.MagicDamageScale,
+	    DamagePatch.FireDamage,
+	    DamagePatch.PoisonDamage,
+	    DamagePatch.MagicDamage,
+	    DamagePatch.DebuffDuration
+	);
 
 
 	MeleeAttackAction.State = EActionState::Succeeded;
+	
+	// start the cooldown
 	CooldownTimer_MeleeAttack = 0;
 	bEnabled_MeleeAttack = false;
-	//Delay = Cooldown_MeleeAttack;
+	
+	if (bPrintDebug_MeleeAttack) UE_LOG(LogTemp, Warning, TEXT("Melee attack"))
 }
 
 
@@ -692,10 +697,9 @@ bool ANpcFriendly::MeleeAttackCondition() const
 	return CharacterClass == ECharacterType::Fighter && bEnabled_MeleeAttack;
 }
 
-void ANpcFriendly::SetMeleeParams(float DeltaTime)
+void ANpcFriendly::SetMeleeParams()
 {
 	TargetingDistance = TargetingDistance_Melee;
-	SetMeleeParamsAction.State = EActionState::Succeeded;
 }
 
 
@@ -815,10 +819,9 @@ bool ANpcFriendly::RangedAttackCondition() const
 	return CharacterClass == ECharacterType::Archer && bEnabled_RangedAttack;
 }
 
-void ANpcFriendly::SetRangedParams(float DeltaTime)
+void ANpcFriendly::SetRangedParams()
 {
 	TargetingDistance = TargetingDistance_Ranged;
-	SetRangedParamsAction.State = EActionState::Succeeded;
 }
 
 
