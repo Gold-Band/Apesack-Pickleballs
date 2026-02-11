@@ -19,6 +19,9 @@ class APESACK_PICKLEBALLS_API AProjectile : public AActor, public IPoolableActor
 
 public:	
 	AProjectile();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleRibbon(bool bToggle);
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void Disable() override;

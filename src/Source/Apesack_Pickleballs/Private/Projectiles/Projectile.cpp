@@ -118,7 +118,7 @@ void AProjectile::Disable()
 	SetLifeSpan(0.f);
 	bIsEnabled = false;
 	Velocity = FVector::ZeroVector;
-
+	ToggleRibbon(false);
 	if (OnActorDisabled.IsBound()) OnActorDisabled.Broadcast(this);
 }
 
@@ -127,6 +127,7 @@ void AProjectile::Enable()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
+	ToggleRibbon(true);
 	bIsEnabled = true;
 	bLanded = false;
 }
