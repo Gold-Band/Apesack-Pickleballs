@@ -79,12 +79,12 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnDeath();
 	
+	virtual void OnDeath_Implementation();
 public:
 	virtual void OnClicked() override;
 	virtual FString GetActorName() const override;
 
 private:
-	void OnDeath_Implementation();
 	
 	// direction to the player's town (left or right)
 	float OriginDirection = 0;

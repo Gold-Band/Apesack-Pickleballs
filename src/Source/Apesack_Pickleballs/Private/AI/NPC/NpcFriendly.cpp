@@ -338,6 +338,12 @@ void ANpcFriendly::OnRaidDetected(EOriginSide Side)
 }
 
 
+void ANpcFriendly::OnDeath_Implementation()
+{
+	Super::OnDeath_Implementation();
+	if (bIsPartyMember) LeaveParty();
+}
+
 bool ANpcFriendly::GetSideCheckCondition()
 {
 	return !bAssumedPosition && bCanMove && !bIsPartyMember;
