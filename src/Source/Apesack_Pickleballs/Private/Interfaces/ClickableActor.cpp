@@ -5,7 +5,7 @@
 
 bool IClickableActor::IsClickableActor() const
 {
-	return true;
+	return false;
 }
 
 void IClickableActor::OnClicked()

@@ -1,4 +1,5 @@
 #include "Interactor.h"
+#include "Engine/LevelScriptActor.h"
 
 UInteractor::UInteractor() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -23,10 +24,35 @@ void UInteractor::EndInteractOverlap(AActor* OtherActor) {
 	}
 }
 
-void UInteractor::Interact() {
-	if(!CurrentInteractable) return;
-	CurrentInteractable->Interact(GetOwner());
+void UInteractor::Interact()
+{
+	if (!CurrentInteractable) return;
+
+	AActor* OwnerActor = GetOwner();
+	if (!OwnerActor) return;
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	ALevelScriptActor* LevelScript = World->GetLevelScriptActor();
+	if (!LevelScript) return;
+
+	UFunction* Func = LevelScript->FindFunction(TEXT("OnInteractorUsed"));
+	if (!Func) return;
+
+	struct
+	{
+		AActor* OwnerActor;
+	} Params;
+
+	Params.OwnerActor = OwnerActor;
+
+	LevelScript->ProcessEvent(Func, &Params);
+
+	// keep your existing logic
+	CurrentInteractable->Interact(OwnerActor);
 }
+
 
 int UInteractor::RequestedCoins() {
 	if (!CurrentInteractable) return 0;
