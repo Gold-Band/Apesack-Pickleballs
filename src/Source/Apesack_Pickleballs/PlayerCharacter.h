@@ -66,13 +66,13 @@ private:
 	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-    float SprintMultiplier = 1.5f;
+    float SprintMultiplier = 0.5f;
     
 // Sprint handlers
 	void StartSprinting(const struct FInputActionInstance& Instance);
 void StopSprinting(const struct FInputActionInstance& Instance);
 
-	float DefaultSpeed = 0.5f;
+	float DefaultSpeed = 0.1f;
     private: bool bIsSprinting = false;
 
 	UFUNCTION()
