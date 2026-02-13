@@ -265,7 +265,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		Action->ContextActor = this;
 		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
 		Action->OnActionCalledFunction = Func;
-		Action->Cost = 0;
+		Action->Cost = 5;
 		Actions.Add(Action);
 	}
 	if (CharacterClass != ECharacterType::Fighter)
@@ -280,7 +280,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		};
 		Action->OnActionCalledFunction = Func;
 		Action->bDisable = false;
-		Action->Cost = 0;
+		Action->Cost = 3;
 		Actions.Add(Action);
 	}
 	if (CharacterClass != ECharacterType::Builder)
