@@ -56,8 +56,6 @@ bool ANpcHostile::GetSideCheckCondition()
 
 void ANpcHostile::BindActions()
 {
-	Super::BindActions();
-	
 	WalkAction.ExecutionDelegate.BindUObject(this, &ThisClass::Walk);
 	
 	MoveToAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
@@ -76,8 +74,6 @@ void ANpcHostile::BindActions()
 
 void ANpcHostile::CreateBehaviours()
 {
-	Super::CreateBehaviours();
-	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(&TargetAttackableAction);
 	MeleeAttackTask.Actions.Add(&MoveToAction);

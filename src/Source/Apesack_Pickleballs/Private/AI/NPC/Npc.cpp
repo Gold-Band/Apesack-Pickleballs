@@ -111,7 +111,7 @@ FString ANpc::GetActorName() const
 {
 	return GetCharacterName();
 }
-
+	
 void ANpc::OnDeath_Implementation()
 {
 	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);
@@ -157,13 +157,14 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 	});
 	
 	// jump
-	FCTweenInstance* Tween = FCTween::Play(
+	FCTween::Play(
 	Start,
 	Start + FVector::UpVector * (DamageType == 1? 
 		MeleeKnockbackParams.KnockedDistance: 
 		RangedKnockbackParams.KnockedDistance), // more knockback on melee
 	[&](const FVector& t)
 	{
+		if (!this) return;
 		const FVector Location = GetActorLocation();
 		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
 	},
