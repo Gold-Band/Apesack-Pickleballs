@@ -21,6 +21,7 @@ void APlot::SpawnBuilding(int IndexOfBuilding)
 	const FVector Location = GetActorLocation();
 	const FRotator Rotation = GetActorRotation();
 	BuildingActor = GetWorld()->SpawnActor(CompatibleBuildings[IndexOfBuilding], &Location, &Rotation);
+Destroy();
 }
 
 void APlot::OnClicked()
