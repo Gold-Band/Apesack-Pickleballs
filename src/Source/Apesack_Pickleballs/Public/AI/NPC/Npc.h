@@ -53,9 +53,6 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 	UFUNCTION(BlueprintPure)
-	float GetCharacterPreferredRadius() const;
-	
-	UFUNCTION(BlueprintPure)
 	float GetDirectionToTown();
 	
 	UStatsComponent* GetStats();
@@ -91,7 +88,7 @@ protected:
 	virtual void OnDeath_Implementation();
 	
 	UFUNCTION()
-	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
+	virtual void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
 	
 public:
 	virtual void OnClicked() override;
@@ -108,9 +105,6 @@ protected:
 	//*
 	float GetSideInterval = 1;
 	float GetSideTimer;
-	
-	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
-	float Radius = 0;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"), Category = "Character Properties")
 	FString CharacterName;

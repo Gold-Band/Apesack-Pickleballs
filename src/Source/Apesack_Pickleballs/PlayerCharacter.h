@@ -5,12 +5,14 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
+enum class EOriginSide : uint8;
 class UStatsComponent;
 class UCameraComponent;
 class UCircularPawnMovementComponent;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMovedSignature, float, float);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnterBattleFormationSignature, EOriginSide, Side);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FExitBattleFormationSignature);
 
 UCLASS()
 class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
@@ -33,6 +35,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(BlueprintCallable)
+	FEnterBattleFormationSignature EnterBattleFormationDelegate;
+	
+	UPROPERTY(BlueprintCallable)
+	FExitBattleFormationSignature ExitBattleFormationDelegate;
+	
 	FOnMovedSignature OnMovedDelegate;
 	TArray<bool> PartyOrder{false, false, false, false};
 	int PartySize = 0;

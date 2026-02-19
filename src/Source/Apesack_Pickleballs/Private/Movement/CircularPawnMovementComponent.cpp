@@ -15,7 +15,7 @@ void UCircularPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelT
 	Rotator.Pitch = 0;
 	Rotator.Roll = 0;
 	PawnOwner->SetActorRotation(Rotator);
-	PawnOwner->SetActorLocation(GetActorLocation().GetClampedToSize2D(0,Radius));
+	PawnOwner->SetActorLocation(GetActorLocation().GetClampedToSize2D(Radius,Radius));
 }
 
 void UCircularPawnMovementComponent::BeginPlay()

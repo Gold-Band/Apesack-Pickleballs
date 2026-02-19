@@ -16,10 +16,10 @@ class APESACK_PICKLEBALLS_API UCircularPawnMovementComponent : public UFloatingP
 public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-protected:
+	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
+	float Radius;
 
+protected:
 	virtual void BeginPlay() override;
 	
-private:
-	float Radius;
 };
