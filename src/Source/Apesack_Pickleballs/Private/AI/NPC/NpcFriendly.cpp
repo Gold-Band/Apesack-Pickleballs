@@ -1,5 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "AI/NPC/NpcFriendly.h"
+
+#include "FCTween.h"
 #include "StatsComponent.h"
 #include "AI/Actions/Action.h"
 #include "AI/HTN/HTNComponent.h"
@@ -44,6 +46,7 @@ void ANpcFriendly::Tick(float DeltaSeconds)
 		(CooldownTimer_FollowPlayer += DeltaSeconds) >= Cooldown_FollowPlayer)
 	{
 		bEnabled_FollowPlayer = true;
+		bAssumedPosition = false;
 	}
 }
 
@@ -154,20 +157,18 @@ void ANpcFriendly::CreateBehaviours()
 	DefendWallTask.Actions.Add(&OnAssumedDefensePositionAction);
 	HtnDomain->AssignTask(&DefendWallTask);
 	
-	
-	// Follow 
-	FollowTask.Actions.Add(&TargetPlayerAction);
-	FollowTask.Actions.Add(&MoveToOffsetAction);
-	FollowTask.Actions.Add(&OnJoinedPlayerAction);
-	HtnDomain->AssignTask(&FollowTask);
-	
-	
 	// Melee Attack
 	MeleeAttackTask.OnStartedDelegate.BindUObject(this, &ThisClass::SetMeleeParams);
 	MeleeAttackTask.Actions.Add(&TargetNearestEnemyAction);
 	//MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	HtnDomain->AssignTask(&MeleeAttackTask);
+	
+	// Follow 
+	FollowTask.Actions.Add(&TargetPlayerAction);
+	FollowTask.Actions.Add(&MoveToOffsetAction);
+	FollowTask.Actions.Add(&OnJoinedPlayerAction);
+	HtnDomain->AssignTask(&FollowTask);
 	
 	
 	// Occupy Tower
@@ -190,6 +191,12 @@ void ANpcFriendly::CreateBehaviours()
 	HtnDomain->AssignTask(&WanderTask);
 	
 	Super::CreateBehaviours();
+}
+
+void ANpcFriendly::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor)
+{
+	Super::OnDamaged(DamageRecieved, UpdatedHealth, DamageType, InstigatorActor);
+	bAssumedPosition = false;
 }
 
 TArray<UListItemObject*> ANpcFriendly::GetInfo() const
@@ -362,24 +369,13 @@ void ANpcFriendly::JoinParty()
 	for (PartyIndex = 0; (*Arr)[PartyIndex] == true && PartyIndex < Arr->Num() ; PartyIndex++);
 	NpcManager->GetPlayer()->PartyOrder[PartyIndex] = true;
 	
-	if (PartyIndex == 0)
-	{
-		OffsetAngle = 0.2f;
-	}
-	else if (PartyIndex == 1)
-	{
-		OffsetAngle = -0.2f;
-	}
-	else if (PartyIndex == 2)
-	{
-		OffsetAngle = 0.4f;
-	}
-	else if (PartyIndex == 3)
-	{
-		OffsetAngle = -0.4f;
-	}
+	ExitFormation();
 	
 	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Joined Party"));
+	
+	NpcManager->GetPlayer()->OnMovedDelegate.AddUObject(this, &ThisClass::CopyPlayerMovement);
+	NpcManager->GetPlayer()->EnterBattleFormationDelegate.AddUniqueDynamic(this, &ThisClass::EnterFormation);
+	NpcManager->GetPlayer()->ExitBattleFormationDelegate.AddUniqueDynamic(this, &ThisClass::ExitFormation);
 }
 
 void ANpcFriendly::LeaveParty()
@@ -392,12 +388,79 @@ void ANpcFriendly::LeaveParty()
 	if (MovementComp) MovementComp->MaxSpeed = MoveSpeed;
 	
 	NpcManager->GetPlayer()->OnMovedDelegate.RemoveAll(this);
+	NpcManager->GetPlayer()->EnterBattleFormationDelegate.RemoveAll(this);
+	NpcManager->GetPlayer()->ExitBattleFormationDelegate.RemoveAll(this);
 	
 	NpcManager->GetPlayer()->PartySize--;
 
 	NpcManager->GetPlayer()->PartyOrder[PartyIndex]= false;
 	
 	FollowTask.Reset();
+	
+	float NewRadius = 19000+ FMath::RandRange(-100, 10);
+	
+	// Lerp Radius to NewRadius
+	FCTween::Play(
+	MovementComp->Radius, NewRadius,
+	[&](const float& r)
+	{
+		if (!this) return;
+		MovementComp->Radius = r;
+	},
+	0.3f,
+	EFCEase::OutQuad);
+}
+
+void ANpcFriendly::EnterFormation(EOriginSide Side)
+{
+	bAssumedPosition = false;
+	
+	float NewRadius = MovementComp->Radius;
+	// Set radius
+	if (PartyIndex == 0) NewRadius = 19000;
+	else if (PartyIndex == 1) NewRadius = 19050;
+	else if (PartyIndex == 2) NewRadius = 18950;
+	else if (PartyIndex == 3) NewRadius = 18900;
+	
+	// Set offset angle
+	if (Side == EOriginSide::Left) OffsetAngle = 0.2f;
+	else if (Side == EOriginSide::Right) OffsetAngle = -0.2f;
+	
+	// Lerp Radius to NewRadius
+	FCTween::Play(
+	MovementComp->Radius, NewRadius,
+	[&](const float& r)
+	{
+		if (!this) return;
+		MovementComp->Radius = r;
+	},
+	0.3f,
+	EFCEase::OutQuad);
+}
+
+void ANpcFriendly::ExitFormation()
+{
+	bAssumedPosition = false;
+	
+	// reset radius
+	float NewRadius = 19000;
+	
+	// reset offset angle
+	if (PartyIndex == 0) OffsetAngle = 0.25f;
+	else if (PartyIndex == 1) OffsetAngle = -0.25f;
+	else if (PartyIndex == 2) OffsetAngle = 0.45f;
+	else if (PartyIndex == 3) OffsetAngle = -0.45f;
+	
+	// Lerp Radius to NewRadius
+	FCTween::Play(
+	MovementComp->Radius, NewRadius,
+	[&](const float& r)
+	{
+		if (!this) return;
+		MovementComp->Radius = r;
+	},
+	0.3f,
+	EFCEase::OutQuad);
 }
 
 
@@ -525,14 +588,7 @@ void ANpcFriendly::MoveToVector(float DeltaTime)
 
 void ANpcFriendly::MoveToOffset(float DeltaTime)
 {
-	if (TargetActor == nullptr)
-	{
-		if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("mans null"));
-		MoveToOffsetAction.State = EActionState::Failed;
-		return;
-	}
-	
-	TargetLocation = NpcManager->GetPlayer()->GetActorLocation().RotateAngleAxis(OffsetAngle, FVector::UpVector).GetUnsafeNormal2D() * Radius;
+	TargetLocation = NpcManager->GetPlayer()->GetActorLocation().RotateAngleAxis(OffsetAngle, FVector::UpVector).GetUnsafeNormal2D() * MovementComp->Radius;
 	
 	// Are we there yet?
 	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetLocation);
@@ -571,23 +627,33 @@ void ANpcFriendly::TargetPlayer(float DeltaTime)
 
 bool ANpcFriendly::TargetPlayerCondition() const
 {
-	return bIsPartyMember == true && bEnabled_FollowPlayer == true;
+	return bIsPartyMember == true && bEnabled_FollowPlayer == true && bAssumedPosition == false;
 }
 
 void ANpcFriendly::OnJoinedPlayer(float DeltaTime)
 {
 	CooldownTimer_FollowPlayer = 0;
 	bEnabled_FollowPlayer = false;
+	bAssumedPosition = true;
 	// copy player's movement
 	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Joined player"));
-	NpcManager->GetPlayer()->OnMovedDelegate.AddUObject(this, &ThisClass::CopyPlayerMovement);
 	OnJoinedPlayerAction.State = EActionState::Succeeded;
 }
 
 void ANpcFriendly::CopyPlayerMovement(float Direction, float Speed)
 {
-	if (MovementComp) MovementComp->MaxSpeed = Speed;
-	else UE_LOG(LogTemp, Warning, TEXT("my very own movement component is null ;-;"))
+	//UE_LOG(LogTemp,Warning,TEXT("CpyPlayerMove"))
+	check(MovementComp);
+	if (!bAssumedPosition)
+	{
+		MovementComp->MaxSpeed = Speed + 500;
+		StopDistance = 100;
+	}
+	else
+	{
+		MovementComp->MaxSpeed = Speed;
+		StopDistance = 50;
+	}
 	AddMovementInput(GetActorForwardVector(), Direction);
 }
 
@@ -855,7 +921,7 @@ void ANpcFriendly::GetDefensePosition(float DeltaTime)
 	if (MainSide == EOriginSide::Left) RotateAxis = FVector::DownVector;
 
 	const float MaxDistance = 0.5f + ExtraDistancePerPerson * (NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide).Num()/2); 
-	TargetLocation = WallToDefend->GetActorLocation().RotateAngleAxis(FMath::RandRange(MinDistance, MaxDistance), RotateAxis).GetUnsafeNormal2D() * Radius;
+	TargetLocation = WallToDefend->GetActorLocation().RotateAngleAxis(FMath::RandRange(MinDistance, MaxDistance), RotateAxis).GetUnsafeNormal2D() * MovementComp->Radius;
 	
 	if (bPrintDebug_DefendWall)
 	{

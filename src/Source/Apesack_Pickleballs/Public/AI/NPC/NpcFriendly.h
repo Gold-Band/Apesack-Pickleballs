@@ -44,6 +44,8 @@ protected:
 	virtual void BindActions() override;
 	virtual void CreateBehaviours() override;
 	
+	virtual void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor) override;
+	
 public:
 	virtual TArray<UListItemObject*> GetInfo() const override;
 	virtual TArray<UListItemObject*> GetActions() override;
@@ -65,7 +67,12 @@ protected:
 	virtual bool GetSideCheckCondition() override;
 	void JoinParty();
 	void LeaveParty();
+	UFUNCTION()
+	void EnterFormation(EOriginSide Side);
+	UFUNCTION()
+	void ExitFormation();
 	
+	float AdditionalSpeed = 500;
 	
 	//**
 	//** General Properties
@@ -149,7 +156,7 @@ protected:
 	void CopyPlayerMovement(float Direction, float Speed);
 	
 	bool bEnabled_FollowPlayer = true;
-	float Cooldown_FollowPlayer = 1;
+	float Cooldown_FollowPlayer = 0.2f;
 	float CooldownTimer_FollowPlayer;
 	
 	bool bIsPartyMember = false;

@@ -378,15 +378,12 @@ float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutAc
 	// Get farthest wall
 	ABuilding* Building = Cast<ABuilding>(BuildingsManager->GetFarthestBuilding(EBuildingType::Wall, Side)); 
 	
-	if (Npc == nullptr)
+	// if one of them is null
+	if (!Npc || !Building)
 	{
-		OutActor = Building;
-		return Building->DistanceFromOrigin;
-	}
-	if (Building == nullptr)
-	{
-		OutActor = Npc;
-		return ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
+		if (Npc == nullptr) OutActor = Building;
+		if (Building == nullptr) OutActor = Npc;
+		return OutActor? ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation()) : 0;
 	}
 	
 	// Compare

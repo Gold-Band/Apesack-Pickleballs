@@ -38,11 +38,6 @@ void ANpc::Tick(float DeltaSeconds)
 	}
 }
 
-float ANpc::GetCharacterPreferredRadius() const
-{
-	return Radius;
-}
-
 float ANpc::GetDirectionToTown()
 {
 	return OriginDirection;
@@ -68,7 +63,6 @@ void ANpc::BeginPlay()
 {
 	Super::BeginPlay();
 	NpcManager = UNpcManager::Get(GetWorld());
-	Radius = GetActorLocation().Size2D();
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	
 	if (NpcManager) NpcManager->AddNpc(this, NpcType, MainSide);
