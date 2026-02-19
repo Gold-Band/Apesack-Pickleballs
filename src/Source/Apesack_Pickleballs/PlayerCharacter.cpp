@@ -153,7 +153,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	}
 	
 	const FVector Start = GetActorLocation();
-	const FVector End = Start - GetActorForwardVector() * 150 * InstigatorDirection;
+	const FVector End = Start - GetActorForwardVector() * KnockbackDistance * InstigatorDirection;
 	const float Duration = 0.3f; 
 	
 	// move back
@@ -173,7 +173,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	// jump
 	FCTween::Play(
 	Start,
-	Start + FVector::UpVector * 30,
+	Start + FVector::UpVector * KnockbackHeight,
 	[&](const FVector& t)
 	{
 		if (!this) return;

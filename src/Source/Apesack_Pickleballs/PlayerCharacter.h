@@ -46,6 +46,11 @@ protected:
 	virtual void BeginDestroy() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float KnockbackDistance = 150;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float KnockbackHeight = 30;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStatsComponent* Stats;
 	
 private:
@@ -96,5 +101,4 @@ void StopSprinting(const struct FInputActionInstance& Instance);
 	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
 	
 	bool bWasHit = false;
-
 };
