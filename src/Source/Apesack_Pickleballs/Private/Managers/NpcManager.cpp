@@ -73,25 +73,33 @@ void UNpcManager::Tick(float DeltaTime)
 	SortByOriginAngle(&AllFriendlies);
 	SortByOriginAngle(&AllHostiles);
 	
+	const float PlayerDist = PlayerRef? ADefaultGameMode::GetDistanceToOrigin(PlayerRef->GetActorLocation()) : 0;
+	
 	//*
 	//* Left Side : Most Vulnerable Asset
 	PreviousLeftMostVulnerableAsset = LeftMostVulnerableAsset;
-	LeftMostVulnerableAsset = GetMostVulnerableAsset(EOriginSide::Left);
+	float Dist = GetMostVulnerableAsset(EOriginSide::Left, LeftMostVulnerableAsset);
+	if (PlayerDist < Dist) LeftMostVulnerableAsset = PlayerRef;
 	if (LeftMostVulnerableAsset != PreviousLeftMostVulnerableAsset)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(LeftMostVulnerableAsset, EOriginSide::Left);
 	}
 	
+	//if (LeftMostVulnerableAsset) DrawDebugLine(GetWorld(), FVector{0,19000.0,0}, LeftMostVulnerableAsset->GetActorLocation(), FColor::Green, false, TickInterval);
+	
 	//*
 	//* Right Side : Most Vulnerable Asset
 	PreviousRightMostVulnerableAsset = RightMostVulnerableAsset;
-	RightMostVulnerableAsset = GetMostVulnerableAsset(EOriginSide::Right);
+	Dist = GetMostVulnerableAsset(EOriginSide::Right, RightMostVulnerableAsset);
+	if (PlayerDist > Dist) RightMostVulnerableAsset = PlayerRef;
 	if (RightMostVulnerableAsset != PreviousRightMostVulnerableAsset)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(RightMostVulnerableAsset, EOriginSide::Right);
 	}
+	
+	//if (RightMostVulnerableAsset) DrawDebugLine(GetWorld(), FVector{0,19000.0,0}, RightMostVulnerableAsset->GetActorLocation(), FColor::Green, false, TickInterval);
 }
 
 UNpcManager* UNpcManager::Get(const UObject* WorldContextObject)
@@ -362,19 +370,44 @@ TArray<AActor*>* UNpcManager::GetArray(ENpcSearchOption SearchFilter)
 	}
 }
 
-AActor* UNpcManager::GetMostVulnerableAsset(const EOriginSide Side)
+float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutActor)
 {
-	// Get farthest Npc
+	// Get farthest Npc	
 	AActor* Npc = GetFarthestFriendlyNpc(Side);
 
 	// Get farthest wall
 	ABuilding* Building = Cast<ABuilding>(BuildingsManager->GetFarthestBuilding(EBuildingType::Wall, Side)); 
-		
-	if (Npc == nullptr) return Building;
-	if (Building == nullptr) return Npc;
+	
+	if (Npc == nullptr)
+	{
+		OutActor = Building;
+		return Building->DistanceFromOrigin;
+	}
+	if (Building == nullptr)
+	{
+		OutActor = Npc;
+		return ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
+	}
 	
 	// Compare
 	const float NpcDistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
-	if (Side == EOriginSide::Left) return Building->DistanceFromOrigin < NpcDistanceFromOrigin ? Building : Npc;
-	return Building->DistanceFromOrigin > NpcDistanceFromOrigin ? Building : Npc;
+	
+	if (Side == EOriginSide::Left)
+	{
+		if (Building->DistanceFromOrigin < NpcDistanceFromOrigin)
+		{
+			OutActor = Building;
+			return Building->DistanceFromOrigin;
+		}
+		OutActor = Npc;
+		return ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
+	}
+	
+	if (Building->DistanceFromOrigin > NpcDistanceFromOrigin)
+	{
+		OutActor = Building;
+		return Building->DistanceFromOrigin;
+	}
+	OutActor = Npc;
+	return ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
 }
