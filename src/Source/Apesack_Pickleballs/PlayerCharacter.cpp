@@ -1,8 +1,11 @@
 #include "PlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "FCTween.h"
 #include "InputActionValue.h"
+#include "StatsComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
+#include "GameModes/DefaultGameMode.h"
 #include "Movement/CircularPawnMovementComponent.h"
 
 // Sets default values
@@ -11,8 +14,7 @@ APlayerCharacter::APlayerCharacter() {
 	PrimaryActorTick.bCanEverTick = true;
 
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
-
-DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
+	DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
 
 }
 
@@ -30,6 +32,13 @@ void APlayerCharacter::BeginPlay() {
 	}
 	
 	Radius = GetActorLocation().Size2D();
+	
+	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
+	if (Stats)
+	{
+		Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
+		Stats->OnDamagedDelegate.AddUniqueDynamic(this, &ThisClass::OnDamaged);
+	}
 }
 
 void APlayerCharacter::BeginDestroy() {
@@ -125,6 +134,54 @@ void APlayerCharacter::PrintCoins() const {
 		FColor::Emerald,
 		FString::Printf(TEXT("Coins: %i"), Coins)
 	);
+}
+
+void APlayerCharacter::OnDeath()
+{
+}
+
+void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor)
+{
+	if (bWasHit) return; // once at a time
+	bWasHit = true;
+	
+	int InstigatorDirection = 1;
+	if (InstigatorActor)
+	{
+		float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), InstigatorActor->GetActorLocation());
+		if (Angle > 0) InstigatorDirection = -1;
+	}
+	
+	const FVector Start = GetActorLocation();
+	const FVector End = Start - GetActorForwardVector() * 150 * InstigatorDirection;
+	const float Duration = 0.3f; 
+	
+	// move back
+	FCTween::Play(
+	Start,
+	End,
+	[&](const FVector& t)
+	{
+		SetActorLocation(t);
+	},
+	Duration,
+	EFCEase::OutQuad)->SetOnComplete([&]()
+	{
+		bWasHit = false;
+	});
+	
+	// jump
+	FCTween::Play(
+	Start,
+	Start + FVector::UpVector * 30,
+	[&](const FVector& t)
+	{
+		if (!this) return;
+		const FVector Location = GetActorLocation();
+		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
+	},
+	Duration/4,
+	EFCEase::OutQuad)->SetYoyo(true);
 }
 
 
