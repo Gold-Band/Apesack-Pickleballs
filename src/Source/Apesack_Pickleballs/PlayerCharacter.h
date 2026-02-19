@@ -5,6 +5,7 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
+class UStatsComponent;
 class UCameraComponent;
 class UCircularPawnMovementComponent;
 
@@ -43,6 +44,14 @@ protected:
 	
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float KnockbackDistance = 150;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float KnockbackHeight = 30;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStatsComponent* Stats;
 	
 private:
 	FVector CharacterLastPosition;
@@ -84,4 +93,12 @@ void StopSprinting(const struct FInputActionInstance& Instance);
 	void Move(const FVector& Direction);
 	
 	void PrintCoins() const;
+	
+	UFUNCTION()
+	void OnDeath();
+	
+	UFUNCTION()
+	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
+	
+	bool bWasHit = false;
 };

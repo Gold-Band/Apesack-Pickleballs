@@ -117,7 +117,7 @@ private:
 	
 	TArray<AActor*>* GetArray(ENpcSearchOption SearchFilter);
 	
-	AActor* GetMostVulnerableAsset(const EOriginSide Side);
+	float GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutActor);
 	
 	UPROPERTY()
 	AActor* PreviousLeftMostVulnerableAsset;
