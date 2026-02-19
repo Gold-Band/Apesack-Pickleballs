@@ -17,21 +17,21 @@ struct FDamagePatch
 {
     GENERATED_BODY()
 
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float NormalDamage;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float SelfLifeStealPercent;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float BaseCritChance;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float CritMultiplier;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float TotalDamageScale;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float ProficiencyDamageType;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float RangedDamageScale;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float MeleeDamageScale;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float FireDamageScale;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float PoisonDamageScale;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float MagicDamageScale;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float FireDamage;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float PoisonDamage;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float MagicDamage;
-    UPROPERTY(BlueprintReadWrite, Category="Damage") float DebuffDuration;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float NormalDamage = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float SelfLifeStealPercent = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float BaseCritChance = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float CritMultiplier = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float TotalDamageScale = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float ProficiencyDamageType = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float RangedDamageScale = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float MeleeDamageScale = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float FireDamageScale = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float PoisonDamageScale = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float MagicDamageScale = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float FireDamage = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float PoisonDamage = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float MagicDamage = 0;
+    UPROPERTY(BlueprintReadWrite, Category="Damage") float DebuffDuration = 0;
 };
 
 

@@ -232,6 +232,25 @@ AActor* UNpcManager::FindNearestNpc(const FVector& FromLocation, const ENpcSearc
 	return nullptr;
 }
 
+AActor* UNpcManager::FindNearestNpcOrPlayer(const FVector& FromLocation, const ENpcSearchOption SearchFilter,
+	const EOriginSide Side, const float CheckRadiusSquared)
+{
+	AActor* FoundNpc = FindNearestNpc(FromLocation, SearchFilter, Side, CheckRadiusSquared);
+	
+	AActor* Player = GetWorld()->GetGameInstance()->GetFirstLocalPlayerController()->GetPawn();
+	
+	const float PlayerDist = Player? FVector::DistSquaredXY(FromLocation, Player->GetActorLocation()) : UE_MAX_FLT;
+	const float NpcDist = FoundNpc? FVector::DistSquaredXY(FromLocation, FoundNpc->GetActorLocation()) : UE_MAX_FLT;
+	
+	//if (!FoundNpc) return Player;
+	//if (!Player) return FoundNpc;
+	
+	if (PlayerDist < CheckRadiusSquared && PlayerDist < NpcDist) return Player;
+	if (NpcDist < CheckRadiusSquared && NpcDist < PlayerDist) return FoundNpc;
+	
+	return nullptr;
+}
+
 AActor* UNpcManager::GetFarthestFriendlyNpc(EOriginSide Side)
 {
 	if (AllFriendlies.IsEmpty()) return nullptr;

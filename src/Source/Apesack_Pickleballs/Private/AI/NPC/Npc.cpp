@@ -91,10 +91,15 @@ void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ANpc::BindActions()
 {
+	// Wait
+	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
 }
 
 void ANpc::CreateBehaviours()
 {
+	// Wait
+	WaitTask.Actions.Add(&WaitAction);
+	HtnDomain->AssignTask(&WaitTask);
 }
 
 bool ANpc::GetSideCheckCondition()
@@ -110,6 +115,11 @@ void ANpc::OnClicked()
 FString ANpc::GetActorName() const
 {
 	return GetCharacterName();
+}
+
+void ANpc::Wait(float DeltaTime)
+{
+	WaitAction.State = EActionState::Succeeded;
 }
 
 void ANpc::OnDeath_Implementation()
@@ -157,13 +167,14 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 	});
 	
 	// jump
-	FCTweenInstance* Tween = FCTween::Play(
+	FCTween::Play(
 	Start,
 	Start + FVector::UpVector * (DamageType == 1? 
 		MeleeKnockbackParams.KnockedDistance: 
 		RangedKnockbackParams.KnockedDistance), // more knockback on melee
 	[&](const FVector& t)
 	{
+		if (!this) return;
 		const FVector Location = GetActorLocation();
 		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
 	},

@@ -49,15 +49,8 @@ void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-bool ANpcHostile::GetSideCheckCondition()
-{
-	return true;
-}
-
 void ANpcHostile::BindActions()
 {
-	Super::BindActions();
-	
 	WalkAction.ExecutionDelegate.BindUObject(this, &ThisClass::Walk);
 	
 	MoveToAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
@@ -76,8 +69,6 @@ void ANpcHostile::BindActions()
 
 void ANpcHostile::CreateBehaviours()
 {
-	Super::CreateBehaviours();
-	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(&TargetAttackableAction);
 	MeleeAttackTask.Actions.Add(&MoveToAction);

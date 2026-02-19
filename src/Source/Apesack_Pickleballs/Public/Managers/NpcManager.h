@@ -95,7 +95,8 @@ public:
 	
 	void AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
 	void RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
-	AActor* FindNearestNpc(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float SearchRadius = UE_MAX_FLT);
+	AActor* FindNearestNpc(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float CheckRadiusSquared = UE_MAX_FLT);
+	AActor* FindNearestNpcOrPlayer(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float CheckRadiusSquared = UE_MAX_FLT);
 	
 	AActor* GetFarthestFriendlyNpc(EOriginSide Side);
 	
