@@ -413,8 +413,6 @@ void ANpcFriendly::LeaveParty()
 
 void ANpcFriendly::EnterFormation(EOriginSide Side)
 {
-	bAssumedPosition = false;
-	
 	float NewRadius = MovementComp->Radius;
 	// Set radius
 	if (PartyIndex == 0) NewRadius = 19000;
@@ -440,8 +438,6 @@ void ANpcFriendly::EnterFormation(EOriginSide Side)
 
 void ANpcFriendly::ExitFormation()
 {
-	bAssumedPosition = false;
-	
 	// reset radius
 	float NewRadius = 19000;
 	
@@ -627,14 +623,13 @@ void ANpcFriendly::TargetPlayer(float DeltaTime)
 
 bool ANpcFriendly::TargetPlayerCondition() const
 {
-	return bIsPartyMember == true && bEnabled_FollowPlayer == true && bAssumedPosition == false;
+	return bIsPartyMember == true && bEnabled_FollowPlayer == true;
 }
 
 void ANpcFriendly::OnJoinedPlayer(float DeltaTime)
 {
 	CooldownTimer_FollowPlayer = 0;
 	bEnabled_FollowPlayer = false;
-	bAssumedPosition = true;
 	// copy player's movement
 	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Joined player"));
 	OnJoinedPlayerAction.State = EActionState::Succeeded;
@@ -644,16 +639,7 @@ void ANpcFriendly::CopyPlayerMovement(float Direction, float Speed)
 {
 	//UE_LOG(LogTemp,Warning,TEXT("CpyPlayerMove"))
 	check(MovementComp);
-	if (!bAssumedPosition)
-	{
-		MovementComp->MaxSpeed = Speed + 500;
-		StopDistance = 100;
-	}
-	else
-	{
-		MovementComp->MaxSpeed = Speed;
-		StopDistance = 50;
-	}
+	MovementComp->MaxSpeed = Speed;
 	AddMovementInput(GetActorForwardVector(), Direction);
 }
 
