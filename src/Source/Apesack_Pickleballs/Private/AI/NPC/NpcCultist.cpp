@@ -2,6 +2,7 @@
 #include "AI/NPC/NpcCultist.h"
 
 #include "AI/HTN/HTNComponent.h"
+#include "GameModes/DefaultGameMode.h"
 #include "Managers/NpcManager.h"
 #include "WorldClock/WorldClockSubsystem.h"
 
@@ -21,14 +22,18 @@ void ANpcCultist::Tick(float DeltaSeconds)
 	if ((SenseTimer+=DeltaSeconds) > SenseFriendliesInterval)
 	{
 		SenseTimer = 0;
-		TargetActor = NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide, DetectDangerRadius);
+		TargetActor = NpcManager->FindNearestNpcOrPlayer(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide, FMath::Square(RunawayRadius));
 	}
 }
 
 void ANpcCultist::BeginPlay()
 {
+	
+	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
+	
 	Super::BeginPlay();
-	WorldClockSubsystem = UWorldClockSubsystem::Get(this);
+	WorldClockSubsystem = UWorldClockSubsystem::Get(GetWorld());
 }
 
 void ANpcCultist::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -43,6 +48,8 @@ void ANpcCultist::BindActions()
 	
 	SummoningAction.ExecutionDelegate.BindUObject(this, &ANpcCultist::SummonEnemies);
 	SummoningAction.ConditionDelegate.BindUObject(this, &ANpcCultist::SummonCondition);
+	
+	Super::BindActions();
 }
 
 void ANpcCultist::CreateBehaviours()
@@ -52,11 +59,14 @@ void ANpcCultist::CreateBehaviours()
 	
 	SummoningTask.Actions.Add(&SummoningAction);
 	HtnDomain->AssignTask(&SummoningTask);
+	
+	Super::CreateBehaviours();
 }
 
 void ANpcCultist::Runaway(float DeltaTime)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Runaway"));
+	RunawayAction.State = EActionState::Succeeded;
 }
 
 bool ANpcCultist::RunawayCondition() const
@@ -66,11 +76,12 @@ bool ANpcCultist::RunawayCondition() const
 
 void ANpcCultist::SummonEnemies(float DeltaTime)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Summon"));
+	SummonEnemiesEvent();
+	
+	SummoningAction.State = EActionState::Succeeded;
 }
 
 bool ANpcCultist::SummonCondition()
 {
-	const float DistSquared = TargetActor != nullptr? FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation()) : UE_MAX_FLT;
-	return WorldClockSubsystem->GetHours() > RitualStartHour || DistSquared < FMath::Square(RunawayRadius);
+	return bSummonEnabled && ((WorldClockSubsystem? WorldClockSubsystem->GetHours() >= RitualStartHour : false) || bSummonEnemies);
 }

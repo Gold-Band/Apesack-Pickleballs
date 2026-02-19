@@ -86,10 +86,6 @@ void ANpcFriendly::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ANpcFriendly::BindActions()
 {
-	Super::BindActions();
-	
-	// Wait
-	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
 	
 	// Targetting - player
 	TargetPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetPlayer);
@@ -142,11 +138,12 @@ void ANpcFriendly::BindActions()
 	
 	// Party
 	OnJoinedPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::OnJoinedPlayer);
+	
+	Super::BindActions();
 }
 
 void ANpcFriendly::CreateBehaviours()
 {
-	Super::CreateBehaviours();
 	
 	// goto safe zone
 	
@@ -192,9 +189,7 @@ void ANpcFriendly::CreateBehaviours()
 	WanderTask.Actions.Add(&MoveTimedAction);
 	HtnDomain->AssignTask(&WanderTask);
 	
-	// Wait
-	WaitTask.Actions.Add(&WaitAction);
-	HtnDomain->AssignTask(&WaitTask);
+	Super::CreateBehaviours();
 }
 
 TArray<UListItemObject*> ANpcFriendly::GetInfo() const
@@ -265,7 +260,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		Action->ContextActor = this;
 		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
 		Action->OnActionCalledFunction = Func;
-		Action->Cost = 5;
+		Action->Cost = 0;
 		Actions.Add(Action);
 	}
 	if (CharacterClass != ECharacterType::Fighter)
@@ -280,7 +275,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		};
 		Action->OnActionCalledFunction = Func;
 		Action->bDisable = false;
-		Action->Cost = 3;
+		Action->Cost = 0;
 		Actions.Add(Action);
 	}
 	if (CharacterClass != ECharacterType::Builder)
@@ -409,12 +404,6 @@ void ANpcFriendly::LeaveParty()
 //*
 //* ACTIONS
 //*
-
-
-void ANpcFriendly::Wait(float DeltaTime)
-{
-	WaitAction.State = EActionState::Succeeded;
-}
 
 void ANpcFriendly::Cooldown(float DeltaTime)
 {

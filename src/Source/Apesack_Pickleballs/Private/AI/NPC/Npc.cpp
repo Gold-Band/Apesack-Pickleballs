@@ -91,10 +91,15 @@ void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ANpc::BindActions()
 {
+	// Wait
+	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
 }
 
 void ANpc::CreateBehaviours()
 {
+	// Wait
+	WaitTask.Actions.Add(&WaitAction);
+	HtnDomain->AssignTask(&WaitTask);
 }
 
 bool ANpc::GetSideCheckCondition()
@@ -111,7 +116,12 @@ FString ANpc::GetActorName() const
 {
 	return GetCharacterName();
 }
-	
+
+void ANpc::Wait(float DeltaTime)
+{
+	WaitAction.State = EActionState::Succeeded;
+}
+
 void ANpc::OnDeath_Implementation()
 {
 	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);

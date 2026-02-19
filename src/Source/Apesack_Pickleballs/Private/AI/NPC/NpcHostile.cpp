@@ -49,11 +49,6 @@ void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-bool ANpcHostile::GetSideCheckCondition()
-{
-	return true;
-}
-
 void ANpcHostile::BindActions()
 {
 	WalkAction.ExecutionDelegate.BindUObject(this, &ThisClass::Walk);

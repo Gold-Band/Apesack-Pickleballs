@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AI/Actions/Action.h"
+#include "AI/HTN/Task.h"
 #include "GameFramework/Pawn.h"
 #include "Interfaces/ClickableActor.h"
 #include "Engine/Texture.h"
@@ -141,6 +143,13 @@ protected:
 	bool bPrintDebug_Knockback = false;
 	
 	bool bWasHit;
+	
+	
+	//* Wait *//
+	FTask WaitTask{"Wait"};
+	FAction WaitAction{FString("Wait")};
+	void Wait(float DeltaTime);
+	
 	
 	//**
 	//** My Components

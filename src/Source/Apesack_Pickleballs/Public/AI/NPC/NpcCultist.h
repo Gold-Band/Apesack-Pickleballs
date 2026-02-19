@@ -3,14 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NpcHostile.h"
+#include "Npc.h"
+#include "AI/Actions/Action.h"
+#include "AI/HTN/Task.h"
 #include "NpcCultist.generated.h"
 
 class UWorldClockSubsystem;
 class UNpcManager;
 
 UCLASS()
-class APESACK_PICKLEBALLS_API ANpcCultist : public ANpcHostile
+class APESACK_PICKLEBALLS_API ANpcCultist : public ANpc
 {
 	GENERATED_BODY()
 
@@ -30,6 +32,7 @@ protected:
 	virtual void BindActions() override;
 	virtual void CreateBehaviours() override;
 
+	//* Running Away *//
 	FTask RunawayTask{"Runaway"};
 	FAction RunawayAction{"Runaway"};
 	void Runaway(float DeltaTime);
@@ -38,18 +41,25 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
 	float RunawayRadius = 500.f;
 	
+	
+	//* Summoning *//
 	FTask SummoningTask{"Summoning"};
 	FAction SummoningAction{"SummonEnemies"};
 	void SummonEnemies(float DeltaTime);
 	bool SummonCondition();
 	
-	UWorldClockSubsystem* WorldClockSubsystem;
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="Summon Enemies"))
+	void SummonEnemiesEvent();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
+	bool bSummonEnemies = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
-	float DetectDangerRadius = 1000.f;
+	bool bSummonEnabled = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
 	int RitualStartHour = 20; 
 	
-
+	
+	UWorldClockSubsystem* WorldClockSubsystem;
 };
