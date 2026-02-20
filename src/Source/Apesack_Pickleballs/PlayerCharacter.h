@@ -58,8 +58,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float KnockbackHeight = 30;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStatsComponent* Stats;
+	UPROPERTY()
+	TObjectPtr<UStatsComponent> Stats;
 	
 private:
 	FVector CharacterLastPosition;
