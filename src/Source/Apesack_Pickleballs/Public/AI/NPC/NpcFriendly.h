@@ -31,11 +31,11 @@ public:
 	
 	virtual void Tick(float DeltaSeconds) override;
 
-//* Adam F's for animations
-UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
-void OnMeleeAttack();
-UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
-void OnBowAttack(bool bIsFacingTarget);
+	//* Adam F's for animations
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void OnMeleeAttack();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void OnBowAttack(bool bIsFacingTarget);
 
 protected:
 	virtual void BeginPlay() override;
@@ -145,14 +145,8 @@ protected:
 	
 	int PartyIndex;
 	
-	
-	
 	//* Target Player *//
-	FAction TargetPlayerAction{FString("Target Player")};
-	FAction OnJoinedPlayerAction{FString("On Joined Player")};
-	void TargetPlayer(float DeltaTime);
 	bool TargetPlayerCondition() const;
-	void OnJoinedPlayer(float DeltaTime);
 	void CopyPlayerMovement(float Direction, float Speed);
 	
 	bool bEnabled_FollowPlayer = true;
