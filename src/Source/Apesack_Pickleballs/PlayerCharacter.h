@@ -61,6 +61,9 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UStatsComponent> Stats;
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	EOriginSide GetActorSide(AActor* Actor) const;
+	
 private:
 	FVector CharacterLastPosition;
 	
