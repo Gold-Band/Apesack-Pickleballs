@@ -381,9 +381,10 @@ float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutAc
 	// if one of them is null
 	if (!Npc || !Building)
 	{
+		OutActor = nullptr;
 		if (Npc == nullptr) OutActor = Building;
 		if (Building == nullptr) OutActor = Npc;
-		return OutActor? ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation()) : 0;
+		return OutActor? ADefaultGameMode::GetDistanceToOrigin(OutActor->GetActorLocation()) : 0;
 	}
 	
 	// Compare

@@ -41,13 +41,13 @@ void ANpcFriendly::Tick(float DeltaSeconds)
 	}
 	
 	// Follow Player Cooldown
-	if (bIsPartyMember && 
+	/*if (bIsPartyMember && 
 		!bEnabled_FollowPlayer &&
 		(CooldownTimer_FollowPlayer += DeltaSeconds) >= Cooldown_FollowPlayer)
 	{
 		bEnabled_FollowPlayer = true;
 		bAssumedPosition = false;
-	}
+	}*/
 }
 
 void ANpcFriendly::BeginPlay()
@@ -91,8 +91,8 @@ void ANpcFriendly::BindActions()
 {
 	
 	// Targetting - player
-	TargetPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetPlayer);
-	TargetPlayerAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetPlayerCondition);
+	//TargetPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetPlayer);
+	//TargetPlayerAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetPlayerCondition);
 	
 	// Move to
 	MoveToAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
@@ -102,7 +102,7 @@ void ANpcFriendly::BindActions()
 	MoveToVectorAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
 	MoveToVectorAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveToVector);
 	
-	MoveToOffsetAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
+	MoveToOffsetAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetPlayerCondition);
 	MoveToOffsetAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveToOffset);
 	
 	// Targetting - Enemy
@@ -140,7 +140,7 @@ void ANpcFriendly::BindActions()
 	OnAssumedDefensePositionAction.ExecutionDelegate.BindUObject(this, &ThisClass::OnAssumedDefensePosition);
 	
 	// Party
-	OnJoinedPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::OnJoinedPlayer);
+	//OnJoinedPlayerAction.ExecutionDelegate.BindUObject(this, &ThisClass::OnJoinedPlayer);
 	
 	Super::BindActions();
 }
@@ -164,13 +164,6 @@ void ANpcFriendly::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	HtnDomain->AssignTask(&MeleeAttackTask);
 	
-	// Follow 
-	FollowTask.Actions.Add(&TargetPlayerAction);
-	FollowTask.Actions.Add(&MoveToOffsetAction);
-	FollowTask.Actions.Add(&OnJoinedPlayerAction);
-	HtnDomain->AssignTask(&FollowTask);
-	
-	
 	// Occupy Tower
 	OccupyTowerTask.Actions.Add(&TargetFarthestTowerAction);
 	OccupyTowerTask.Actions.Add(&MoveToAction);
@@ -185,6 +178,12 @@ void ANpcFriendly::CreateBehaviours()
 	RangedAttackTask.Actions.Add(&RangedAttackAction);
 	RangedAttackTask.bPrintDebug = bPrintDebug_RangedAttack;
 	HtnDomain->AssignTask(&RangedAttackTask);
+
+	// Follow 
+	//FollowTask.Actions.Add(&TargetPlayerAction);
+	FollowTask.Actions.Add(&MoveToOffsetAction);
+	//FollowTask.Actions.Add(&OnJoinedPlayerAction);
+	HtnDomain->AssignTask(&FollowTask);
 	
 	// Wander
 	WanderTask.Actions.Add(&MoveTimedAction);
@@ -267,7 +266,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		Action->ContextActor = this;
 		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
 		Action->OnActionCalledFunction = Func;
-		Action->Cost = 0;
+		Action->Cost = 3;
 		Actions.Add(Action);
 	}
 	if (CharacterClass != ECharacterType::Fighter)
@@ -282,7 +281,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		};
 		Action->OnActionCalledFunction = Func;
 		Action->bDisable = false;
-		Action->Cost = 0;
+		Action->Cost = 3;
 		Actions.Add(Action);
 	}
 	if (CharacterClass != ECharacterType::Builder)
@@ -293,7 +292,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Builder;};
 		Action->OnActionCalledFunction = Func;
 		Action->bDisable = true;
-		Action->Cost = 0;
+		Action->Cost = 2;
 		Actions.Add(Action);
 	}
 	
@@ -341,7 +340,6 @@ void ANpcFriendly::OnRaidDetected(EOriginSide Side)
 	// code
 }
 
-
 void ANpcFriendly::OnDeath_Implementation()
 {
 	Super::OnDeath_Implementation();
@@ -357,7 +355,6 @@ void ANpcFriendly::JoinParty()
 {
 	bIsPartyMember = true;
 	
-	bAssumedPosition = false;
 	DefendWallTask.Reset();
 	
 	bEnabled_FollowPlayer = true;
@@ -397,7 +394,7 @@ void ANpcFriendly::LeaveParty()
 	
 	FollowTask.Reset();
 	
-	float NewRadius = 19000+ FMath::RandRange(-100, 10);
+	float NewRadius = 19000 + FMath::RandRange(-100, 10);
 	
 	// Lerp Radius to NewRadius
 	FCTween::Play(
@@ -413,16 +410,27 @@ void ANpcFriendly::LeaveParty()
 
 void ANpcFriendly::EnterFormation(EOriginSide Side)
 {
+	bAssumedPosition = false;
 	float NewRadius = MovementComp->Radius;
+	
 	// Set radius
 	if (PartyIndex == 0) NewRadius = 19000;
 	else if (PartyIndex == 1) NewRadius = 19050;
 	else if (PartyIndex == 2) NewRadius = 18950;
 	else if (PartyIndex == 3) NewRadius = 18900;
 	
-	// Set offset angle
-	if (Side == EOriginSide::Left) OffsetAngle = 0.2f;
-	else if (Side == EOriginSide::Right) OffsetAngle = -0.2f;
+	if (CharacterClass == ECharacterType::Archer)
+	{
+		// Set offset angle
+		if (Side == EOriginSide::Left) OffsetAngle = 0.2f;
+		else if (Side == EOriginSide::Right) OffsetAngle = -0.2f;
+	}
+	else if (CharacterClass == ECharacterType::Fighter)
+	{
+		// Set offset angle
+		if (Side == EOriginSide::Left) OffsetAngle = 0.4f;
+		else if (Side == EOriginSide::Right) OffsetAngle = -0.4f;
+	}
 	
 	// Lerp Radius to NewRadius
 	FCTween::Play(
@@ -438,8 +446,10 @@ void ANpcFriendly::EnterFormation(EOriginSide Side)
 
 void ANpcFriendly::ExitFormation()
 {
+	bAssumedPosition = false;
+	
 	// reset radius
-	float NewRadius = 19000;
+	float NewRadius = 18999 - PartyIndex;
 	
 	// reset offset angle
 	if (PartyIndex == 0) OffsetAngle = 0.25f;
@@ -469,7 +479,6 @@ void ANpcFriendly::Cooldown(float DeltaTime)
 	Timer += DeltaTime;
 	if (Timer >= Delay) CooldownAction.State = EActionState::Succeeded;
 }
-
 
 void ANpcFriendly::CooldownReset()
 {
@@ -501,8 +510,6 @@ void ANpcFriendly::MoveTimedReset()
 	Timer = 0.0f;
 	MoveTime = 0.0f;
 }
-
-
 
 void ANpcFriendly::MoveTo(float DeltaTime)
 {
@@ -551,10 +558,10 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 				if (It.Distance <= StopDistance)
 				{
 					MoveToAction.State = EActionState::Succeeded;
-					if (bIsPartyMember)
+					/*if (bIsPartyMember)
 					{
 						CooldownTimer_FollowPlayer = 0;
-					}
+					}*/
 					return;
 				}
 			}
@@ -584,19 +591,26 @@ void ANpcFriendly::MoveToVector(float DeltaTime)
 
 void ANpcFriendly::MoveToOffset(float DeltaTime)
 {
-	TargetLocation = NpcManager->GetPlayer()->GetActorLocation().RotateAngleAxis(OffsetAngle, FVector::UpVector).GetUnsafeNormal2D() * MovementComp->Radius;
+	const APlayerCharacter* PlayerCharacter = NpcManager->GetPlayer();
+	
+	if (PlayerCharacter == nullptr)
+	{
+		MoveToOffsetAction.State = EActionState::Failed;
+		return;
+	}
+	
+	TargetLocation = PlayerCharacter->GetActorLocation().RotateAngleAxis(OffsetAngle, FVector::UpVector).GetClampedToSize2D(MovementComp->Radius,MovementComp->Radius);
 	
 	// Are we there yet?
 	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetLocation);
 	if (DistanceSquared <= StopDistance)
 	{
 		MoveToOffsetAction.State = EActionState::Succeeded;
+		bAssumedPosition = true;
 		return;
 	}
-	
-	// Move
-	const float Direction = FVector::DotProduct(TargetLocation - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
-	MoveForwardScaled(Direction);
+	// lerp to position with constant speed
+	if (DistanceSquared>0) SetActorLocation(FMath::Lerp(GetActorLocation(),TargetLocation, /*constant speed -> */ 10 / FMath::Sqrt(DistanceSquared)));
 }
 
 bool ANpcFriendly::MoveToCondition() const
@@ -610,39 +624,17 @@ void ANpcFriendly::MoveToReset()
 	TargetActor = nullptr;
 }
 
-
-
-void ANpcFriendly::TargetPlayer(float DeltaTime)
-{
-	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Targetting the player"));
-	TargetActor = NpcManager->GetPlayer();
-	
-	if (TargetActor != nullptr) TargetPlayerAction.State = EActionState::Succeeded;
-	else TargetPlayerAction.State = EActionState::Failed;
-}
-
 bool ANpcFriendly::TargetPlayerCondition() const
 {
-	return bIsPartyMember == true && bEnabled_FollowPlayer == true;
-}
-
-void ANpcFriendly::OnJoinedPlayer(float DeltaTime)
-{
-	CooldownTimer_FollowPlayer = 0;
-	bEnabled_FollowPlayer = false;
-	// copy player's movement
-	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Joined player"));
-	OnJoinedPlayerAction.State = EActionState::Succeeded;
+	return MoveToCondition() && bIsPartyMember == true && bEnabled_FollowPlayer == true;
 }
 
 void ANpcFriendly::CopyPlayerMovement(float Direction, float Speed)
 {
-	//UE_LOG(LogTemp,Warning,TEXT("CpyPlayerMove"))
 	check(MovementComp);
 	MovementComp->MaxSpeed = Speed;
 	AddMovementInput(GetActorForwardVector(), Direction);
 }
-
 
 void ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 {
@@ -658,7 +650,6 @@ void ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 	else TargetNearestEnemyAction.State = EActionState::Failed;
 }
 
-
 void ANpcFriendly::TargetFarthestTower(float DeltaTime)
 {
 	TargetActor = BuildingsManager->GetFarthestBuilding(EBuildingType::Tower, MainSide);
@@ -673,7 +664,6 @@ bool ANpcFriendly::TargetFarthestTowerCondition() const
 {
 	return BuildingsManager->DoVacantTowersExist(MainSide); // problem
 }
-
 
 void ANpcFriendly::MeleeAttack(float DeltaTime)
 {
@@ -732,8 +722,6 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	if (bPrintDebug_MeleeAttack) UE_LOG(LogTemp, Warning, TEXT("Melee attack"))
 }
 
-
-
 bool ANpcFriendly::MeleeAttackCondition() const
 {
 	return CharacterClass == ECharacterType::Fighter && bEnabled_MeleeAttack;
@@ -743,7 +731,6 @@ void ANpcFriendly::SetMeleeParams()
 {
 	TargetingDistance = TargetingDistance_Melee;
 }
-
 
 void ANpcFriendly::RangedAttack(float DeltaTime)
 {
@@ -855,7 +842,6 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	bEnabled_RangedAttack = false;
 }
 
-
 bool ANpcFriendly::RangedAttackCondition() const
 {
 	return CharacterClass == ECharacterType::Archer && bEnabled_RangedAttack;
@@ -865,7 +851,6 @@ void ANpcFriendly::SetRangedParams()
 {
 	TargetingDistance = TargetingDistance_Ranged;
 }
-
 
 void ANpcFriendly::OccupyTower(float DeltaTime)
 {

@@ -6,6 +6,7 @@
 #include "StatsComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameModes/DefaultGameMode.h"
+#include "Managers/BuildingsManager.h"
 #include "Movement/CircularPawnMovementComponent.h"
 
 // Sets default values
@@ -43,6 +44,13 @@ void APlayerCharacter::BeginPlay() {
 
 void APlayerCharacter::BeginDestroy() {
 	Super::BeginDestroy();
+}
+
+EOriginSide APlayerCharacter::GetActorSide(AActor* Actor) const
+{
+	if (!Actor) return EOriginSide::Any;
+	const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), Actor->GetActorLocation());
+	return Angle > 0? EOriginSide::Left : EOriginSide::Right;
 }
 
 void APlayerCharacter::IncrementCoins() {
