@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{2001881b-4f02-4067-a703-339affb4847d}">
+		<property name="name">
+			<value>Enemy-Track-Piano-Treble</value>
+		</property>
+		<relationship name="folder">
+			<destination>{fe5ba1b5-9170-47b5-aed7-f79ca05ac47c}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{7ca867a2-4124-40ec-b8ad-673c867cc063}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{7ca867a2-4124-40ec-b8ad-673c867cc063}">
+		<property name="initialValue">
+			<value>1</value>
+		</property>
+	</object>
+</objects>
