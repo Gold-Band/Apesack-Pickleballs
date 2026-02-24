@@ -29,7 +29,7 @@ public:
 	bool IsDamaged() const;
 	
 protected:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="On Clicked"))
 	void OnActorClicked();
 	
 	virtual void BeginPlay() override;

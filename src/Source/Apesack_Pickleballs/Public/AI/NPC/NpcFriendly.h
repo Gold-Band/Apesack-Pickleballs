@@ -72,6 +72,8 @@ protected:
 	UFUNCTION()
 	void ExitFormation();
 	
+	bool IsCombatant() const;
+	
 	float AdditionalSpeed = 500;
 	
 	//**
@@ -159,6 +161,7 @@ protected:
 	//* Target Enemy *//
 	FAction TargetNearestEnemyAction{FString("Target Enemy")};
 	void TargetNearestEnemy(float DeltaTime);
+	bool TargetNearestEnemyCondition() const;
 	bool bRaid;
 	float TargetingDistance;
 	
@@ -190,8 +193,9 @@ protected:
 	void SetMeleeParams();
 	
 	bool bEnabled_MeleeAttack = true;
+	bool bIsBuilding = false;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Cooldown"))
 	float Cooldown_MeleeAttack = 0.75f;
 	
 	float CooldownTimer_MeleeAttack;
@@ -210,7 +214,7 @@ protected:
 	
 	bool bEnabled_RangedAttack = true;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Cooldown"))
 	float Cooldown_RangedAttack = 0.75f;
 	
 	float CooldownTimer_RangedAttack;

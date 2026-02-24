@@ -41,14 +41,14 @@ void ANpcFriendly::Tick(float DeltaSeconds)
 	}
 	
 	// Target building cooldown
-	if (bEnabled_TargetBuilding && 
+	if (!bEnabled_TargetBuilding && 
 		(CooldownTimer_TargetBuilding += DeltaSeconds) >= Cooldown_TargetBuilding)
 	{
 		bEnabled_TargetBuilding = true;
 	}
 	
 	// Target tower cooldown
-	if (bEnabled_TargetTower && 
+	if (!bEnabled_TargetTower && 
 		(CooldownTimer_TargetTower += DeltaSeconds) >= Cooldown_TargetTower)
 	{
 		bEnabled_TargetTower = true;
@@ -122,6 +122,7 @@ void ANpcFriendly::BindActions()
 	
 	// Targetting - Enemy
 	TargetNearestEnemyAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetNearestEnemy);
+	TargetNearestEnemyAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetNearestEnemyCondition);
 	
 	// Melee Attack
 	MeleeAttackAction.ConditionDelegate.BindUObject(this, &ThisClass::MeleeAttackCondition);
@@ -180,7 +181,7 @@ void ANpcFriendly::CreateBehaviours()
 	BuildTask.Actions.Add(&TargetNearestBuildingAction);
 	BuildTask.Actions.Add(&MoveToAction);
 	BuildTask.Actions.Add(&MeleeAttackAction);
-	
+	HtnDomain->AssignTask(&BuildTask);
 	
 	// Melee Attack
 	MeleeAttackTask.OnStartedDelegate.BindUObject(this, &ThisClass::SetMeleeParams);
@@ -320,7 +321,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		Actions.Add(Action);
 	}
 	
-	if (CharacterClass != ECharacterType::Peasant && !bIsPartyMember)
+	if ((CharacterClass != ECharacterType::Peasant || CharacterClass != ECharacterType::Builder) && !bIsPartyMember)
 	{ // join party
 		UListItemObject* Action = NewObject<UListItemObject>();
 		const int Size =  NpcManager->GetPlayer()->PartySize;
@@ -493,6 +494,11 @@ void ANpcFriendly::ExitFormation()
 	EFCEase::OutQuad);
 }
 
+bool ANpcFriendly::IsCombatant() const
+{
+	return CharacterClass == ECharacterType::Fighter || CharacterClass == ECharacterType::Archer;
+}
+
 
 //*
 //* ACTIONS
@@ -526,7 +532,7 @@ void ANpcFriendly::MoveTimed(float DeltaTime)
 
 bool ANpcFriendly::MoveTimedCondition() const
 {
-	return bCanMove && !bIsPartyMember && !bIsNighttime/* && !bAssumedPosition*/;	
+	return bCanMove && !bIsPartyMember && !bIsNighttime/* && !bAssumedPosition*/ && !TargetActor;	
 }
 
 void ANpcFriendly::MoveTimedReset()
@@ -674,6 +680,11 @@ void ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 	else TargetNearestEnemyAction.State = EActionState::Failed;
 }
 
+bool ANpcFriendly::TargetNearestEnemyCondition() const
+{
+	return bEnabled_MeleeAttack && IsCombatant();
+}
+
 void ANpcFriendly::TargetFarthestTower(float DeltaTime)
 {
 	TargetActor = BuildingsManager->GetFarthestBuilding(EBuildingType::Tower, MainSide);
@@ -682,6 +693,10 @@ void ANpcFriendly::TargetFarthestTower(float DeltaTime)
 	
 	if (TargetActor != nullptr) TargetFarthestTowerAction.State = EActionState::Succeeded;
 	else TargetFarthestTowerAction.State = EActionState::Failed;
+	
+	// start cooldown
+	bEnabled_TargetTower = false;
+	CooldownTimer_TargetTower = 0;
 }
 
 bool ANpcFriendly::TargetFarthestTowerCondition() const
@@ -693,18 +708,17 @@ void ANpcFriendly::TargetNearestBuilding(float DeltaTime)
 {
 	TargetActor = BuildingsManager->GetNearestBuilding(GetActorLocation(), EBuildingType::Wall, MainSide, true);
 	
-	if (!TargetActor)
-	{
-		TargetNearestBuildingAction.State = EActionState::Failed;
-		return;
-	}
+	if (!TargetActor) TargetNearestBuildingAction.State = EActionState::Failed;
+	else TargetNearestBuildingAction.State = EActionState::Succeeded;
 	
-	TargetNearestBuildingAction.State = EActionState::Succeeded;
+	// start cooldown
+	bEnabled_TargetBuilding = false; 
+	CooldownTimer_TargetBuilding = 0;
 }
 
 bool ANpcFriendly::TargetBuildingCondition() const
 {
-	return bEnabled_TargetBuilding && !bIsNighttime && CharacterClass == ECharacterType::Builder;
+	return bEnabled_TargetBuilding && !bIsNighttime && !IsCombatant();
 }
 
 void ANpcFriendly::MeleeAttack(float DeltaTime)
@@ -731,7 +745,7 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	FDamagePatch DamagePatch = Stats->GetDamagePatch();
 
 	// 2. OVERRIDE specific fields
-	DamagePatch.NormalDamage = 5.f;
+	DamagePatch.NormalDamage = CharacterClass == ECharacterType::Builder? -20.f : 5.0f;
 	DamagePatch.ProficiencyDamageType = 0.f;
 
 	// 3. APPLY to target by unpacking struct fields
@@ -755,6 +769,22 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	);
 
 
+	if (CharacterClass == ECharacterType::Builder)
+	{
+		const ABuilding* Building = Cast<ABuilding>(TargetActor);
+		if (Building && Building->IsDamaged())
+		{
+			MeleeAttackAction.State = EActionState::InProgress;
+			
+			// start the cooldown
+			CooldownTimer_MeleeAttack = 0;
+			bEnabled_MeleeAttack = false;
+			return;
+		}
+		
+		bIsBuilding = false;
+	}
+	
 	MeleeAttackAction.State = EActionState::Succeeded;
 	
 	// start the cooldown
@@ -949,8 +979,7 @@ void ANpcFriendly::GetDefensePosition(float DeltaTime)
 
 bool ANpcFriendly::GetDefensePositionCondition() const
 {
-	return (CharacterClass == ECharacterType::Fighter || CharacterClass == ECharacterType::Archer) 
-			&& !bIsPartyMember && !bAssumedPosition && bIsNighttime;
+	return IsCombatant() && !bIsPartyMember && !bAssumedPosition && (bIsNighttime||bRaid);
 }
 
 void ANpcFriendly::OnAssumedDefensePosition(float DeltaTime)
