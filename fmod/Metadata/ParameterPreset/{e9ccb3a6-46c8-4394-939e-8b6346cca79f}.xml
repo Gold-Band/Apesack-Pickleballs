@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{e9ccb3a6-46c8-4394-939e-8b6346cca79f}">
+		<property name="name">
+			<value>Enemy-Track-Drone</value>
+		</property>
+		<relationship name="folder">
+			<destination>{fe5ba1b5-9170-47b5-aed7-f79ca05ac47c}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{02491ba5-cbbd-4e53-82bc-96b36a358e99}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{02491ba5-cbbd-4e53-82bc-96b36a358e99}">
+		<property name="initialValue">
+			<value>1</value>
+		</property>
+	</object>
+</objects>
