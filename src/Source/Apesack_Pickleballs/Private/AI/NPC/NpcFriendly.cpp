@@ -741,11 +741,34 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 		bEnabled_MeleeAttack = false;
 		return;		
 	}
+	
+	if (CharacterClass == ECharacterType::Builder)
+	{
+		const ABuilding* Building = Cast<ABuilding>(TargetActor);
+		if (Building && Building->IsDamaged())
+		{
+			Stats->HealPatch(20);
+			
+			MeleeAttackAction.State = EActionState::InProgress;
+			
+			// start the cooldown
+			CooldownTimer_MeleeAttack = 0;
+			bEnabled_MeleeAttack = false;
+			return;
+		}
+		TargetActor = nullptr;
+		MeleeAttackAction.State = EActionState::Succeeded;
+		// start the cooldown
+		CooldownTimer_MeleeAttack = 0;
+		bEnabled_MeleeAttack = false;
+		return;
+	}
+	
 	// 1. GET stats as struct
 	FDamagePatch DamagePatch = Stats->GetDamagePatch();
 
 	// 2. OVERRIDE specific fields
-	DamagePatch.NormalDamage = CharacterClass == ECharacterType::Builder? -20.f : 5.0f;
+	DamagePatch.NormalDamage = 5.0f;
 	DamagePatch.ProficiencyDamageType = 0.f;
 
 	// 3. APPLY to target by unpacking struct fields
@@ -767,23 +790,6 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	    DamagePatch.MagicDamage,
 	    DamagePatch.DebuffDuration
 	);
-
-
-	if (CharacterClass == ECharacterType::Builder)
-	{
-		const ABuilding* Building = Cast<ABuilding>(TargetActor);
-		if (Building && Building->IsDamaged())
-		{
-			MeleeAttackAction.State = EActionState::InProgress;
-			
-			// start the cooldown
-			CooldownTimer_MeleeAttack = 0;
-			bEnabled_MeleeAttack = false;
-			return;
-		}
-		
-		bIsBuilding = false;
-	}
 	
 	MeleeAttackAction.State = EActionState::Succeeded;
 	

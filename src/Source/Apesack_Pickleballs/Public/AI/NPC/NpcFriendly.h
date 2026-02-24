@@ -193,7 +193,6 @@ protected:
 	void SetMeleeParams();
 	
 	bool bEnabled_MeleeAttack = true;
-	bool bIsBuilding = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Cooldown"))
 	float Cooldown_MeleeAttack = 0.75f;
