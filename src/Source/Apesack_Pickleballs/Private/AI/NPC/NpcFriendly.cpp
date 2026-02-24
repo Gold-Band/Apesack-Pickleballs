@@ -40,6 +40,21 @@ void ANpcFriendly::Tick(float DeltaSeconds)
 		bEnabled_RangedAttack = true;
 	}
 	
+	// Target building cooldown
+	if (bEnabled_TargetBuilding && 
+		(CooldownTimer_TargetBuilding += DeltaSeconds) >= Cooldown_TargetBuilding)
+	{
+		bEnabled_TargetBuilding = true;
+	}
+	
+	// Target tower cooldown
+	if (bEnabled_TargetTower && 
+		(CooldownTimer_TargetTower += DeltaSeconds) >= Cooldown_TargetTower)
+	{
+		bEnabled_TargetTower = true;
+	}
+	
+	
 	// Follow Player Cooldown
 	/*if (bIsPartyMember && 
 		!bEnabled_FollowPlayer &&
@@ -120,6 +135,10 @@ void ANpcFriendly::BindActions()
 	TargetFarthestTowerAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetFarthestTowerCondition);
 	TargetFarthestTowerAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetFarthestTower);
 	
+	// Targeting - building
+	TargetNearestBuildingAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetBuildingCondition);
+	TargetNearestBuildingAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetNearestBuilding);
+	
 	// Occupy Tower
 	OccupyTowerAction.ConditionDelegate.BindUObject(this, &ThisClass::OccupyTowerCondition);
 	OccupyTowerAction.ExecutionDelegate.BindUObject(this, &ThisClass::OccupyTower);
@@ -157,10 +176,15 @@ void ANpcFriendly::CreateBehaviours()
 	DefendWallTask.Actions.Add(&OnAssumedDefensePositionAction);
 	HtnDomain->AssignTask(&DefendWallTask);
 	
+	// Build
+	BuildTask.Actions.Add(&TargetNearestBuildingAction);
+	BuildTask.Actions.Add(&MoveToAction);
+	BuildTask.Actions.Add(&MeleeAttackAction);
+	
+	
 	// Melee Attack
 	MeleeAttackTask.OnStartedDelegate.BindUObject(this, &ThisClass::SetMeleeParams);
 	MeleeAttackTask.Actions.Add(&TargetNearestEnemyAction);
-	//MeleeAttackTask.Actions.Add(&MoveToAction);
 	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
 	HtnDomain->AssignTask(&MeleeAttackTask);
 	
@@ -287,11 +311,11 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 	if (CharacterClass != ECharacterType::Builder)
 	{ // set builder
 		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Builder (Coming Soon!)"));
+		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
 		Action->ContextActor = this;
 		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Builder;};
 		Action->OnActionCalledFunction = Func;
-		Action->bDisable = true;
+		Action->bDisable = false;
 		Action->Cost = 2;
 		Actions.Add(Action);
 	}
@@ -665,6 +689,24 @@ bool ANpcFriendly::TargetFarthestTowerCondition() const
 	return BuildingsManager->DoVacantTowersExist(MainSide); // problem
 }
 
+void ANpcFriendly::TargetNearestBuilding(float DeltaTime)
+{
+	TargetActor = BuildingsManager->GetNearestBuilding(GetActorLocation(), EBuildingType::Wall, MainSide, true);
+	
+	if (!TargetActor)
+	{
+		TargetNearestBuildingAction.State = EActionState::Failed;
+		return;
+	}
+	
+	TargetNearestBuildingAction.State = EActionState::Succeeded;
+}
+
+bool ANpcFriendly::TargetBuildingCondition() const
+{
+	return bEnabled_TargetBuilding && !bIsNighttime && CharacterClass == ECharacterType::Builder;
+}
+
 void ANpcFriendly::MeleeAttack(float DeltaTime)
 {
 	if (!TargetActor || !Stats)
@@ -724,7 +766,7 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 
 bool ANpcFriendly::MeleeAttackCondition() const
 {
-	return CharacterClass == ECharacterType::Fighter && bEnabled_MeleeAttack;
+	return bEnabled_MeleeAttack && (CharacterClass == ECharacterType::Fighter || CharacterClass == ECharacterType::Builder);
 }
 
 void ANpcFriendly::SetMeleeParams()

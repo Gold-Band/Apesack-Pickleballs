@@ -150,6 +150,7 @@ protected:
 	void CopyPlayerMovement(float Direction, float Speed);
 	
 	bool bEnabled_FollowPlayer = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Cooldown"))
 	float Cooldown_FollowPlayer = 0.2f;
 	float CooldownTimer_FollowPlayer;
 	
@@ -165,6 +166,22 @@ protected:
 	FAction TargetFarthestTowerAction{FString("Target Tower")};
 	void TargetFarthestTower(float DeltaTime);
 	bool TargetFarthestTowerCondition() const;
+	bool bEnabled_TargetTower = true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Tower", meta=(DisplayName="Cooldown"))
+	float Cooldown_TargetTower = 1;
+	
+	float CooldownTimer_TargetTower;
+	
+	//* Target Building *//
+	FAction TargetNearestBuildingAction{FString("Target Building")};
+	void TargetNearestBuilding(float DeltaTime);
+	bool TargetBuildingCondition() const;
+	bool bEnabled_TargetBuilding = true;
+	float CooldownTimer_TargetBuilding;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Buildings", meta=(DisplayName="Cooldown"))
+	float Cooldown_TargetBuilding = 1;
 	
 	//* Melee Attack *//
 	FAction MeleeAttackAction{FString("Attack")};

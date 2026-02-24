@@ -117,6 +117,40 @@ AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide S
 	return SearchArray->Last();
 }
 
+AActor* UBuildingsManager::GetNearestBuilding(const FVector& FromLocation, EBuildingType Type, EOriginSide Side, bool bDamaged)
+{
+	TArray<ABuilding*>* SearchArray;
+	
+	if (Type == EBuildingType::Wall)
+	{
+		if (Side == EOriginSide::Left) SearchArray = &LeftWalls;
+		else SearchArray = &RightWalls;
+	}
+	else
+	{
+		if (Side == EOriginSide::Left) SearchArray = &LeftTowers;
+		else SearchArray = &RightTowers;
+	}
+	
+	if (SearchArray->IsEmpty()) return nullptr;
+	
+	// get closest
+	AActor* FoundActor = nullptr;
+	float ShortestDistance = UE_MAX_FLT;
+	for (auto Building: *SearchArray)
+	{
+		const float FastDist = FVector::DistSquared(FromLocation, Building->GetActorLocation());
+		if (FastDist < ShortestDistance && (!bDamaged || (bDamaged && Building->IsDamaged())))
+		{
+			ShortestDistance = FastDist;
+			FoundActor = Building;
+		}
+	}
+	
+	return FoundActor;
+	
+}
+
 bool UBuildingsManager::DoVacantTowersExist(EOriginSide Side) const
 {
 	const TArray<ABuilding*>* SearchArray;

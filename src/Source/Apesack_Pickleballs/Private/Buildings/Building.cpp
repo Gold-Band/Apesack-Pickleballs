@@ -1,4 +1,6 @@
 #include "Buildings/Building.h"
+
+#include "StatsComponent.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Managers/BuildingsManager.h"
 
@@ -27,6 +29,12 @@ int ABuilding::GetBuildCost() const
 	return BuildCost;
 }
 
+bool ABuilding::IsDamaged() const
+{
+	if (!Stats) return false;
+	return Stats->GetHealth() < Stats->GetMaxHealth();
+}
+
 void ABuilding::BeginPlay()
 {
 	Super::BeginPlay();
@@ -35,6 +43,8 @@ void ABuilding::BeginPlay()
 	BuildingSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right; 
 	
 	UBuildingsManager::Get(GetWorld())->AddBuilding(this, BuildingType, BuildingSide);
+	
+	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 }
 
 void ABuilding::EndPlay(const EEndPlayReason::Type EndPlayReason)
