@@ -33,8 +33,7 @@ void ANpc::Tick(float DeltaSeconds)
 	if (GetSideCheckCondition() && (GetSideTimer += DeltaSeconds) >= GetSideInterval)
 	{
 		GetSideTimer = 0;
-		const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
-		MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
+		MainSide = ADefaultGameMode::GetActorSideFromOrigin(this); 
 	}
 }
 

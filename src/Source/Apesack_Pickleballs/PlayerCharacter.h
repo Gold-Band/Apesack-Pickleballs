@@ -5,6 +5,7 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
+class ADefaultGameMode;
 enum class EOriginSide : uint8;
 class UStatsComponent;
 class UCameraComponent;
@@ -30,8 +31,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool SpendCoins(int requestedCoins);
 	
-	virtual void Tick(float DeltaTime) override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -45,6 +44,12 @@ public:
 	TArray<bool> PartyOrder{false, false, false, false};
 	int PartySize = 0;
 	
+	
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
+	bool bInWorldBoundary = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Character Properties")
+	bool bRecalculateSide = false;
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -64,7 +69,11 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EOriginSide GetActorSide(AActor* Actor) const;
 	
+	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
+	EOriginSide MainSide;
+	
 private:
+	
 	FVector CharacterLastPosition;
 	
 	UPROPERTY(EditAnywhere)

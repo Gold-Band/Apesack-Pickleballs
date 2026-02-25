@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ActorPool.h"
 #include "GameFramework/GameModeBase.h"
+#include "Managers/BuildingsManager.h"
 #include "WorldClock/WorldClockSubsystem.h"
 #include "DefaultGameMode.generated.h"
 
@@ -27,6 +28,9 @@ public:
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
 	static float GetDistanceToOrigin(const FVector& FromLocation);
+	
+	static EOriginSide GetActorSideFromOrigin(const AActor* Actor, float& OutAngle);
+	static EOriginSide GetActorSideFromOrigin(const AActor* Actor);
 	
 	static FVector WorldOriginNormal;
 	
