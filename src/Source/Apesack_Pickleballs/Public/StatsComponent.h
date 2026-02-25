@@ -45,7 +45,9 @@ class APESACK_PICKLEBALLS_API UStatsComponent : public UActorComponent
 public:
 	UStatsComponent();
 	
-
+UFUNCTION(BlueprintImplementableEvent, Category="Damage")
+void HealPatch(float HealAmount);
+	
 UFUNCTION(BlueprintImplementableEvent, Category="Damage")
 void ApplyDamagePatch(
 	AActor* Instigator,

@@ -12,7 +12,8 @@ UENUM(BlueprintType, Blueprintable)
 enum class EBuildingType : uint8
 {
 	Wall,
-	Tower
+	Tower,
+	Any
 };
 
 UENUM(BlueprintType, Blueprintable)
@@ -49,6 +50,7 @@ public:
 	void RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType, EOriginSide Side);
 	
 	AActor* GetFarthestBuilding(EBuildingType Type, EOriginSide Side);
+	AActor* GetNearestBuilding(const FVector& FromLocation, EBuildingType Type, EOriginSide Side, bool bDamaged);
 	
 	bool DoVacantTowersExist(EOriginSide Side) const;
 	bool WallsExist(EOriginSide Side) const;

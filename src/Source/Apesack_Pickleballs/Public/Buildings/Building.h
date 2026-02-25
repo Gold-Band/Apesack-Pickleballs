@@ -6,6 +6,7 @@
 #include "Managers/BuildingsManager.h"
 #include "Building.generated.h"
 
+class UStatsComponent;
 class ADefaultGameMode;
 
 
@@ -25,8 +26,10 @@ public:
 	virtual FString GetActorName() const override final;
 	int GetBuildCost() const;
 	
+	bool IsDamaged() const;
+	
 protected:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="On Clicked"))
 	void OnActorClicked();
 	
 	virtual void BeginPlay() override;
@@ -46,4 +49,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, Category="Building Properties")
 	EOriginSide BuildingSide;
+	
+	UPROPERTY()
+	TObjectPtr<UStatsComponent> Stats;
 };

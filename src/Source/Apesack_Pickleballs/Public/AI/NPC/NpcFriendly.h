@@ -72,6 +72,8 @@ protected:
 	UFUNCTION()
 	void ExitFormation();
 	
+	bool IsCombatant() const;
+	
 	float AdditionalSpeed = 500;
 	
 	//**
@@ -150,6 +152,7 @@ protected:
 	void CopyPlayerMovement(float Direction, float Speed);
 	
 	bool bEnabled_FollowPlayer = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Cooldown"))
 	float Cooldown_FollowPlayer = 0.2f;
 	float CooldownTimer_FollowPlayer;
 	
@@ -158,6 +161,7 @@ protected:
 	//* Target Enemy *//
 	FAction TargetNearestEnemyAction{FString("Target Enemy")};
 	void TargetNearestEnemy(float DeltaTime);
+	bool TargetNearestEnemyCondition() const;
 	bool bRaid;
 	float TargetingDistance;
 	
@@ -165,6 +169,22 @@ protected:
 	FAction TargetFarthestTowerAction{FString("Target Tower")};
 	void TargetFarthestTower(float DeltaTime);
 	bool TargetFarthestTowerCondition() const;
+	bool bEnabled_TargetTower = true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Tower", meta=(DisplayName="Cooldown"))
+	float Cooldown_TargetTower = 1;
+	
+	float CooldownTimer_TargetTower;
+	
+	//* Target Building *//
+	FAction TargetNearestBuildingAction{FString("Target Building")};
+	void TargetNearestBuilding(float DeltaTime);
+	bool TargetBuildingCondition() const;
+	bool bEnabled_TargetBuilding = true;
+	float CooldownTimer_TargetBuilding;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Buildings", meta=(DisplayName="Cooldown"))
+	float Cooldown_TargetBuilding = 1;
 	
 	//* Melee Attack *//
 	FAction MeleeAttackAction{FString("Attack")};
@@ -174,7 +194,7 @@ protected:
 	
 	bool bEnabled_MeleeAttack = true;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Cooldown"))
 	float Cooldown_MeleeAttack = 0.75f;
 	
 	float CooldownTimer_MeleeAttack;
@@ -193,7 +213,7 @@ protected:
 	
 	bool bEnabled_RangedAttack = true;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Cooldown"))
 	float Cooldown_RangedAttack = 0.75f;
 	
 	float CooldownTimer_RangedAttack;
