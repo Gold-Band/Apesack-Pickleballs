@@ -747,7 +747,7 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 		const ABuilding* Building = Cast<ABuilding>(TargetActor);
 		if (Building && Building->IsDamaged())
 		{
-			Stats->HealPatch(20);
+			TargetStatComponent->HealPatch(20);
 			
 			MeleeAttackAction.State = EActionState::InProgress;
 			
