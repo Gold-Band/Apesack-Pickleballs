@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{36556a9b-1b61-403a-b23b-489894df6a24}">
+		<property name="name">
+			<value>Enemy-Track-High-String</value>
+		</property>
+		<relationship name="folder">
+			<destination>{fe5ba1b5-9170-47b5-aed7-f79ca05ac47c}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{4f847945-8da0-42c1-90d0-e2591a5212d0}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{4f847945-8da0-42c1-90d0-e2591a5212d0}">
+		<property name="initialValue">
+			<value>1</value>
+		</property>
+	</object>
+</objects>
