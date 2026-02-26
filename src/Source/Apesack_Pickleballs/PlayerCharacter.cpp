@@ -40,6 +40,7 @@ void APlayerCharacter::BeginPlay() {
 		Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
 		Stats->OnDamagedDelegate.AddUniqueDynamic(this, &ThisClass::OnDamaged);
 	}
+	
 }
 
 void APlayerCharacter::BeginDestroy() {
@@ -63,10 +64,6 @@ bool APlayerCharacter::SpendCoins(int requestedCoins) {
 	Coins -= requestedCoins;
 	PrintCoins();
 	return true;
-}
-
-void APlayerCharacter::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -119,15 +116,33 @@ void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
 
 void APlayerCharacter::Move(const FVector& Direction)
 {
-	if (MovementComp) {
-		if (bIsSprinting) {
-			MovementComp->MaxSpeed = DefaultSpeed * SprintMultiplier;
-
-			
-		} else {
-			MovementComp->MaxSpeed = DefaultSpeed;
+	if (!MovementComp) return;
+	
+	if (bIsSprinting) MovementComp->MaxSpeed = DefaultSpeed * SprintMultiplier;
+	else MovementComp->MaxSpeed = DefaultSpeed;
+	
+	
+	// did we detect an invisible wall?
+	if (bInWorldBoundary)
+	{
+		if (bRecalculateSide)
+		{
+			bRecalculateSide = false;
+			MainSide = ADefaultGameMode::GetActorSideFromOrigin(this);
+		}
+		
+		if (Direction.X > 0 && MainSide == EOriginSide::Right)
+		{
+			MovementComp->Velocity = FVector::Zero();
+			return;
+		}
+		if (Direction.X < 0 && MainSide == EOriginSide::Left)
+		{
+			MovementComp->Velocity = FVector::Zero();
+			return;
 		}
 	}
+
 	
 	AddMovementInput(Direction.X * GetActorForwardVector());
 	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Direction.X, MovementComp->MaxSpeed);

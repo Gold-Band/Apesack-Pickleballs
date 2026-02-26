@@ -33,6 +33,18 @@ float ADefaultGameMode::GetDistanceToOrigin(const FVector& FromLocation)
 	return GetAngleBetweenVectors(FromLocation, WorldOriginNormal);
 }
 
+EOriginSide ADefaultGameMode::GetActorSideFromOrigin(const AActor* Actor, float& OutAngle)
+{
+	OutAngle = GetDistanceToOrigin(Actor->GetActorLocation());
+	return OutAngle < 0? EOriginSide::Left : EOriginSide::Right;
+}
+
+EOriginSide ADefaultGameMode::GetActorSideFromOrigin(const AActor* Actor)
+{
+	const float angle = GetAngleBetweenVectors(Actor->GetActorLocation(), WorldOriginNormal);
+	return angle < 0? EOriginSide::Left : EOriginSide::Right;
+}
+
 // eventually change this into GetProjectile(EProjectileType type)
 AActor* ADefaultGameMode::GetArrow()
 {

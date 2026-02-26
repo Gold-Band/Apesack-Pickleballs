@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Buildings/Wall.h"
 
+#include "StatsComponent.h"
 #include "AI/HTN/ListItemObject.h"
 
 AWall::AWall()
@@ -15,12 +16,12 @@ AWall::AWall()
 
 TArray<UListItemObject*> AWall::GetActions()
 {
-	return Super::GetActions();
+	return TArray<UListItemObject*>{};
 }
 
 TArray<UListItemObject*> AWall::GetInfo() const
 {
-	/*TArray<UListItemObject*> Info{};
+	TArray<UListItemObject*> Info{};
 	
 	// hp
 	UListItemObject* HpInfo = NewObject<UListItemObject>();
@@ -28,6 +29,6 @@ TArray<UListItemObject*> AWall::GetInfo() const
 	
 	Info.Add(HpInfo);
 	
-	return Info;*/
-	return Super::GetInfo();
+	return Info;
+	//return TArray<UListItemObject*>{};
 }
