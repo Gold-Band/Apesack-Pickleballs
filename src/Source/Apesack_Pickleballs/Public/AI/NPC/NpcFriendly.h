@@ -125,7 +125,10 @@ protected:
 	void MoveToVector(float DeltaTime); // move to a point
 	void MoveToOffset(float DeltaTime); // move to an actor with an offset
 	bool MoveToCondition() const;
+	bool MoveToVectorCondition() const;
 	void MoveToReset();
+	void OnGotoCompleted();
+	bool bGotoLocation = false;
 	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
@@ -260,7 +263,7 @@ protected:
 	//**
 	FTask WanderTask{"Wander"};
 	FTask FollowTask{"Follow"};
-	
+	FTask GotoTask{"Goto"};
 	FTask MeleeAttackTask{"Melee Attack"};
 	FTask RangedAttackTask{"Ranged Attack"};
 	FTask BuildTask{"Build/Repair"};

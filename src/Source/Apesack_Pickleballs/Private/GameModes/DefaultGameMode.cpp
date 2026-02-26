@@ -45,6 +45,12 @@ EOriginSide ADefaultGameMode::GetActorSideFromOrigin(const AActor* Actor)
 	return angle < 0? EOriginSide::Left : EOriginSide::Right;
 }
 
+EOriginSide ADefaultGameMode::GetActorSideFrom(const AActor* FromActor, const AActor* OtherActor)
+{
+	const float angle = GetAngleBetweenVectors(OtherActor->GetActorLocation(), FromActor->GetActorLocation());
+	return angle < 0? EOriginSide::Left : EOriginSide::Right;
+}
+
 // eventually change this into GetProjectile(EProjectileType type)
 AActor* ADefaultGameMode::GetArrow()
 {

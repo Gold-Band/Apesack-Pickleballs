@@ -12,6 +12,7 @@ class FAction;
 
 DECLARE_DELEGATE(FResetSignature)
 DECLARE_DELEGATE(FOnStartedSignature)
+DECLARE_DELEGATE(FOnEndedSignature)
 
 class APESACK_PICKLEBALLS_API FTask
 {
@@ -34,6 +35,7 @@ public:
 	bool bResetOnFail = false;
 	
 	FOnStartedSignature OnStartedDelegate;
+	FOnEndedSignature OnEndedDelegate;
 	void OnTaskStarted();
 	
 private:

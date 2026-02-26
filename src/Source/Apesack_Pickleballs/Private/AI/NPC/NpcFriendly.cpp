@@ -114,7 +114,7 @@ void ANpcFriendly::BindActions()
 	MoveToAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveTo);
 	MoveToAction.ResetDelegate.BindUObject(this, &ThisClass::MoveToReset);
 	
-	MoveToVectorAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
+	MoveToVectorAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToVectorCondition);
 	MoveToVectorAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveToVector);
 	
 	MoveToOffsetAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetPlayerCondition);
@@ -167,9 +167,10 @@ void ANpcFriendly::BindActions()
 
 void ANpcFriendly::CreateBehaviours()
 {
-	
-	// goto safe zone
-	
+	// goto
+	GotoTask.Actions.Add(&MoveToVectorAction);
+	GotoTask.OnEndedDelegate.BindUObject(this, &ThisClass::OnGotoCompleted);
+	HtnDomain->AssignTask(&GotoTask);
 	
 	// defend wall
 	DefendWallTask.Actions.Add(&GetDefensePositionAction);
@@ -273,7 +274,6 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 {
 	TArray<UListItemObject*> Actions{};
 	
-	
 	if (CharacterClass != ECharacterType::Peasant)
 	{ // set peasant
 		UListItemObject* Action = NewObject<UListItemObject>();
@@ -351,17 +351,31 @@ void ANpcFriendly::OnClicked()
 	Super::OnClicked();
 
 	if (bIsPartyMember) return;
+
+	constexpr float NewRadius = 19050;
+	NewRadiusTween(NewRadius);
 	
-	bCanMove = false;
+	const AActor* PlayerCharacter = NpcManager->GetPlayer();
 	
-	// lerp to the foreground (in front of the player)
-	NewRadiusTween(19050);
+	const EOriginSide Side = ADefaultGameMode::GetActorSideFrom(PlayerCharacter, this);
+	if (Side == EOriginSide::Left) OffsetAngle = 0.3f;
+	else if (Side == EOriginSide::Right) OffsetAngle = -0.3f;
+	TargetLocation = PlayerCharacter->GetActorLocation().RotateAngleAxis(OffsetAngle, FVector::UpVector).GetClampedToSize2D(NewRadius,NewRadius);
+	
+	bCanMove = true;
+	bGotoLocation = true; // flag to run GotoTask
 }
 
 void ANpcFriendly::OnClickedAway()
 {
-	bCanMove = true;
+	if (bIsPartyMember) return;
+	
 	NewRadiusTween();
+	GotoTask.Reset();
+	TargetLocation = GetActorLocation();
+	
+	bCanMove = true;
+	bGotoLocation = false;
 }
 
 void ANpcFriendly::OnNightStarted()
@@ -409,6 +423,7 @@ bool ANpcFriendly::GetSideCheckCondition()
 
 void ANpcFriendly::JoinParty()
 {
+	bCanMove = true;
 	bIsPartyMember = true;
 	
 	DefendWallTask.Reset();
@@ -449,19 +464,6 @@ void ANpcFriendly::LeaveParty()
 	NpcManager->GetPlayer()->PartyOrder[PartyIndex]= false;
 	
 	FollowTask.Reset();
-	
-	/*float NewRadius = 19000 + FMath::RandRange(-100, 10);
-	
-	// Lerp Radius to NewRadius
-	FCTween::Play(
-	MovementComp->Radius, NewRadius,
-	[&](const float& r)
-	{
-		if (!this) return;
-		MovementComp->Radius = r;
-	},
-	0.3f,
-	EFCEase::OutQuad);*/
 	
 	NewRadiusTween();
 }
@@ -508,15 +510,7 @@ void ANpcFriendly::ExitFormation()
 	else if (PartyIndex == 3) OffsetAngle = -0.45f;
 	
 	// Lerp Radius to NewRadius
-	FCTween::Play(
-	MovementComp->Radius, NewRadius,
-	[&](const float& r)
-	{
-		if (!this) return;
-		MovementComp->Radius = r;
-	},
-	0.3f,
-	EFCEase::OutQuad);
+	NewRadiusTween(NewRadius);
 }
 
 bool ANpcFriendly::IsCombatant() const
@@ -673,10 +667,22 @@ bool ANpcFriendly::MoveToCondition() const
 	return bCanMove == true;
 }
 
+bool ANpcFriendly::MoveToVectorCondition() const
+{
+	return MoveToCondition() && bGotoLocation;
+}
+
 void ANpcFriendly::MoveToReset()
 {
 	Timer = RaycastInterval;
 	TargetActor = nullptr;
+}
+
+void ANpcFriendly::OnGotoCompleted()
+{
+	UE_LOG(LogTemp,Warning,TEXT("Goto completed"))
+	bGotoLocation = false;
+	bCanMove = false;
 }
 
 bool ANpcFriendly::TargetPlayerCondition() const
@@ -996,7 +1002,6 @@ void ANpcFriendly::GetDefensePosition(float DeltaTime)
 
 	const float MaxDistance = 0.5f + ExtraDistancePerPerson * (NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide).Num()/2); 
 	TargetLocation = WallToDefend->GetActorLocation().RotateAngleAxis(FMath::RandRange(MinDistance, MaxDistance), RotateAxis).GetUnsafeNormal2D() * MovementComp->Radius;
-	
 	if (bPrintDebug_DefendWall)
 	{
 		const FVector Min = WallToDefend->GetActorLocation().RotateAngleAxis(MinDistance, RotateAxis);
@@ -1005,6 +1010,7 @@ void ANpcFriendly::GetDefensePosition(float DeltaTime)
 		DrawDebugLine(GetWorld(), Max, Max + FVector::UpVector * 100.0f, FColor::Yellow, false, 5.f);
 	}
 	
+	bGotoLocation = true;
 	GetDefensePositionAction.State = EActionState::Succeeded;
 }	
 
@@ -1015,6 +1021,7 @@ bool ANpcFriendly::GetDefensePositionCondition() const
 
 void ANpcFriendly::OnAssumedDefensePosition(float DeltaTime)
 {
+	bGotoLocation = false;
 	bAssumedPosition = true;
 	OnAssumedDefensePositionAction.State = EActionState::Succeeded;
 }

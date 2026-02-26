@@ -31,6 +31,7 @@ public:
 	
 	static EOriginSide GetActorSideFromOrigin(const AActor* Actor, float& OutAngle);
 	static EOriginSide GetActorSideFromOrigin(const AActor* Actor);
+	static EOriginSide GetActorSideFrom(const AActor* FromActor, const AActor* OtherActor);
 	
 	static FVector WorldOriginNormal;
 	

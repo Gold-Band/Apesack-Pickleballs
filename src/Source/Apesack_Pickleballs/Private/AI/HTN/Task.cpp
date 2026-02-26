@@ -57,11 +57,16 @@ void FTask::Run(float DeltaTime)
 {
 	if (bTaskFirst) OnTaskStarted();
 	
-	if (!Actions.IsValidIndex(Progress) || AutoResetCondition()) Reset();
+	if (AutoResetCondition()) Reset();
+	
+	if (!Actions.IsValidIndex(Progress))
+	{
+		Reset();
+		OnEndedDelegate.ExecuteIfBound();
+	}
 	
 	FAction* CurrentAction = Actions[Progress];
 	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Executing \"%s\" (from %s)"), *CurrentAction->GetName(), *Name);
-	
 	
 	CurrentAction->ExecutionDelegate.Execute(DeltaTime);
 	
