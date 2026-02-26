@@ -49,6 +49,8 @@ protected:
 public:
 	virtual TArray<UListItemObject*> GetInfo() const override;
 	virtual TArray<UListItemObject*> GetActions() override;
+	virtual void OnClicked() override;
+	virtual void OnClickedAway() override;
 	
 private:
 	UFUNCTION()
@@ -62,6 +64,8 @@ private:
 	UPROPERTY()
 	UBuildingsManager* BuildingsManager;
 
+	void NewRadiusTween(float NewRadius = 19000 + FMath::RandRange(-100, 10));
+	
 protected:
 	virtual void OnDeath_Implementation() override;
 	virtual bool GetSideCheckCondition() override;

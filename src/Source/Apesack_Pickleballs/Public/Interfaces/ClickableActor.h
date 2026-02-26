@@ -31,6 +31,9 @@ public:
 	virtual void OnClicked();
 	
 	UFUNCTION(BlueprintCallable)
+	virtual void OnClickedAway();
+	
+	UFUNCTION(BlueprintCallable)
 	virtual FString GetActorName() const;
 	
 	UFUNCTION(BlueprintCallable)

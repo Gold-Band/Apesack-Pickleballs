@@ -13,6 +13,11 @@ void IClickableActor::OnClicked()
 
 }
 
+void IClickableActor::OnClickedAway()
+{
+	
+}
+
 // Add default functionality here for any IClickableActor functions that are not pure virtual.
 FString IClickableActor::GetActorName() const
 {

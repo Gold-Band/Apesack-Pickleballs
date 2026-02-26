@@ -346,6 +346,24 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 	return Actions;
 }
 
+void ANpcFriendly::OnClicked()
+{
+	Super::OnClicked();
+
+	if (bIsPartyMember) return;
+	
+	bCanMove = false;
+	
+	// lerp to the foreground (in front of the player)
+	NewRadiusTween(19050);
+}
+
+void ANpcFriendly::OnClickedAway()
+{
+	bCanMove = true;
+	NewRadiusTween();
+}
+
 void ANpcFriendly::OnNightStarted()
 {
 	bIsNighttime = true;	
@@ -363,6 +381,19 @@ void ANpcFriendly::OnRaidDetected(EOriginSide Side)
 	if (Side != MainSide) return;
 	bRaid = true;
 	// code
+}
+
+void ANpcFriendly::NewRadiusTween(float NewRadius)
+{
+	FCTween::Play(
+	MovementComp->Radius, NewRadius,
+	[&](const float& r)
+	{
+		if (!this) return;
+		MovementComp->Radius = r;
+	},
+	0.3f,
+	EFCEase::OutQuad);
 }
 
 void ANpcFriendly::OnDeath_Implementation()
@@ -419,7 +450,7 @@ void ANpcFriendly::LeaveParty()
 	
 	FollowTask.Reset();
 	
-	float NewRadius = 19000 + FMath::RandRange(-100, 10);
+	/*float NewRadius = 19000 + FMath::RandRange(-100, 10);
 	
 	// Lerp Radius to NewRadius
 	FCTween::Play(
@@ -430,7 +461,9 @@ void ANpcFriendly::LeaveParty()
 		MovementComp->Radius = r;
 	},
 	0.3f,
-	EFCEase::OutQuad);
+	EFCEase::OutQuad);*/
+	
+	NewRadiusTween();
 }
 
 void ANpcFriendly::EnterFormation(EOriginSide Side)
@@ -458,15 +491,7 @@ void ANpcFriendly::EnterFormation(EOriginSide Side)
 	}
 	
 	// Lerp Radius to NewRadius
-	FCTween::Play(
-	MovementComp->Radius, NewRadius,
-	[&](const float& r)
-	{
-		if (!this) return;
-		MovementComp->Radius = r;
-	},
-	0.3f,
-	EFCEase::OutQuad);
+	NewRadiusTween(NewRadius);
 }
 
 void ANpcFriendly::ExitFormation()
