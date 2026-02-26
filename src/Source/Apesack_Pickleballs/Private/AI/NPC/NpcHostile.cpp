@@ -6,6 +6,7 @@
 #include "GameModes/DefaultGameMode.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Managers/NpcManager.h"
+#include "Movement/CircularPawnMovementComponent.h"
 
 // Sets default values
 ANpcHostile::ANpcHostile()
@@ -39,8 +40,8 @@ void ANpcHostile::BeginPlay()
 	
 	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
 	
-	IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
-	IgnoreActors.Add(this);
+	//IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
+	//IgnoreActors.Add(this);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -134,7 +135,7 @@ void ANpcHostile::MoveTo(float DeltaTime)
 	}
 	
 	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation()); // this crashes sometimes on first tick
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation().GetClampedToMaxSize2D(MovementComp->Radius)); // this crashes sometimes on first tick
 	if (DistanceSquared <= StartRaycastingDistanceSquared && MoveToTimer >= RaycastInterval)
 	{
 		MoveToTimer = 0;
@@ -142,9 +143,9 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			GetWorld(), // world
 			GetActorLocation(), // start 
 			TargetActor->GetActorLocation(), // end 
-			UEngineTypes::ConvertToTraceType(ECC_Visibility), // channel
+			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), // channel
 			false,
-			IgnoreActors, // ignore 
+			TArray<AActor*>{}, // ignore 
 			bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
 			HitResults,
 			true);

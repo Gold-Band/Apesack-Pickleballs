@@ -425,6 +425,7 @@ void ANpcFriendly::JoinParty()
 {
 	bCanMove = true;
 	bIsPartyMember = true;
+	bGotoLocation = false;
 	
 	DefendWallTask.Reset();
 	
@@ -571,7 +572,7 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 	}
 	
 	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation());
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation().GetClampedToMaxSize2D(MovementComp->Radius));
 	if (Timer >= RaycastInterval && DistanceSquared <= StartRaycastingDistanceSquared)
 	{
 		Timer = 0;
