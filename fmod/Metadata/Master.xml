@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.03.00">
 	<object class="MixerMaster" id="{0346ebd8-3ae1-4650-9b0f-d72cf7840232}">
+		<relationship name="masters">
+			<destination>{022145a2-a75a-4536-a931-c6a68e414a9c}</destination>
+		</relationship>
 		<relationship name="effectChain">
 			<destination>{3830b6ae-bc92-4286-8861-fc23f955afec}</destination>
 		</relationship>
