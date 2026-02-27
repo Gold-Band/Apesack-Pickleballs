@@ -47,6 +47,7 @@ protected:
 	FAction SummoningAction{"SummonEnemies"};
 	void SummonEnemies(float DeltaTime);
 	bool SummonCondition();
+	bool IsRitualTime();
 	
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="Summon Enemies"))
 	void SummonEnemiesEvent();
@@ -60,6 +61,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
 	int RitualStartHour = 20; 
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
+	int RitualBaseQty = 1;
 	
-	UWorldClockSubsystem* WorldClockSubsystem;
+	int RitualQty;
+	
+	bool bRitualStarted = false;
+	
+	UPROPERTY()
+	TObjectPtr<UWorldClockSubsystem> WorldClockSubsystem;
+	
 };
