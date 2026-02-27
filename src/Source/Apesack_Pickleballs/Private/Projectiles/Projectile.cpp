@@ -24,10 +24,8 @@ void AProjectile::Tick(float DeltaTime)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Traveling"))
 		// raycast and move
-		
 		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * FMath::RandRange(AppliedForce*0.5f, AppliedForce*2.f);
 		const FVector CurrentPos = GetActorLocation();
-		//const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel2);
 		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes{EObjectTypeQuery::ObjectTypeQuery7};
 		FHitResult Hit;
 		if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),CurrentPos, NextPos, ObjectTypes, false, TArray<AActor*>{}, EDrawDebugTrace::None,Hit,true))
@@ -92,8 +90,6 @@ bool AProjectile::LaunchAt(const FVector& StartLocation,
 	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
 	Params.CollisionRadius = 0;
 	Params.bAcceptClosestOnNoSolutions = false;
-	//Params.ResponseParam.CollisionResponse.SetAllChannels(ECR_Ignore);
-	//Params.ResponseParam.CollisionResponse.SetResponse(ECC_WorldStatic,ECR_Block);
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
 		bPathSucceeded = false;
