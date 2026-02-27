@@ -133,12 +133,10 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 		if (InstigatorActor) UE_LOG(LogTemp, Warning, TEXT("Hit by = %s"), *InstigatorActor->GetActorNameOrLabel());
 	}
 	
-	int InstigatorDirection = 1;
-	if (InstigatorActor)
-	{
-		float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), InstigatorActor->GetActorLocation());
-		if (Angle > 0) InstigatorDirection = -1;
-	}
+	if (!InstigatorActor) return;
+
+	const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), InstigatorActor->GetActorLocation());
+	const int InstigatorDirection = Angle>0? -1 : 1;
 	
 	
 	const float KnockDistance = DamageType == 1? MeleeKnockbackParams.KnockedDistance : RangedKnockbackParams.KnockedDistance;
