@@ -39,7 +39,7 @@ private:
 
 	
 protected:
-	TArray<AActor*> IgnoreActors;
+	//TArray<AActor*> IgnoreActors;
 	
 	//**
 	//** My Tasks

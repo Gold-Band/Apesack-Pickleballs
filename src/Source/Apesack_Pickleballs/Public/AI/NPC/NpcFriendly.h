@@ -120,7 +120,7 @@ protected:
 	//* Move To *//
 	FAction MoveToAction{FString("Move To")};
 	FAction MoveToVectorAction{FString("Move To Vector")};
-	FAction MoveToOffsetAction{FString("Move To Vector")};
+	FAction MoveToOffsetAction{FString("Move To Offset")};
 	void MoveTo(float DeltaTime); // move to an actor
 	void MoveToVector(float DeltaTime); // move to a point
 	void MoveToOffset(float DeltaTime); // move to an actor with an offset
@@ -129,6 +129,7 @@ protected:
 	void MoveToReset();
 	void OnGotoCompleted();
 	bool bGotoLocation = false;
+	//float TotalDistance;
 	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
@@ -158,6 +159,7 @@ protected:
 	bool TargetPlayerCondition() const;
 	void CopyPlayerMovement(float Direction, float Speed);
 	
+	bool bCopyMovement = false;
 	bool bEnabled_FollowPlayer = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Targeting|Player", meta=(DisplayName="Cooldown"))
 	float Cooldown_FollowPlayer = 0.2f;

@@ -215,6 +215,7 @@ void ANpcFriendly::CreateBehaviours()
 	WanderTask.Actions.Add(&MoveTimedAction);
 	HtnDomain->AssignTask(&WanderTask);
 	
+	// adding the default Wait task
 	Super::CreateBehaviours();
 }
 
@@ -423,12 +424,28 @@ bool ANpcFriendly::GetSideCheckCondition()
 
 void ANpcFriendly::JoinParty()
 {
+	// enables Movement actions to run
 	bCanMove = true;
+	
+	// enables party related actions to run
 	bIsPartyMember = true;
 	
+	// dont allow copying of player movement yet
+	bCopyMovement = false;
+	
+	// if we were using GotoLocation, reset it
+	if (bGotoLocation)
+	{
+		GotoTask.Reset();
+		bGotoLocation = false;
+	}
+	
+	// if we were in defense position, reset that task
 	DefendWallTask.Reset();
 	
+	// makes MoveToOffset run
 	bEnabled_FollowPlayer = true;
+	
 	MainSide = EOriginSide::Any;
 	
 	NpcManager->GetPlayer()->PartySize++;
@@ -452,6 +469,7 @@ void ANpcFriendly::LeaveParty()
 	bIsPartyMember = false;
 	//NpcType = ENpcTag::Friendly;
 	bEnabled_FollowPlayer = false;
+	bCopyMovement = false;
 	
 	if (MovementComp) MovementComp->MaxSpeed = MoveSpeed;
 	
@@ -470,8 +488,12 @@ void ANpcFriendly::LeaveParty()
 
 void ANpcFriendly::EnterFormation(EOriginSide Side)
 {
+	if (!IsCombatant()) return;
+	
 	bAssumedPosition = false;
 	float NewRadius = MovementComp->Radius;
+	
+	//UE_LOG(LogTemp, Warning,TEXT("EnterFormation:%s"), Side==EOriginSide::Left?TEXT("Left"):TEXT("Right"))
 	
 	// Set radius
 	if (PartyIndex == 0) NewRadius = 19000;
@@ -571,7 +593,7 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 	}
 	
 	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation());
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation().GetClampedToMaxSize2D(MovementComp->Radius));
 	if (Timer >= RaycastInterval && DistanceSquared <= StartRaycastingDistanceSquared)
 	{
 		Timer = 0;
@@ -651,15 +673,29 @@ void ANpcFriendly::MoveToOffset(float DeltaTime)
 	TargetLocation = PlayerCharacter->GetActorLocation().RotateAngleAxis(OffsetAngle, FVector::UpVector).GetClampedToSize2D(MovementComp->Radius,MovementComp->Radius);
 	
 	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetLocation);
-	if (DistanceSquared <= StopDistance)
+	const float Distance = FVector::Dist2D(GetActorLocation(), TargetLocation);
+	//TotalDistance = FMath::Max(TotalDistance, Distance) + 10;
+	
+	if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("MoveOffset Distance = %f"), Distance);
+	
+	if (Distance < 5)
 	{
 		MoveToOffsetAction.State = EActionState::Succeeded;
+		
+		// start copying player movement
+		bCopyMovement = true;
+		
+		//TotalDistance = 0;
 		bAssumedPosition = true;
+		
 		return;
 	}
+		
+	constexpr float Speed = 4;
+	const float Alpha = Speed/Distance;
+	
 	// lerp to position with constant speed
-	if (DistanceSquared>0) SetActorLocation(FMath::Lerp(GetActorLocation(),TargetLocation, /*constant speed -> */ 10 / FMath::Sqrt(DistanceSquared)));
+	SetActorLocation(FMath::Lerp(GetActorLocation(),TargetLocation, FMath::Clamp(Alpha, 0,1)));
 }
 
 bool ANpcFriendly::MoveToCondition() const
@@ -687,11 +723,13 @@ void ANpcFriendly::OnGotoCompleted()
 
 bool ANpcFriendly::TargetPlayerCondition() const
 {
-	return MoveToCondition() && bIsPartyMember == true && bEnabled_FollowPlayer == true;
+	return MoveToCondition() && bIsPartyMember == true && bEnabled_FollowPlayer == true && !bAssumedPosition;
 }
 
 void ANpcFriendly::CopyPlayerMovement(float Direction, float Speed)
 {
+	if (!bCopyMovement) return;
+	
 	check(MovementComp);
 	MovementComp->MaxSpeed = Speed;
 	AddMovementInput(GetActorForwardVector(), Direction);
@@ -713,7 +751,7 @@ void ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 
 bool ANpcFriendly::TargetNearestEnemyCondition() const
 {
-	return bEnabled_MeleeAttack && IsCombatant();
+	return (bEnabled_MeleeAttack || bEnabled_RangedAttack) && IsCombatant();
 }
 
 void ANpcFriendly::TargetFarthestTower(float DeltaTime)
@@ -924,12 +962,8 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	Arrow->bDrawPathDebug = bPrintDebug_RangedAttack;
 
 	//* 3. Launch
-	TArray<AActor*> IgnoreActors =
-		NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide);
-	IgnoreActors.Add(this);
-	IgnoreActors.Add(NpcManager->GetPlayer());
 	
-	if (Arrow->LaunchAt(IgnoreActors,GetProjectileSpawnLocation(),TargetActor->GetActorLocation()))
+	if (Arrow->LaunchAt(GetProjectileSpawnLocation(),TargetActor->GetActorLocation()))
 	{
 		RangedAttackAction.State = EActionState::Succeeded;
 	}

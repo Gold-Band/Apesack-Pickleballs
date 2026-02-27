@@ -24,13 +24,11 @@ void AProjectile::Tick(float DeltaTime)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Traveling"))
 		// raycast and move
-		
 		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * FMath::RandRange(AppliedForce*0.5f, AppliedForce*2.f);
 		const FVector CurrentPos = GetActorLocation();
-		//const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel2);
-		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes{EObjectTypeQuery::ObjectTypeQuery7};
+		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes{EObjectTypeQuery::ObjectTypeQuery7}; // only collide with NpcHostile objects
 		FHitResult Hit;
-		if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),CurrentPos, NextPos, ObjectTypes, false, TArray<AActor*>{}/*ProjectileIgnoredActors*/, EDrawDebugTrace::None,Hit,true))
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),CurrentPos, NextPos, ObjectTypes, false, TArray<AActor*>{}, EDrawDebugTrace::None,Hit,true))
 		{
 			// hit - set next pos			
 			NextPos = Hit.ImpactPoint;
@@ -81,21 +79,17 @@ void AProjectile::Tick(float DeltaTime)
 	}
 }
 
-bool AProjectile::LaunchAt(const TArray<AActor*>& IgnoreActors, const FVector& StartLocation,
+bool AProjectile::LaunchAt(const FVector& StartLocation,
 	const FVector& TargetLocation, float Accuracy)
 {
 	bPathSucceeded = true;
 	
 	const float ProjectileSpeed = FMath::RandRange(Speed*0.8f, Speed*1.2f);
 	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, ProjectileSpeed};
-	//ProjectileIgnoredActors = Params.ActorsToIgnore = IgnoreActors;
-	//ProjectileIgnoredActors.Add(this);
 	Params.bDrawDebug = bDrawPathDebug;
 	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
 	Params.CollisionRadius = 0;
 	Params.bAcceptClosestOnNoSolutions = false;
-	Params.ResponseParam.CollisionResponse.SetAllChannels(ECR_Ignore);
-	Params.ResponseParam.CollisionResponse.SetResponse(ECC_WorldStatic,ECR_Block);
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
 		bPathSucceeded = false;
@@ -117,7 +111,6 @@ void AProjectile::Disable()
 	// reset
 	
 	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	SetLifeSpan(0.f);
 	bIsEnabled = false;
@@ -129,7 +122,6 @@ void AProjectile::Disable()
 void AProjectile::Enable()
 {
 	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
 	ToggleRibbon(true);
 	bIsEnabled = true;
