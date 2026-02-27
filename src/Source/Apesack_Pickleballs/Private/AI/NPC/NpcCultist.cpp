@@ -76,12 +76,32 @@ bool ANpcCultist::RunawayCondition() const
 
 void ANpcCultist::SummonEnemies(float DeltaTime)
 {
-	SummonEnemiesEvent();
+	if (IsRitualTime() && RitualQty-- > 0)
+	{
+		SummonEnemiesEvent();
+		SummoningAction.State = EActionState::Succeeded;
+		return;
+	}
 	
+	// otherwise, the player is probably invading
+	SummonEnemiesEvent();
 	SummoningAction.State = EActionState::Succeeded;
 }
 
 bool ANpcCultist::SummonCondition()
 {
-	return bSummonEnabled && ((WorldClockSubsystem? WorldClockSubsystem->GetHours() >= RitualStartHour : false) || bSummonEnemies);
+	return bSummonEnabled && (IsRitualTime() || bSummonEnemies);
+}
+
+bool ANpcCultist::IsRitualTime()
+{
+	const bool bIsRitualTime = (WorldClockSubsystem? WorldClockSubsystem->GetHours() >= RitualStartHour : false);
+	if (!bRitualStarted && bIsRitualTime)
+	{
+		bRitualStarted = true;
+		// on ritual started
+		RitualQty = RitualBaseQty + WorldClockSubsystem->GetDays();	
+	}
+	
+	return bIsRitualTime && RitualQty > 0;
 }
