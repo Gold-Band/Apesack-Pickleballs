@@ -242,7 +242,7 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 
 bool ANpcHostile::MeleeAttackCondition() const
 {
-	return NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide) != nullptr;
+	return /*NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide) != nullptr*/ true;
 }
 
 void ANpcHostile::TargetAttackable(float DeltaTime)
