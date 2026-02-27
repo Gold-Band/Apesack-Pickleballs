@@ -13,8 +13,6 @@ public:
 	// Sets default values
 	AArrow();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	// -------- Damage payload (inherited from AProjectile) --------
 };

@@ -30,7 +30,7 @@ void AProjectile::Tick(float DeltaTime)
 		//const ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel2);
 		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes{EObjectTypeQuery::ObjectTypeQuery7};
 		FHitResult Hit;
-		if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),CurrentPos, NextPos, ObjectTypes, false, TArray<AActor*>{}/*ProjectileIgnoredActors*/, EDrawDebugTrace::None,Hit,true))
+		if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),CurrentPos, NextPos, ObjectTypes, false, TArray<AActor*>{}, EDrawDebugTrace::None,Hit,true))
 		{
 			// hit - set next pos			
 			NextPos = Hit.ImpactPoint;
@@ -92,8 +92,8 @@ bool AProjectile::LaunchAt(const FVector& StartLocation,
 	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
 	Params.CollisionRadius = 0;
 	Params.bAcceptClosestOnNoSolutions = false;
-	Params.ResponseParam.CollisionResponse.SetAllChannels(ECR_Ignore);
-	Params.ResponseParam.CollisionResponse.SetResponse(ECC_WorldStatic,ECR_Block);
+	//Params.ResponseParam.CollisionResponse.SetAllChannels(ECR_Ignore);
+	//Params.ResponseParam.CollisionResponse.SetResponse(ECC_WorldStatic,ECR_Block);
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
 		bPathSucceeded = false;
@@ -115,7 +115,6 @@ void AProjectile::Disable()
 	// reset
 	
 	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	SetLifeSpan(0.f);
 	bIsEnabled = false;
@@ -127,7 +126,6 @@ void AProjectile::Disable()
 void AProjectile::Enable()
 {
 	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
 	ToggleRibbon(true);
 	bIsEnabled = true;
