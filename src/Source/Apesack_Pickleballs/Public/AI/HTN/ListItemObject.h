@@ -18,10 +18,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Data")
 	FText DisplayText;
 	
-	// function for a button
 	UPROPERTY()
 	const AActor* ContextActor;
 	
+	// function for a button
 	TFunction<void()> OnActionCalledFunction;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Data")
@@ -33,4 +33,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="Data")
 	bool bDisable;
 	
+	UPROPERTY(BlueprintReadWrite, Category="Data")
+	bool bCloseOnClicked = false;
 };
