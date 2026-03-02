@@ -26,12 +26,18 @@ FString IClickableActor::GetActorName() const
 
 TArray<UListItemObject*> IClickableActor::GetInfo() const 
 {
+#if WITH_EDITOR
 	UE_LOG(LogTemp, Warning, TEXT("Clickable Actor GetInfo() Not Overridden!"))
+#endif
+	
 	return TArray<UListItemObject*>();
 }
 
 TArray<UListItemObject*> IClickableActor::GetActions()
 {
+#if WITH_EDITOR
 	UE_LOG(LogTemp, Warning, TEXT("Clickable Actor GetActions() Not Overridden!"))
+#endif
+	
 	return TArray<UListItemObject*>();
 }

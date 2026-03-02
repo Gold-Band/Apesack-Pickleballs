@@ -65,7 +65,10 @@ void ANpcCultist::CreateBehaviours()
 
 void ANpcCultist::Runaway(float DeltaTime)
 {
+#if WITH_EDITOR
 	UE_LOG(LogTemp, Warning, TEXT("Runaway"));
+#endif
+	
 	RunawayAction.State = EActionState::Succeeded;
 }
 

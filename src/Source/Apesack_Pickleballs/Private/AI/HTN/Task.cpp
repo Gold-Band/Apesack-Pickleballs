@@ -66,14 +66,19 @@ void FTask::Run(float DeltaTime)
 	}
 	
 	FAction* CurrentAction = Actions[Progress];
+	
+#if WITH_EDITOR
 	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Executing \"%s\" (from %s)"), *CurrentAction->GetName(), *Name);
+#endif
 	
 	CurrentAction->ExecutionDelegate.Execute(DeltaTime);
 	
 	switch (CurrentAction->State)
 	{
 	case EActionState::Failed:
+#if WITH_EDITOR
 		if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\"!"), *Name, *CurrentAction->GetName());
+#endif
 		bFailed = true;
 		break;
 	case EActionState::Succeeded:
