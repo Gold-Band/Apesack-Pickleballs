@@ -42,27 +42,46 @@ static int GetTimeDifferenceSeconds(const FTimestamp& FromTime, const FTimestamp
 	const int ToSeconds = ToTime.Second + ToTime.Minute*60 + ToTime.Hour*3600 + ToTime.Day*86400;
 	return ToSeconds - FromSeconds;
 }
-
 void USunClockSynchronizer::SyncRotationToTime(const FTimestamp& Time)
 {
-	if (!bSyncToWorldClock) return;
-	
-	const int DeltaTime = GetTimeDifferenceSeconds(PreviousTime, Time);
-	TotalSecondsToday = (TotalSecondsToday + DeltaTime) % 86400;
+	if (!bSyncToWorldClock)
+		return;
+
 	AActor* Owner = GetOwner();
-	if (Owner && !RotationCurve.IsNull())
-	{
-		float SetAngle = RotationCurve.LoadSynchronous()->GetFloatValue(TotalSecondsToday/86400.0f) * 360.0f - 90.f;
-		
-		// Normalize axis
-		const FVector Axis = RotationAxis.GetSafeNormal();
+	if (!Owner || RotationCurve.IsNull())
+		return;
 
-		// Build a rotation quaternion
-		const FQuat NewQuat = FQuat(Axis, FMath::DegreesToRadians(SetAngle));
+	// --- Compute absolute normalized time (no accumulation drift) ---
+	const int DeltaTime = GetTimeDifferenceSeconds(PreviousTime, Time);
 
-		// Apply to actor
-		Owner->SetActorRotation(NewQuat);
-	}
+	TotalSecondsToday += DeltaTime;
+
+	// Prevent wrap snapping
+	if (TotalSecondsToday >= 86400)
+		TotalSecondsToday -= 86400;
+	else if (TotalSecondsToday < 0)
+		TotalSecondsToday += 86400;
+
+	const float NormalizedTime = static_cast<float>(TotalSecondsToday) / 86400.0f;
+
+
+	const float SetAngle =
+		RotationCurve.LoadSynchronous()->GetFloatValue(NormalizedTime) * 360.0f - 90.f;
+
+	
+	const FVector Axis = RotationAxis.GetSafeNormal();
+	const FQuat TargetQuat(Axis, FMath::DegreesToRadians(SetAngle));
+
+	
+	const FQuat CurrentQuat = Owner->GetActorQuat();
+
+	const float InterpSpeed = 2.0f; 
+	const float DeltaSeconds = GetWorld()->GetDeltaSeconds();
+
+	const FQuat SmoothedQuat =
+		FQuat::Slerp(CurrentQuat, TargetQuat, DeltaSeconds * InterpSpeed).GetNormalized();
+
+	Owner->SetActorRotation(SmoothedQuat);
 
 	PreviousTime = Time;
 }
