@@ -150,6 +150,8 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			HitResults,
 			true);
 		
+	
+#if WITH_EDITOR
 		if (bPrintDebug_MoveTo)
 		{
 			FString HitActors;
@@ -160,6 +162,7 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
 			UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
 		}
+#endif
 		
 		for (const auto& It : HitResults)
 		{
@@ -167,7 +170,6 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			
 			if (HitActor == TargetActor)
 			{
-				//if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Distance = %f"), It.Distance);
 				if (It.Distance <= StopDistance)
 				{
 					MoveToAction.State = EActionState::Succeeded;
@@ -261,7 +263,10 @@ void ANpcHostile::TargetAttackable(float DeltaTime)
 		TargetActor = UNpcManager::RightMostVulnerableAsset;
 	}
 	
+	
+#if WITH_EDITOR
 	if (bPrintDebug_TargetNearestAny) UE_LOG(LogTemp, Warning, TEXT("%s::NearestAttackable=%s (Angle=%f)"), *GetActorNameOrLabel(),TargetActor? *TargetActor->GetActorNameOrLabel(): TEXT("Null"), Angle);
+#endif
 	
 	if (TargetActor != nullptr) TargetAttackableAction.State = EActionState::Succeeded;
 	else TargetAttackableAction.State = EActionState::Failed;

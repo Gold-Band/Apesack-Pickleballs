@@ -82,7 +82,9 @@ void UNpcManager::Tick(float DeltaTime)
 	if (PlayerDist < Dist) LeftMostVulnerableAsset = PlayerRef;
 	if (LeftMostVulnerableAsset != PreviousLeftMostVulnerableAsset)
 	{
+#if WITH_EDITOR
 		UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+#endif
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(LeftMostVulnerableAsset, EOriginSide::Left);
 	}
 	
@@ -95,7 +97,9 @@ void UNpcManager::Tick(float DeltaTime)
 	if (PlayerDist > Dist) RightMostVulnerableAsset = PlayerRef;
 	if (RightMostVulnerableAsset != PreviousRightMostVulnerableAsset)
 	{
+#if WITH_EDITOR
 		UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+#endif
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(RightMostVulnerableAsset, EOriginSide::Right);
 	}
 	

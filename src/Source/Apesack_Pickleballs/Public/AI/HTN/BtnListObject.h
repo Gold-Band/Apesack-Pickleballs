@@ -31,4 +31,6 @@ private:
 	TObjectPtr<UUserWidget> Parent;
 	
 	int Cost;
+	
+	bool bCloseOnClicked;
 };

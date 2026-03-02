@@ -15,8 +15,6 @@ APlayerCharacter::APlayerCharacter() {
 	PrimaryActorTick.bCanEverTick = true;
 
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
-	DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
-
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +31,7 @@ void APlayerCharacter::BeginPlay() {
 	}
 	
 	Radius = GetActorLocation().Size2D();
+	DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
 	
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	if (Stats)
@@ -52,18 +51,6 @@ EOriginSide APlayerCharacter::GetActorSide(AActor* Actor) const
 	if (!Actor) return EOriginSide::Any;
 	const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), Actor->GetActorLocation());
 	return Angle > 0? EOriginSide::Left : EOriginSide::Right;
-}
-
-void APlayerCharacter::IncrementCoins() {
-	Coins++;
-	PrintCoins();
-}
-
-bool APlayerCharacter::SpendCoins(int requestedCoins) {
-	if(Coins < requestedCoins) return false;
-	Coins -= requestedCoins;
-	PrintCoins();
-	return true;
 }
 
 // Called to bind functionality to input
@@ -148,17 +135,6 @@ void APlayerCharacter::Move(const FVector& Direction)
 	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Direction.X, MovementComp->MaxSpeed);
 }
 
-
-void APlayerCharacter::PrintCoins() const {
-	if(!LoggingEnabled || !GEngine) return;
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		1,
-		FColor::Emerald,
-		FString::Printf(TEXT("Coins: %i"), Coins)
-	);
-}
-
 void APlayerCharacter::OnDeath()
 {
 }
@@ -185,6 +161,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	End,
 	[&](const FVector& t)
 	{
+		if (!this) return;
 		SetActorLocation(t);
 	},
 	Duration,

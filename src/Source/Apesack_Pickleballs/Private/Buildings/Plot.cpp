@@ -54,8 +54,9 @@ TArray<UListItemObject*> APlot::GetActions()
 			BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);			
 			SpawnBuilding(i);
 		};
+		
 		Action->OnActionCalledFunction = Func;
-
+		Action->bCloseOnClicked = true;
 		Actions.Add(Action);
 		i++;
 	}

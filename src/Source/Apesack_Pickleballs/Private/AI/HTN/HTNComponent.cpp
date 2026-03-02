@@ -41,7 +41,11 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	
 	int r = 0;
 	bool bHasValidTask = false;
+	
+#if WITH_EDITOR
 	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT(""));
+#endif
+	
 	while (bHasValidTask == false) // default is false
 	{
 		bHasValidTask = UpdatePlan(); // sets has valid task (to true)
@@ -54,7 +58,10 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 			{
 				// but do the next action right away
 				bHasValidTask = false;
+				
+#if WITH_EDITOR
 				if (bPrintDebug) UE_LOG(LogTemp, Error, TEXT("Try the next task.. (recursions=%i)"),++r);
+#endif
 			}
 		}
 	}

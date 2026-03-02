@@ -29,6 +29,7 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 	ButtonFunction = ListItem->OnActionCalledFunction;
 	Parent = ListItem->Parent;
 	Cost = ListItem->Cost;
+	bCloseOnClicked = ListItem->bCloseOnClicked;
 	
 	ActionBtn->SetIsEnabled(!ListItem->bDisable);
 }
@@ -42,5 +43,16 @@ void UBtnListObject::OnButtonClicked()
 	{
 		ButtonFunction.CheckCallable();
 		ButtonFunction();
+		
+		if (bCloseOnClicked)
+		{
+			//close
+			InfoPanel->Close();
+		}
+		else
+		{
+			//refresh
+			InfoPanel->Refresh();
+		}
 	}
 }

@@ -74,7 +74,9 @@ void ANpcFriendly::BeginPlay()
 		const ADefaultGameMode* GameMode = Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode());
 		if (!GameMode)
 		{
+#if WITH_EDITOR
 			UE_LOG(LogTemp, Error, TEXT("ANpcFriendly::ANpcFriendly - Failed to get the game mode!"))		
+#endif
 			return;
 		}
 		CharacterName = GameMode->GetRandomNpcName();
@@ -424,6 +426,8 @@ bool ANpcFriendly::GetSideCheckCondition()
 
 void ANpcFriendly::JoinParty()
 {
+	if (bIsPartyMember) return;
+	
 	// enables Movement actions to run
 	bCanMove = true;
 	
@@ -456,7 +460,9 @@ void ANpcFriendly::JoinParty()
 	
 	ExitFormation();
 	
+#if WITH_EDITOR
 	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Joined Party"));
+#endif
 	
 	NpcManager->GetPlayer()->OnMovedDelegate.AddUObject(this, &ThisClass::CopyPlayerMovement);
 	NpcManager->GetPlayer()->EnterBattleFormationDelegate.AddUniqueDynamic(this, &ThisClass::EnterFormation);
@@ -465,7 +471,12 @@ void ANpcFriendly::JoinParty()
 
 void ANpcFriendly::LeaveParty()
 {
+	if (!bIsPartyMember) return;
+	
+#if WITH_EDITOR
 	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Leave party"));
+#endif
+	
 	bIsPartyMember = false;
 	//NpcType = ENpcTag::Friendly;
 	bEnabled_FollowPlayer = false;
@@ -492,8 +503,6 @@ void ANpcFriendly::EnterFormation(EOriginSide Side)
 	
 	bAssumedPosition = false;
 	float NewRadius = MovementComp->Radius;
-	
-	//UE_LOG(LogTemp, Warning,TEXT("EnterFormation:%s"), Side==EOriginSide::Left?TEXT("Left"):TEXT("Right"))
 	
 	// Set radius
 	if (PartyIndex == 0) NewRadius = 19000;
@@ -562,7 +571,9 @@ void ANpcFriendly::MoveTimed(float DeltaTime)
 	{
 		MoveTime = FMath::RandRange(WanderTimeMin, WanderTimeMax);
 		MoveDirection = FMath::RandRange(-1, 1);
+#if WITH_EDITOR
 		if (bPrintDebug_MoveTimed) UE_LOG(LogTemp, Warning, TEXT("set move time to %fs"), MoveTime);
+#endif
 	}
 	
 	MoveForwardScaled(MoveDirection * WanderSpeed);
@@ -587,7 +598,9 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 	// Is destination still valid?
 	if (TargetActor == nullptr)
 	{
+#if WITH_EDITOR
 		if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("mans null"));
+#endif
 		MoveToAction.State = EActionState::Failed;
 		return;
 	}
@@ -616,8 +629,10 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 			{
 				HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
 			}
+#if WITH_EDITOR
 			UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
 			UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
+#endif
 		}
 		
 		for (const auto& It : HitResults)
@@ -676,7 +691,9 @@ void ANpcFriendly::MoveToOffset(float DeltaTime)
 	const float Distance = FVector::Dist2D(GetActorLocation(), TargetLocation);
 	//TotalDistance = FMath::Max(TotalDistance, Distance) + 10;
 	
+#if WITH_EDITOR
 	if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("MoveOffset Distance = %f"), Distance);
+#endif
 	
 	if (Distance < 5)
 	{
@@ -716,7 +733,9 @@ void ANpcFriendly::MoveToReset()
 
 void ANpcFriendly::OnGotoCompleted()
 {
+#if WITH_EDITOR
 	UE_LOG(LogTemp,Warning,TEXT("Goto completed"))
+#endif
 	bGotoLocation = false;
 	bCanMove = false;
 }
@@ -739,11 +758,13 @@ void ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 {
 	TargetActor = NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyHostile, MainSide, FMath::Square(TargetingDistance));
 	
+#if WITH_EDITOR
 	if (bPrintDebug_TargetNearestEnemy)
 	{
 		if (TargetActor) DrawDebugLine(GetWorld(), GetActorLocation(), TargetActor->GetActorLocation(), FColor::Yellow, false, 0.05f);
 		UE_LOG(LogTemp, Warning, TEXT("NearestEnemy = %s"), TargetActor? TEXT("Valid"): TEXT("Null"));
 	}
+#endif
 	
 	if (TargetActor != nullptr) TargetNearestEnemyAction.State = EActionState::Succeeded;
 	else TargetNearestEnemyAction.State = EActionState::Failed;
@@ -758,7 +779,9 @@ void ANpcFriendly::TargetFarthestTower(float DeltaTime)
 {
 	TargetActor = BuildingsManager->GetFarthestBuilding(EBuildingType::Tower, MainSide);
 	
+#if WITH_EDITOR
 	if (bPrintDebug_TargetFurthestTower) UE_LOG(LogTemp, Warning, TEXT("Targeting %s"), *TargetActor->GetActorNameOrLabel());
+#endif
 	
 	if (TargetActor != nullptr) TargetFarthestTowerAction.State = EActionState::Succeeded;
 	else TargetFarthestTowerAction.State = EActionState::Failed;
@@ -866,7 +889,9 @@ void ANpcFriendly::MeleeAttack(float DeltaTime)
 	CooldownTimer_MeleeAttack = 0;
 	bEnabled_MeleeAttack = false;
 	
+#if WITH_EDITOR
 	if (bPrintDebug_MeleeAttack) UE_LOG(LogTemp, Warning, TEXT("Melee attack"))
+#endif
 }
 
 bool ANpcFriendly::MeleeAttackCondition() const
@@ -905,8 +930,10 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 
 	if (!Arrow)
 	{
+#if WITH_EDITOR
 		if (bPrintDebug_RangedAttack)
 			UE_LOG(LogTemp, Warning, TEXT("Can't get an arrow"));
+#endif
 
 		RangedAttackAction.State = EActionState::Failed;
 		bEnabled_RangedAttack = false;
@@ -970,6 +997,9 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	else
 	{
 		RangedAttackAction.State = EActionState::Failed;
+		Arrow->Disable();
+		
+#if WITH_EDITOR
 		if (bPrintDebug_RangedAttack)
 		{
 			UE_LOG(
@@ -979,7 +1009,7 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 				*TargetActor->GetActorNameOrLabel()
 			);
 		}
-		Arrow->Disable();
+#endif
 	}
 	CooldownTimer_RangedAttack = 0;
 	bEnabled_RangedAttack = false;
