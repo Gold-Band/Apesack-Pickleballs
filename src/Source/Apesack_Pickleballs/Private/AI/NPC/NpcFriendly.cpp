@@ -426,6 +426,8 @@ bool ANpcFriendly::GetSideCheckCondition()
 
 void ANpcFriendly::JoinParty()
 {
+	if (bIsPartyMember) return;
+	
 	// enables Movement actions to run
 	bCanMove = true;
 	
@@ -469,9 +471,12 @@ void ANpcFriendly::JoinParty()
 
 void ANpcFriendly::LeaveParty()
 {
+	if (!bIsPartyMember) return;
+	
 #if WITH_EDITOR
 	if (bPrintDebug_TargetPlayer) UE_LOG(LogTemp, Warning, TEXT("Leave party"));
 #endif
+	
 	bIsPartyMember = false;
 	//NpcType = ENpcTag::Friendly;
 	bEnabled_FollowPlayer = false;
