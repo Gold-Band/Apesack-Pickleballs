@@ -22,15 +22,6 @@ class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
 public:
 	APlayerCharacter();
 	
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	int Coins;
-
-	UFUNCTION(BlueprintCallable)
-	void IncrementCoins();
-
-	UFUNCTION(BlueprintCallable)
-	bool SpendCoins(int requestedCoins);
-	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -99,7 +90,7 @@ private:
     
 // Sprint handlers
 	void StartSprinting(const struct FInputActionInstance& Instance);
-void StopSprinting(const struct FInputActionInstance& Instance);
+	void StopSprinting(const struct FInputActionInstance& Instance);
 
 	float DefaultSpeed = 0.1f;
     private: bool bIsSprinting = false;
@@ -111,8 +102,6 @@ void StopSprinting(const struct FInputActionInstance& Instance);
 	void LazyMove(const FInputActionInstance& Instance);
 	
 	void Move(const FVector& Direction);
-	
-	void PrintCoins() const;
 	
 	UFUNCTION()
 	void OnDeath();
