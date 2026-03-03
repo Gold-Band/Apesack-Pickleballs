@@ -104,6 +104,7 @@ void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
 
 void APlayerCharacter::OnStoppedMoving(const FInputActionInstance& Instance)
 {
+	MoveDirection = 0;
 	if (ExitBattleFormationDelegate.IsBound() && !bSensesHostiles) ExitBattleFormationDelegate.Broadcast();
 }
 
@@ -136,6 +137,7 @@ void APlayerCharacter::Move(const FVector& Direction)
 		}
 	}
 
+	MoveDirection = Direction.X;
 	
 	AddMovementInput(Direction.X * GetActorForwardVector());
 	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Direction.X, MovementComp->MaxSpeed);

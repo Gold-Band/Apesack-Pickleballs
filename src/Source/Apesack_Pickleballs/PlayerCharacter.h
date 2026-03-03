@@ -25,6 +25,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintPure)
+	int GetMoveDirection() const {return MoveDirection; }
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsSprinting() const {return bIsSprinting; }
+	
 	UPROPERTY(BlueprintCallable)
 	FEnterBattleFormationSignature EnterBattleFormationDelegate;
 	
@@ -39,7 +45,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
 	bool bInWorldBoundary = false;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Character Properties")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
 	bool bRecalculateSide = false;
 	
 protected:
@@ -97,6 +103,7 @@ private:
 
 	float DefaultSpeed = 0.1f;
     bool bIsSprinting = false;
+	int MoveDirection = 0;
 
 	UFUNCTION()
 	void HandleMove(const FInputActionInstance& Instance);
