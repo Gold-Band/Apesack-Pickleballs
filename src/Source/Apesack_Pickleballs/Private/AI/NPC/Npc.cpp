@@ -37,10 +37,16 @@ void ANpc::Tick(float DeltaSeconds)
 	}
 }
 
-float ANpc::GetDirectionToTown()
+float ANpc::GetDirectionTo(const FVector& Location) const
 {
-	return OriginDirection;
-	//OriginDirection = ADefaultGameMode
+	return FVector::DotProduct(Location - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
+}
+
+float ANpc::GetSpeed() const
+{
+	if (bIsLerping) return 10;
+	if (!MovementComp) return 0;
+	return MovementComp->Velocity.SquaredLength() / 100;
 }
 
 UStatsComponent* ANpc::GetStats()

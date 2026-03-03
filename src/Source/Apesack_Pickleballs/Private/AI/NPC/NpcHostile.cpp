@@ -39,9 +39,6 @@ void ANpcHostile::BeginPlay()
 	Super::BeginPlay();
 	
 	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
-	
-	//IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
-	//IgnoreActors.Add(this);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -180,8 +177,8 @@ void ANpcHostile::MoveTo(float DeltaTime)
 	}
 	MoveToTimer+=DeltaTime;
 	
-	const float Direction = FVector::DotProduct(TargetActor->GetActorLocation() - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
-	MoveForwardScaled(Direction);
+	MoveDirection = GetDirectionTo(TargetActor->GetActorLocation());
+	MoveForwardScaled(MoveDirection);
 }
 
 bool ANpcHostile::MoveToCondition() const
@@ -249,23 +246,21 @@ bool ANpcHostile::MeleeAttackCondition() const
 
 void ANpcHostile::TargetAttackable(float DeltaTime)
 {
-	float Angle = 0;
 	if (MainSide == EOriginSide::Left)
 	{
-		//Angle = GetAngleBetweenVectors(GetActorLocation(), UNpcManager::LeftMostVulnerableAsset->GetActorLocation());
-		//if (Angle < 0) TargetActor = UNpcManager::LeftMostVulnerableAsset;
 		TargetActor = UNpcManager::LeftMostVulnerableAsset;
 	}
 	else
 	{
-		//Angle = GetAngleBetweenVectors(GetActorLocation(), UNpcManager::LeftMostVulnerableAsset->GetActorLocation());
-		//if (Angle > 0) TargetActor = UNpcManager::RightMostVulnerableAsset;
 		TargetActor = UNpcManager::RightMostVulnerableAsset;
 	}
 	
-	
 #if WITH_EDITOR
-	if (bPrintDebug_TargetNearestAny) UE_LOG(LogTemp, Warning, TEXT("%s::NearestAttackable=%s (Angle=%f)"), *GetActorNameOrLabel(),TargetActor? *TargetActor->GetActorNameOrLabel(): TEXT("Null"), Angle);
+	if (bPrintDebug_TargetNearestAny)
+	{
+		const float Angle = GetAngleBetweenVectors(GetActorLocation(), TargetActor->GetActorLocation());
+		UE_LOG(LogTemp, Warning, TEXT("%s::NearestAttackable=%s (Angle=%f)"), *GetActorNameOrLabel(),TargetActor? *TargetActor->GetActorNameOrLabel(): TEXT("Null"), Angle);
+	}
 #endif
 	
 	if (TargetActor != nullptr) TargetAttackableAction.State = EActionState::Succeeded;

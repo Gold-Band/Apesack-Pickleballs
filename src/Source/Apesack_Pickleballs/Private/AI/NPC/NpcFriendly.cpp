@@ -579,7 +579,10 @@ void ANpcFriendly::MoveTimed(float DeltaTime)
 	MoveForwardScaled(MoveDirection * WanderSpeed);
 	
 	Timer += DeltaTime;
-	if (Timer >= MoveTime) MoveTimedAction.State = EActionState::Succeeded;
+	if (Timer >= MoveTime)
+	{
+		MoveTimedAction.State = EActionState::Succeeded;
+	}
 }
 
 bool ANpcFriendly::MoveTimedCondition() const
@@ -644,10 +647,6 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 				if (It.Distance <= StopDistance)
 				{
 					MoveToAction.State = EActionState::Succeeded;
-					/*if (bIsPartyMember)
-					{
-						CooldownTimer_FollowPlayer = 0;
-					}*/
 					return;
 				}
 			}
@@ -656,8 +655,8 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 	Timer+=DeltaTime;
 	
 	// Move
-	const float Direction = FVector::DotProduct(TargetActor->GetActorLocation() - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
-	MoveForwardScaled(Direction);
+	MoveDirection = GetDirectionTo(TargetLocation);
+	MoveForwardScaled(MoveDirection);
 }
 
 void ANpcFriendly::MoveToVector(float DeltaTime)
@@ -671,8 +670,8 @@ void ANpcFriendly::MoveToVector(float DeltaTime)
 	}
 	
 	// Move
-	const float Direction = FVector::DotProduct(TargetLocation - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
-	MoveForwardScaled(Direction);
+	MoveDirection = GetDirectionTo(TargetLocation);
+	MoveForwardScaled(MoveDirection);
 }
 
 void ANpcFriendly::MoveToOffset(float DeltaTime)
@@ -751,6 +750,7 @@ void ANpcFriendly::CopyPlayerMovement(float Direction, float Speed)
 	
 	check(MovementComp);
 	MovementComp->MaxSpeed = Speed;
+	MoveDirection = Direction;
 	AddMovementInput(GetActorForwardVector(), Direction);
 }
 
