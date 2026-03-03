@@ -922,14 +922,7 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 		OnBowAttack(false);
 		return;
 	}
-
-	FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
-	ToTarget.Z = 0.f;
-	const FVector LocalToTarget = GetActorTransform().InverseTransformVectorNoScale(ToTarget);
-	const bool bIsFacingTarget = LocalToTarget.X > 0.f;
-
-	OnBowAttack(bIsFacingTarget);
-
+	
 	//* 1. Get an arrow from the gamemode
 	AArrow* Arrow = Cast<AArrow>(
 		Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode())->GetArrow()
@@ -1000,6 +993,12 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 	if (Arrow->LaunchAt(GetProjectileSpawnLocation(),TargetActor->GetActorLocation()))
 	{
 		RangedAttackAction.State = EActionState::Succeeded;
+		
+		FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
+		ToTarget.Z = 0.f;
+		const FVector LocalToTarget = GetActorTransform().InverseTransformVectorNoScale(ToTarget);
+		const bool bIsFacingTarget = LocalToTarget.X > 0.f;
+		OnBowAttack(bIsFacingTarget);
 	}
 	else
 	{
