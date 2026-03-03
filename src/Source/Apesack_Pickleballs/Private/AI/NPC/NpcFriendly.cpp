@@ -681,6 +681,7 @@ void ANpcFriendly::MoveToOffset(float DeltaTime)
 	if (PlayerCharacter == nullptr)
 	{
 		MoveToOffsetAction.State = EActionState::Failed;
+		bIsLerping = false;
 		return;
 	}
 	
@@ -697,6 +698,8 @@ void ANpcFriendly::MoveToOffset(float DeltaTime)
 	if (Distance < 5)
 	{
 		MoveToOffsetAction.State = EActionState::Succeeded;
+	
+		bIsLerping = false;
 		
 		// start copying player movement
 		bCopyMovement = true;
@@ -712,6 +715,9 @@ void ANpcFriendly::MoveToOffset(float DeltaTime)
 	
 	// lerp to position with constant speed
 	SetActorLocation(FMath::Lerp(GetActorLocation(),TargetLocation, FMath::Clamp(Alpha, 0,1)));
+	
+	MoveDirection = GetDirectionTo(TargetLocation);
+	bIsLerping = true;
 }
 
 bool ANpcFriendly::MoveToCondition() const
