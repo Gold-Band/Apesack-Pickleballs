@@ -62,6 +62,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		if(!MoveAction.IsNull())
 		{
 			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);
+			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Completed, this, &APlayerCharacter::OnStoppedMoving);
 		}
 		if (!SprintAction.IsNull())
 		{
@@ -73,13 +74,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		if (!LazyMoveAction.IsNull())
 		{
 			Input->BindAction(LazyMoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::LazyMove);
+			Input->BindAction(LazyMoveAction.LoadSynchronous(), ETriggerEvent::Completed, this, &APlayerCharacter::OnStoppedMoving);
 		}
 	}
 }
 
 void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
 	FVector Value = Instance.GetValue().Get<FVector>();
-
 	Move(Value);
 }
 
@@ -99,6 +100,11 @@ void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
 		
 		Move(Value);
 	}
+}
+
+void APlayerCharacter::OnStoppedMoving(const FInputActionInstance& Instance)
+{
+	if (ExitBattleFormationDelegate.IsBound() && !bSensesHostiles) ExitBattleFormationDelegate.Broadcast();
 }
 
 void APlayerCharacter::Move(const FVector& Direction)

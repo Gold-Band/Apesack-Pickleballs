@@ -757,6 +757,7 @@ void ANpcFriendly::CopyPlayerMovement(float Direction, float Speed)
 	check(MovementComp);
 	MovementComp->MaxSpeed = Speed;
 	MoveDirection = Direction;
+	
 	AddMovementInput(GetActorForwardVector(), Direction);
 }
 

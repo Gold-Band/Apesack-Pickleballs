@@ -63,6 +63,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
 	EOriginSide MainSide;
 	
+	UPROPERTY(BlueprintReadWrite)
+	bool bSensesHostiles = false;
+	
 private:
 	
 	FVector CharacterLastPosition;
@@ -93,13 +96,16 @@ private:
 	void StopSprinting(const struct FInputActionInstance& Instance);
 
 	float DefaultSpeed = 0.1f;
-    private: bool bIsSprinting = false;
+    bool bIsSprinting = false;
 
 	UFUNCTION()
 	void HandleMove(const FInputActionInstance& Instance);
 	
 	UFUNCTION()
 	void LazyMove(const FInputActionInstance& Instance);
+	
+	UFUNCTION()
+	void OnStoppedMoving(const FInputActionInstance& Instance);
 	
 	void Move(const FVector& Direction);
 	
