@@ -20,7 +20,12 @@ open:
 [unix]
 open:
 	@echo "{{BOLD + ITALIC + BLUE}}Launching project{{NORMAL}}"
-	"${{ue_path_unix}}" "$(shell pwd)/src/Apesack_Pickleballs.uproject"
+	@"${{ue_path_unix}}" "$(shell pwd)/src/Apesack_Pickleballs.uproject"
+
+# Opens the project via Rider
+rider:
+    @echo "{{BOLD + ITALIC + BLUE}}Opening project in Rider{{NORMAL}}"
+    @rider ./src/Apesack_Pickleballs.uproject
 
 # Deletes Binaries directory
 [windows]
