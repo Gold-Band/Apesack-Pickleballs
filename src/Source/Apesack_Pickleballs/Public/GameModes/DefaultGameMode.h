@@ -50,6 +50,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GameTimeScale = 1000.f;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int NightStartHour = 20;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int NightEndHour = 6;
+	
+	UFUNCTION(BlueprintPure)
+	bool IsWithEditor() const
+	{
+#if WITH_EDITOR
+		return true;
+#endif
+		return false;
+	}
+	
 private:
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	TSoftObjectPtr<UDataTable> NpcNames;

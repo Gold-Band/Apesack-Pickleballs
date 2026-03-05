@@ -145,3 +145,13 @@ uint8 UWorldClockSubsystem::GetSeconds() const
 {
     return Second;
 }
+
+void UWorldClockSubsystem::SetNightStartHour(const uint8 StartHour)
+{
+	NightHourStart = StartHour;
+}
+
+void UWorldClockSubsystem::SetNightEndHour(const uint8 EndHour)
+{
+	DayHourStart = EndHour;
+}
