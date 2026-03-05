@@ -43,7 +43,9 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 		
 		if ((Hour >= NightHourStart || Hour < DayHourStart) && IsDaytime)
 		{
+#if WITH_EDITOR
 			UE_LOG(LogTemp, Log, TEXT("Night Started"))
+#endif
 			IsDaytime = false;
 			if (OnNightStartedDelegate.IsBound())
 			{
@@ -52,7 +54,9 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 		}
 		else if (Hour >= DayHourStart && Hour < NightHourStart && !IsDaytime)
 		{
+#if WITH_EDITOR
 			UE_LOG(LogTemp, Log, TEXT("Night Ended"))
+#endif
 			IsDaytime = true;
 			if (OnNightEndedDelegate.IsBound()) OnNightEndedDelegate.Broadcast();
 		}

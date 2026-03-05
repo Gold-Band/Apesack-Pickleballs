@@ -87,9 +87,10 @@ bool AProjectile::LaunchAt(const FVector& StartLocation,
 	const float ProjectileSpeed = FMath::RandRange(Speed*0.8f, Speed*1.2f);
 	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, ProjectileSpeed};
 	Params.bDrawDebug = bDrawPathDebug;
-	Params.TraceOption = ESuggestProjVelocityTraceOption::TraceFullPath;
+	Params.TraceOption = ESuggestProjVelocityTraceOption::DoNotTrace;
 	Params.CollisionRadius = 0;
 	Params.bAcceptClosestOnNoSolutions = false;
+	Params.bFavorHighArc = IsLineOfSightToTargetBlocked(StartLocation, TargetLocation);
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
 		bPathSucceeded = false;
@@ -99,6 +100,17 @@ bool AProjectile::LaunchAt(const FVector& StartLocation,
 	SetActorLocation(StartLocation);
 	Enable();
 	return true;
+}
+
+bool AProjectile::IsLineOfSightToTargetBlocked(const FVector& StartLocation, const FVector& TargetLocation) const
+{
+	const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes{EObjectTypeQuery::ObjectTypeQuery1}; 
+	FHitResult Hit;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),StartLocation, TargetLocation,ObjectTypes , false, TArray<AActor*>{}, EDrawDebugTrace::None,Hit,true))
+	{
+		return true;
+	}
+	return false;
 }
 
 FOnPooledActorSelfDisabled& AProjectile::GetOnActorDisabled()
