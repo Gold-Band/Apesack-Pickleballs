@@ -122,6 +122,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	uint8 GetSeconds() const;
 
+	UFUNCTION(BlueprintCallable)
+	void SetNightStartHour(const uint8 StartHour);
+	
+	UFUNCTION(BlueprintCallable)
+	void SetNightEndHour(const uint8 EndHour);
+	
 private:
 	uint32 Day = 0;
 	uint32 Hour = 18;
@@ -130,7 +136,7 @@ private:
 	FTimestamp CurrentTime;
 
 	uint8 DayHourStart = 6;
-	uint8 NightHourStart = 22;
+	uint8 NightHourStart = 20;
 	
 	bool bAllowClockTicking = true;
 	bool bIsNight = false;

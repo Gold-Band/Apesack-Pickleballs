@@ -66,6 +66,8 @@ void ADefaultGameMode::BeginPlay()
 	WorldClock->SetTime(GameStartTime.Day, GameStartTime.Hour, GameStartTime.Minute, GameStartTime.Second);
 	WorldClock->SetTimeScale(GameTimeScale);
 	WorldClock->AllowClockTicking(bEnableClock);
+	WorldClock->SetNightStartHour(NightStartHour);
+	WorldClock->SetNightEndHour(NightEndHour);
 	
 	// setup an arrow pool
 	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 50);
