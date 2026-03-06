@@ -56,15 +56,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int NightEndHour = 6;
 	
-	/*UFUNCTION(BlueprintPure)
-	bool IsWithEditor() const
-	{
-#if WITH_EDITOR
-		return true;
-#endif
-		return false;
-	}*/
-	
 private:
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))
 	TSoftObjectPtr<UDataTable> NpcNames;

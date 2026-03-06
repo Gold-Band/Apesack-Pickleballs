@@ -384,7 +384,7 @@ void ANpcFriendly::OnClickedAway()
 void ANpcFriendly::OnNightStarted()
 {
 	bIsNighttime = true;	
-	bAssumedPosition = false;
+	if (!bIsPartyMember) bAssumedPosition = false;
 }
 
 void ANpcFriendly::OnNightEnded()
