@@ -56,3 +56,10 @@ void UBtnListObject::OnButtonClicked()
 		}
 	}
 }
+
+void UBtnListObject::OnButtonClickedForBuild()
+{
+#if !WITH_EDITOR
+	OnButtonClicked();
+#endif
+}

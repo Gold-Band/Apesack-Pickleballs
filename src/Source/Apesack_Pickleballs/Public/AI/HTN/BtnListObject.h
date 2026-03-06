@@ -21,6 +21,9 @@ class APESACK_PICKLEBALLS_API UBtnListObject : public UTxtListObject
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UButton> ActionBtn;
 	
+	UFUNCTION(BlueprintCallable)
+	void OnButtonClickedForBuild();
+	
 private:
 	UFUNCTION()
 	void OnButtonClicked();
