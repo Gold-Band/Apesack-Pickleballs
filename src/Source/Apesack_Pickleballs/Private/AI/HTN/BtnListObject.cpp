@@ -31,6 +31,8 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 	Cost = ListItem->Cost;
 	bCloseOnClicked = ListItem->bCloseOnClicked;
 	
+	ListItem->ConstructedWidget = this;
+	
 	ActionBtn->SetIsEnabled(!ListItem->bDisable);
 }
 
@@ -61,5 +63,7 @@ void UBtnListObject::OnButtonClickedForBuild()
 {
 #if !WITH_EDITOR
 	OnButtonClicked();
+#else
+	UE_LOG(LogTemp, Warning, TEXT("Button click override is set to work in build only."))
 #endif
 }

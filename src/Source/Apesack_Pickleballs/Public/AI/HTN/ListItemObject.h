@@ -31,6 +31,9 @@ public:
 	UUserWidget* Parent;
 	
 	UPROPERTY(BlueprintReadWrite, Category="Data")
+	mutable UUserWidget* ConstructedWidget = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, Category="Data")
 	bool bDisable;
 	
 	UPROPERTY(BlueprintReadWrite, Category="Data")
