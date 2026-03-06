@@ -1072,6 +1072,8 @@ void ANpcFriendly::GetDefensePosition(float DeltaTime)
 
 	const float MaxDistance = 0.5f + ExtraDistancePerPerson * (NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide).Num()/2); 
 	TargetLocation = WallToDefend->GetActorLocation().RotateAngleAxis(FMath::RandRange(MinDistance, MaxDistance), RotateAxis).GetUnsafeNormal2D() * MovementComp->Radius;
+	
+#if WITH_EDITOR
 	if (bPrintDebug_DefendWall)
 	{
 		const FVector Min = WallToDefend->GetActorLocation().RotateAngleAxis(MinDistance, RotateAxis);
@@ -1079,6 +1081,7 @@ void ANpcFriendly::GetDefensePosition(float DeltaTime)
 		DrawDebugLine(GetWorld(), Min, Min + FVector::UpVector * 100.0f, FColor::Yellow, false, 5.f);
 		DrawDebugLine(GetWorld(), Max, Max + FVector::UpVector * 100.0f, FColor::Yellow, false, 5.f);
 	}
+#endif
 	
 	bGotoLocation = true;
 	GetDefensePositionAction.State = EActionState::Succeeded;
