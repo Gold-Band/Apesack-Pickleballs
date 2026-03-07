@@ -22,6 +22,7 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 
 		if (Second >= 60)
 		{
+			TotalSeconds = (TotalSeconds+1) % 86400;
 			Minute += FMath::Floor(Second/60);
 			Second = Second%60;
 			TryBroadcast(EWorldClockBroadcastTiming::EveryMinute);
@@ -119,6 +120,11 @@ void UWorldClockSubsystem::SetTime(const uint8 NewDay, const uint8 NewHour, cons
 	Hour = NewHour;
 	Minute = NewMinute;
 	Second = NewSecond;
+}
+
+float UWorldClockSubsystem::GetNormalizedTime() const
+{
+	return TotalSeconds / 86400.0f;
 }
 
 FTimestamp UWorldClockSubsystem::GetTime() const
