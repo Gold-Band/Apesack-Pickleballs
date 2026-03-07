@@ -138,7 +138,7 @@ private:
 	uint32 Second = 0;
 	FTimestamp CurrentTime;
 	
-	int TotalSeconds = 0;
+	float TotalSeconds = 0;
 	
 	uint8 DayHourStart = 6;
 	uint8 NightHourStart = 20;

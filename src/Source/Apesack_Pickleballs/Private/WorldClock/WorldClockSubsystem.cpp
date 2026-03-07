@@ -12,6 +12,10 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 	if (bAllowClockTicking)
 	{
 		Milliseconds += DeltaTime * TimeScale;
+		
+		TotalSeconds += Milliseconds;
+		TotalSeconds = TotalSeconds >= 86400 ? 0: TotalSeconds;
+		
 		if (Milliseconds >= 1)
 		{
 			msFloor = FMath::Floor(Milliseconds);
@@ -22,7 +26,6 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 
 		if (Second >= 60)
 		{
-			TotalSeconds = (TotalSeconds+1) % 86400;
 			Minute += FMath::Floor(Second/60);
 			Second = Second%60;
 			TryBroadcast(EWorldClockBroadcastTiming::EveryMinute);
