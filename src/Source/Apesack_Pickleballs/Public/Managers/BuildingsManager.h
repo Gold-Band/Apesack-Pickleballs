@@ -41,8 +41,8 @@ class UBuildingsManager: public UWorldSubsystem
 public:
 	UBuildingsManager();
 	
-	static FOnNewArcherTowerBuiltSignature OnNewArcherTowerBuiltDelegate;
-	static FOnNewWallBuiltSignature OnNewWallBuiltDelegate;
+	FOnNewArcherTowerBuiltSignature OnNewArcherTowerBuiltDelegate;
+	FOnNewWallBuiltSignature OnNewWallBuiltDelegate;
 	
 	static UBuildingsManager* Get(const UObject* WorldContextObject);
 

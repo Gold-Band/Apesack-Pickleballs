@@ -2,6 +2,7 @@
 
 #include "Buildings/ArcherTower.h"
 #include "Buildings/Building.h"
+#include "Buildings/Wall.h"
 
 UBuildingsManager::UBuildingsManager()
 {
@@ -27,11 +28,13 @@ void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType Buildi
 	
 	if (BuildingType == EBuildingType::Wall)
 	{
+		if (OnNewWallBuiltDelegate.IsBound()) OnNewWallBuiltDelegate.Broadcast(Cast<AWall>(NewBuilding), Side); 
 		if (Side == EOriginSide::Left) ModifyArray = &LeftWalls;
 		else ModifyArray = &RightWalls;
 	}
 	else
 	{
+		if (OnNewArcherTowerBuiltDelegate.IsBound()) OnNewArcherTowerBuiltDelegate.Broadcast(Cast<AArcherTower>(NewBuilding), Side); 
 		if (Side == EOriginSide::Left) ModifyArray = &LeftTowers;
 		else ModifyArray = &RightTowers;
 	}

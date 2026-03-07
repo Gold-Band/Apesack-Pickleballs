@@ -6,6 +6,7 @@
 #include "Npc.h"
 #include "AI/Actions/Action.h"
 #include "AI/HTN/Task.h"
+#include "Buildings/Wall.h"
 #include "NpcFriendly.generated.h"
 
 
@@ -53,6 +54,13 @@ public:
 	virtual void OnClickedAway() override;
 	
 private:
+	
+	UFUNCTION()
+	void OnWallBuilt(AWall* Wall, EOriginSide OriginSide);
+	
+	UFUNCTION()
+	void OnTowerBuilt(AArcherTower* ArcherTower, EOriginSide OriginSide);
+	
 	UFUNCTION()
 	void OnNightStarted();
 	
@@ -78,14 +86,13 @@ protected:
 	
 	bool IsCombatant() const;
 	
-	float AdditionalSpeed = 500;
-	
 	//**
 	//** General Properties
 	//**
 	UPROPERTY(EditAnywhere, Category = "Character Properties")
 	ECharacterType CharacterClass;
-	
+
+	bool bIsClicked = false;
 	
 	
 	//**
@@ -256,6 +263,8 @@ protected:
 	float ExtraDistancePerPerson = 0.1f; //angle away from the wall
 	
 	bool bAssumedPosition = false;
+	
+	bool bNewBuilding = false;
 	
 	//* Goto Safezone *//
 	
