@@ -625,6 +625,7 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 			HitResults,
 			true);
 		
+#if WITH_EDITOR
 		if (bPrintDebug_MoveTo)
 		{
 			FString HitActors;
@@ -632,11 +633,10 @@ void ANpcFriendly::MoveTo(float DeltaTime)
 			{
 				HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
 			}
-#if WITH_EDITOR
 			UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
 			UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
-#endif
 		}
+#endif
 		
 		for (const auto& It : HitResults)
 		{
