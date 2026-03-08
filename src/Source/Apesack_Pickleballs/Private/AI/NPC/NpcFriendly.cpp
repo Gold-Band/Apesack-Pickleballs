@@ -371,7 +371,7 @@ void ANpcFriendly::OnClickedAway()
 
 void ANpcFriendly::OnWallBuilt(AWall* Wall, EOriginSide OriginSide)
 {
-	if (IsCombatant() && !bIsPartyMember && (bIsNighttime||bRaid) && !bIsClicked)
+	if (OriginSide == MainSide && IsCombatant() && !bIsPartyMember && !bIsClicked)
 	{
 		bAssumedPosition = false;
 		GotoTask.Reset();
