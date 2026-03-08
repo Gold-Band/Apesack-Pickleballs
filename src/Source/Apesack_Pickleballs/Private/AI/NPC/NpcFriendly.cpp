@@ -190,7 +190,6 @@ void ANpcFriendly::CreateBehaviours()
 	WanderTask.Actions.Add(&MoveTimedAction);
 	
 	// priority order
-	
 	HtnDomain->AssignTask(&GotoTask);
 	HtnDomain->AssignTask(&DefendWallTask);
 	HtnDomain->AssignTask(&BuildTask);
@@ -372,10 +371,10 @@ void ANpcFriendly::OnClickedAway()
 
 void ANpcFriendly::OnWallBuilt(AWall* Wall, EOriginSide OriginSide)
 {
-	if (GetDefensePositionCondition())
+	if (IsCombatant() && !bIsPartyMember && (bIsNighttime||bRaid) && !bIsClicked)
 	{
-		UE_LOG(LogTemp,Warning, TEXT("Wall is built"));
 		bAssumedPosition = false;
+		GotoTask.Reset();
 	}
 }
 
@@ -793,7 +792,7 @@ bool ANpcFriendly::TargetNearestEnemyCondition() const
 
 void ANpcFriendly::TargetFarthestTower(float DeltaTime)
 {
-	TargetActor = BuildingsManager->GetFarthestGetDefensePositionActionBuilding(EBuildingType::Tower, MainSide);
+	TargetActor = BuildingsManager->GetFarthestBuilding(EBuildingType::Tower, MainSide);
 	
 #if WITH_EDITOR
 	if (bPrintDebug_TargetFurthestTower) UE_LOG(LogTemp, Warning, TEXT("Targeting %s"), *TargetActor->GetActorNameOrLabel());
@@ -1100,5 +1099,7 @@ void ANpcFriendly::GetDefensePosition(float DeltaTime)
 
 bool ANpcFriendly::GetDefensePositionCondition() const
 {
+	//if (bPrintDebug_DefendWall) UE_LOG(LogTemp, Warning, TEXT("defend conditions: %s, %s, %s, %s, %s"), IsCombatant()?TEXT("t"):TEXT("f"),
+	//	!bIsPartyMember?TEXT("t"):TEXT("f"), !bAssumedPosition?TEXT("t"):TEXT("f"), (bIsNighttime||bRaid)?TEXT("t"):TEXT("f"), !bIsClicked?TEXT("t"):TEXT("f"));
 	return IsCombatant() && !bIsPartyMember && !bAssumedPosition && (bIsNighttime||bRaid) && !bIsClicked;
 }
