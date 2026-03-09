@@ -223,15 +223,19 @@ TArray<UListItemObject*> ANpcFriendly::GetInfo() const
 	{
 	case ECharacterType::Peasant:
 		ClassTxt = TEXT("Peasant");
+		
 		break;
 	case ECharacterType::Fighter:
 		ClassTxt = TEXT("Fighter");
+		
 		break;
 	case ECharacterType::Archer:
 		ClassTxt = TEXT("Archer");
+		
 		break;
 	case ECharacterType::Builder:
 		ClassTxt = TEXT("Builder");
+		
 		break;
 	}
 	
@@ -264,20 +268,32 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
 		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Peasant;};
+		const TFunction<void()> Func = [&]()
+		{
+			
+			CharacterClass = ECharacterType::Peasant;
+			SetInitialWeaponType(0);
+		
+		};
 		Action->OnActionCalledFunction = Func;
 		Action->Cost = 0;
 		Actions.Add(Action);
+		
 	}
 	if (CharacterClass != ECharacterType::Archer) 
 	{ // set archer
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Archer"));
 		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Archer;};
+		const TFunction<void()> Func = [&]()
+		{
+			CharacterClass = ECharacterType::Archer;
+			SetInitialWeaponType(0);
+		};
 		Action->OnActionCalledFunction = Func;
 		Action->Cost = 3;
 		Actions.Add(Action);
+	
 	}
 	if (CharacterClass != ECharacterType::Fighter)
 	{ // set fighter
@@ -287,23 +303,32 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		const TFunction<void()> Func = [&]()
 		{
 			CharacterClass = ECharacterType::Fighter;
+			SetInitialWeaponType(1);
 			MainSide = NpcManager->SuggestOccupySide();
 		};
 		Action->OnActionCalledFunction = Func;
 		Action->bDisable = false;
 		Action->Cost = 3;
 		Actions.Add(Action);
+			
 	}
 	if (CharacterClass != ECharacterType::Builder)
 	{ // set builder
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
 		Action->ContextActor = this;
-		const TFunction<void()> Func = [&](){CharacterClass = ECharacterType::Builder;};
+		const TFunction<void()> Func = [&]()
+
+		{
+			CharacterClass = ECharacterType::Builder; 
+			SetInitialWeaponType(2);
+		
+		};
 		Action->OnActionCalledFunction = Func;
 		Action->bDisable = false;
 		Action->Cost = 2;
 		Actions.Add(Action);
+	
 	}
 	
 	if ((CharacterClass != ECharacterType::Peasant || CharacterClass != ECharacterType::Builder) && !bIsPartyMember)
@@ -1032,6 +1057,7 @@ void ANpcFriendly::RangedAttack(float DeltaTime)
 bool ANpcFriendly::RangedAttackCondition() const
 {
 	return CharacterClass == ECharacterType::Archer && bEnabled_RangedAttack;
+	
 }
 
 void ANpcFriendly::SetRangedParams()
