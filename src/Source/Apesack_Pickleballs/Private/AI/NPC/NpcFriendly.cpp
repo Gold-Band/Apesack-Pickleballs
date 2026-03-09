@@ -238,7 +238,7 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 {
 	TArray<UListItemObject*> Actions{};
 	
-	if (CharacterClass != ECharacterType::Peasant)
+	/*if (CharacterClass != ECharacterType::Peasant)
 	{ // set peasant
 		UListItemObject* Action = NewObject<UListItemObject>();
 		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
@@ -304,9 +304,9 @@ TArray<UListItemObject*> ANpcFriendly::GetActions()
 		Action->Cost = 2;
 		Actions.Add(Action);
 	
-	}
+	}*/
 	
-	if ((CharacterClass != ECharacterType::Peasant || CharacterClass != ECharacterType::Builder) && !bIsPartyMember)
+	if (!bIsPartyMember)
 	{ // join party
 		UListItemObject* Action = NewObject<UListItemObject>();
 		const int Size =  NpcManager->GetPlayer()->PartySize;
