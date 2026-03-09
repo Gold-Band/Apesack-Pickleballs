@@ -40,6 +40,7 @@ enum class EWorldClockBroadcastTiming : uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimeTickedSignature, const FTimestamp&, NewTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDayTickedSignature, uint8, NewDay);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNightStartedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNightEndedSignature);
 
@@ -85,6 +86,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTimeTickedSignature OnTimeTickedDelegate;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnDayTickedSignature OnDayTickedDelegate;
 	
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnNightStartedSignature OnNightStartedDelegate;
