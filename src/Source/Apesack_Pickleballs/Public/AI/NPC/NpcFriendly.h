@@ -89,7 +89,7 @@ protected:
 	//**
 	//** General Properties
 	//**
-	UPROPERTY(EditAnywhere, Category = "Character Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Properties")
 	ECharacterType CharacterClass;
 
 	bool bIsClicked = false;
