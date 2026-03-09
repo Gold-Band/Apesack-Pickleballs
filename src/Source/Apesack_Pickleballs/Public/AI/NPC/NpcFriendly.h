@@ -34,6 +34,10 @@ public:
 	void OnMeleeAttack();
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void OnBowAttack(bool bIsFacingTarget);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void SetInitialWeaponType(int Type);
+
+
 
 protected:
 	virtual void BeginPlay() override;
