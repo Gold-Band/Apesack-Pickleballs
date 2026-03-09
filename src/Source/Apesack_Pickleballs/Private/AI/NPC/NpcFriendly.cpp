@@ -131,9 +131,9 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// Build
 	BuildTask.Actions.Add(TargetNearestBuildingAction);
-	BuildTask.Actions.Add(MoveToAction);
+	BuildTask.Actions.Add(MoveToVectorAction);
 	BuildTask.Actions.Add(MeleeAttackAction);
-	BuildTask.Condition = [&]{return MeleeAttackCondition() && MoveCondition() && TargetBuildingCondition();};
+	BuildTask.Condition = [&]{return MoveCondition() && TargetBuildingCondition();};
 	BuildTask.Cooldown = Cooldown_MeleeAttack;
 	BuildTask.OnEnded = [&]{MoveToReset();};
 	
@@ -141,7 +141,7 @@ void ANpcFriendly::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(TargetNearestEnemyAction);
 	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.OnStarted = [&]{SetMeleeParams();};
-	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition();};
+	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition() && TargetNearestEnemyCondition();};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Ranged Attack
@@ -814,6 +814,13 @@ EActionState ANpcFriendly::TargetNearestBuilding(float DeltaTime)
 	TargetActor = BuildingsManager->GetNearestBuilding(GetActorLocation(), EBuildingType::Wall, MainSide, true);
 	
 	if (!TargetActor) return EActionState::Failed;
+	
+	const float Radius = MovementComp->Radius;
+	const float Distance = 0.2f;
+	const FVector RotateAxis = MainSide == EOriginSide::Left? FVector::DownVector : FVector::UpVector;
+	TargetLocation = TargetActor->GetActorLocation().RotateAngleAxis(Distance, RotateAxis).GetClampedToSize2D(Radius, Radius);
+	
+	
 	return EActionState::Succeeded;
 }
 
@@ -902,7 +909,7 @@ void ANpcFriendly::SetMeleeParams()
 EActionState ANpcFriendly::RangedAttack(float DeltaTime)
 {
 	// get target
-	if (TargetActor == nullptr)
+	if (!TargetActor || !Stats)
 	{
 		OnBowAttack(false);
 		return EActionState::Failed;
@@ -1046,8 +1053,7 @@ EActionState ANpcFriendly::GetDefensePosition(float DeltaTime)
 	
 	// get the wall's position vector and rotate it a random amount and make it the npc's radius
 	
-	FVector RotateAxis = FVector::UpVector;
-	if (MainSide == EOriginSide::Left) RotateAxis = FVector::DownVector;
+	const FVector RotateAxis = MainSide == EOriginSide::Left? FVector::DownVector : FVector::UpVector;
 
 	const float MaxDistance = 0.5f + ExtraDistancePerPerson * (NpcManager->GetNpcs(ENpcSearchOption::AnyFriendly, MainSide).Num()/2); 
 	const float Radius = MovementComp->Radius;
