@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Npc.h"
-#include "AI/Actions/Action.h"
 #include "AI/HTN/Task.h"
 #include "NpcHostile.generated.h"
 
@@ -27,7 +26,6 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
-	virtual void BindActions() override;
 	virtual void CreateBehaviours() override;
 	
 private:
@@ -53,19 +51,11 @@ protected:
 	//**
 	
 	//* Walk *//
-	FAction WalkAction{FString("Walk")};
-	void Walk(float DeltaTime);
-	
-	//* Delay *//
-	FAction CooldownAction{FString("Cooldown")};
-	void Cooldown(float DeltaTime);
-	void CooldownReset();
-	float Delay;
+	EActionState Walk(float DeltaTime);
 	
 	
 	//* Move To *//
-	FAction MoveToAction{FString("Move To")};
-	void MoveTo(float DeltaTime);
+	EActionState MoveTo(float DeltaTime);
 	bool MoveToCondition() const;
 	void MoveToReset();
 	
@@ -85,8 +75,7 @@ protected:
 	
 	
 	//* Melee Attack *//
-	FAction MeleeAttackAction{FString("Attack")};
-	void MeleeAttack(float DeltaTime);
+	EActionState MeleeAttack(float DeltaTime);
 	bool MeleeAttackCondition() const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
@@ -97,8 +86,7 @@ protected:
 	
 	
 	//* Target Attackable *//
-	FAction TargetAttackableAction{FString("Target Attackable")};
-	void TargetAttackable(float DeltaTime);
+	EActionState TargetAttackable(float DeltaTime);
 	bool TargetAttackableCondition() const;
 	
 	

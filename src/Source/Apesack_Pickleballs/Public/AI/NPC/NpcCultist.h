@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Npc.h"
-#include "AI/Actions/Action.h"
 #include "AI/HTN/Task.h"
 #include "NpcCultist.generated.h"
 
@@ -27,15 +26,12 @@ private:
 	
 protected:
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
-	virtual void BindActions() override;
 	virtual void CreateBehaviours() override;
 
 	//* Running Away *//
 	FTask RunawayTask{"Runaway"};
-	FAction RunawayAction{"Runaway"};
-	void Runaway(float DeltaTime);
+	EActionState Runaway(float DeltaTime);
 	bool RunawayCondition() const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
@@ -44,8 +40,7 @@ protected:
 	
 	//* Summoning *//
 	FTask SummoningTask{"Summoning"};
-	FAction SummoningAction{"SummonEnemies"};
-	void SummonEnemies(float DeltaTime);
+	EActionState SummonEnemies(float DeltaTime);
 	bool SummonCondition();
 	bool IsRitualTime();
 	
