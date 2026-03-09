@@ -851,13 +851,10 @@ EActionState ANpcFriendly::MeleeAttack(float DeltaTime)
 		{
 			TargetStatComponent->HealPatch(20);
 			
-			
-			// start the cooldown
-			return EActionState::InProgress;
+			return EActionState::Succeeded;
 		}
 		TargetActor = nullptr;
-		// start the cooldown
-		return EActionState::Succeeded;
+		return EActionState::Failed;
 	}
 	
 	// 1. GET stats as struct
