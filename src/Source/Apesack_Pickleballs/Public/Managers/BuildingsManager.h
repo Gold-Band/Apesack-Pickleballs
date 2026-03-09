@@ -13,6 +13,7 @@ enum class EBuildingType : uint8
 {
 	Wall,
 	Tower,
+	Ritual,
 	Any
 };
 
@@ -39,14 +40,16 @@ class UBuildingsManager: public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
-	UBuildingsManager();
+	UBuildingsManager(){};
 	
 	FOnNewArcherTowerBuiltSignature OnNewArcherTowerBuiltDelegate;
 	FOnNewWallBuiltSignature OnNewWallBuiltDelegate;
 	
 	static UBuildingsManager* Get(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintCallable)
 	void AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType, EOriginSide Side);
+	UFUNCTION(BlueprintCallable)
 	void RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType, EOriginSide Side);
 	
 	AActor* GetFarthestBuilding(EBuildingType Type, EOriginSide Side);
@@ -56,6 +59,9 @@ public:
 	bool WallsExist(EOriginSide Side) const;
 	
 private:
+	
+	const TArray<ABuilding*>* GetArrayConst(EBuildingType Type, EOriginSide Side) const;
+	TArray<ABuilding*>* GetArray(EBuildingType Type, EOriginSide Side);
 	
 	UPROPERTY()
 	TArray<ABuilding*> RightWalls;
@@ -68,4 +74,10 @@ private:
 	
 	UPROPERTY()
 	TArray<ABuilding*> LeftTowers;
+	
+	UPROPERTY()
+	TArray<ABuilding*> RightRitualZones;
+	
+	UPROPERTY()
+	TArray<ABuilding*> LeftRitualZones;
 };
