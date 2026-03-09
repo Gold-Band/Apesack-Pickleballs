@@ -42,6 +42,7 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 		{
 			Day += FMath::Floor(Hour/24);
 			Hour = Hour%24;
+			if (OnDayTickedDelegate.IsBound()) OnDayTickedDelegate.Broadcast(Day);
 			TryBroadcast(EWorldClockBroadcastTiming::EveryDay);
 		}
 		
