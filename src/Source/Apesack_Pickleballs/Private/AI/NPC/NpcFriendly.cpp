@@ -476,6 +476,10 @@ void ANpcFriendly::LeaveParty()
 	
 	FollowTask.Reset();
 	
+	// skip cooldowns on duties
+	OccupyTowerTask.DoCooldown(10);
+	DefendWallTask.DoCooldown(10);
+	
 	NewRadiusTween();
 }
 
