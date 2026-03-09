@@ -4,11 +4,6 @@
 #include "Buildings/Building.h"
 #include "Buildings/Wall.h"
 
-UBuildingsManager::UBuildingsManager()
-{
-	
-}
-
 UBuildingsManager* UBuildingsManager::Get(const UObject* WorldContextObject)
 {
 	if (GEngine)
@@ -24,19 +19,16 @@ UBuildingsManager* UBuildingsManager::Get(const UObject* WorldContextObject)
 
 void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType, EOriginSide Side)
 {
-	TArray<ABuilding*>* ModifyArray;
+	TArray<ABuilding*>* ModifyArray = GetArray(BuildingType,Side);
+	if (!ModifyArray) return;
 	
 	if (BuildingType == EBuildingType::Wall)
 	{
 		if (OnNewWallBuiltDelegate.IsBound()) OnNewWallBuiltDelegate.Broadcast(Cast<AWall>(NewBuilding), Side); 
-		if (Side == EOriginSide::Left) ModifyArray = &LeftWalls;
-		else ModifyArray = &RightWalls;
 	}
-	else
+	else if (BuildingType == EBuildingType::Tower)
 	{
 		if (OnNewArcherTowerBuiltDelegate.IsBound()) OnNewArcherTowerBuiltDelegate.Broadcast(Cast<AArcherTower>(NewBuilding), Side); 
-		if (Side == EOriginSide::Left) ModifyArray = &LeftTowers;
-		else ModifyArray = &RightTowers;
 	}
 	
 	bool bInserted = false;
@@ -84,58 +76,27 @@ void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType Buildi
 
 void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType, EOriginSide Side)
 {
-	TArray<ABuilding*>* ModifyArray;
+	TArray<ABuilding*>* ModifyArray = GetArray(BuildingType,Side);
 	
-	if (BuildingType == EBuildingType::Wall)
-	{
-		if (Side == EOriginSide::Left) ModifyArray = &LeftWalls;
-		else ModifyArray = &RightWalls;
-	}
-	else
-	{
-		if (Side == EOriginSide::Left) ModifyArray = &LeftTowers;
-		else ModifyArray = &RightTowers;
-	}
+	if (!ModifyArray) return;
 	
 	ModifyArray->Remove(OldBuilding);
 }
 
 AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide Side)
 {
-	TArray<ABuilding*>* SearchArray;
+	TArray<ABuilding*>* SearchArray = GetArray(Type,Side);
 	
-	if (Type == EBuildingType::Wall)
-	{
-		if (Side == EOriginSide::Left) SearchArray = &LeftWalls;
-		else SearchArray = &RightWalls;
-	}
-	else
-	{
-		if (Side == EOriginSide::Left) SearchArray = &LeftTowers;
-		else SearchArray = &RightTowers;
-	}
-	
-	if (SearchArray->IsEmpty()) return nullptr;
+	if (!SearchArray || SearchArray->IsEmpty()) return nullptr;
 	
 	return SearchArray->Last();
 }
 
 AActor* UBuildingsManager::GetNearestBuilding(const FVector& FromLocation, EBuildingType Type, EOriginSide Side, bool bDamaged)
 {
-	TArray<ABuilding*>* SearchArray;
+	TArray<ABuilding*>* SearchArray = GetArray(Type,Side);
 	
-	if (Type == EBuildingType::Wall)
-	{
-		if (Side == EOriginSide::Left) SearchArray = &LeftWalls;
-		else SearchArray = &RightWalls;
-	}
-	else
-	{
-		if (Side == EOriginSide::Left) SearchArray = &LeftTowers;
-		else SearchArray = &RightTowers;
-	}
-	
-	if (SearchArray->IsEmpty()) return nullptr;
+	if (!SearchArray || SearchArray->IsEmpty()) return nullptr;
 	
 	// get closest
 	AActor* FoundActor = nullptr;
@@ -156,10 +117,8 @@ AActor* UBuildingsManager::GetNearestBuilding(const FVector& FromLocation, EBuil
 
 bool UBuildingsManager::DoVacantTowersExist(EOriginSide Side) const
 {
-	const TArray<ABuilding*>* SearchArray;
+	const TArray<ABuilding*>* SearchArray = GetArrayConst(EBuildingType::Tower, Side);
 	
-	if (Side == EOriginSide::Left) SearchArray = &LeftTowers;
-	else SearchArray = &RightTowers;
 	
 	for (const auto Tower: *SearchArray)
 	{
@@ -173,4 +132,46 @@ bool UBuildingsManager::WallsExist(EOriginSide Side) const
 {
 	if (Side == EOriginSide::Left) return !LeftWalls.IsEmpty();
 	return !RightWalls.IsEmpty();
+}
+
+const TArray<ABuilding*>* UBuildingsManager::GetArrayConst(EBuildingType Type, EOriginSide Side) const
+{
+	if (Type == EBuildingType::Wall)
+	{
+		if (Side == EOriginSide::Left) return &LeftWalls;
+		return  &RightWalls;
+	}
+	if (Type == EBuildingType::Tower)
+	{
+		if (Side == EOriginSide::Left) return &LeftTowers;
+		return &RightTowers;
+	}
+	if (Type == EBuildingType::Ritual)
+	{
+		if (Side == EOriginSide::Left) return &LeftRitualZones;
+		return &RightRitualZones;
+	}
+	
+	return nullptr;
+}
+
+TArray<ABuilding*>* UBuildingsManager::GetArray(EBuildingType Type, EOriginSide Side)
+{
+	if (Type == EBuildingType::Wall)
+	{
+		if (Side == EOriginSide::Left) return &LeftWalls;
+		return  &RightWalls;
+	}
+	if (Type == EBuildingType::Tower)
+	{
+		if (Side == EOriginSide::Left) return &LeftTowers;
+		return &RightTowers;
+	}
+	if (Type == EBuildingType::Ritual)
+	{
+		if (Side == EOriginSide::Left) return &LeftRitualZones;
+		return &RightRitualZones;
+	}
+	
+	return nullptr;
 }
