@@ -12,6 +12,10 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 	if (bAllowClockTicking)
 	{
 		Milliseconds += DeltaTime * TimeScale;
+		
+		TotalSeconds += Milliseconds;
+		TotalSeconds = TotalSeconds >= 86400 ? 0: TotalSeconds;
+		
 		if (Milliseconds >= 1)
 		{
 			msFloor = FMath::Floor(Milliseconds);
@@ -119,6 +123,11 @@ void UWorldClockSubsystem::SetTime(const uint8 NewDay, const uint8 NewHour, cons
 	Hour = NewHour;
 	Minute = NewMinute;
 	Second = NewSecond;
+}
+
+float UWorldClockSubsystem::GetNormalizedTime() const
+{
+	return TotalSeconds / 86400.0f;
 }
 
 FTimestamp UWorldClockSubsystem::GetTime() const

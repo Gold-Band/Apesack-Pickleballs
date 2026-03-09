@@ -65,8 +65,7 @@ void USunClockSynchronizer::SyncRotationToTime(const FTimestamp& Time)
 	const float NormalizedTime = static_cast<float>(TotalSecondsToday) / 86400.0f;
 
 
-	const float SetAngle =
-		RotationCurve.LoadSynchronous()->GetFloatValue(NormalizedTime) * 360.0f - 90.f;
+	const float SetAngle = RotationCurve.LoadSynchronous()->GetFloatValue(NormalizedTime) * 360.0f - 90.f;
 
 	
 	const FVector Axis = RotationAxis.GetSafeNormal();

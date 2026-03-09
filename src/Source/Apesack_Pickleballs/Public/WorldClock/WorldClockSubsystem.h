@@ -106,6 +106,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetTime(const uint8 NewDay, const uint8 NewHour, const uint8 NewMinute, const uint8 NewSecond);
+
+	UFUNCTION(BlueprintPure)
+	float GetNormalizedTime() const;
 	
 	UFUNCTION(BlueprintPure)
 	FTimestamp GetTime() const;
@@ -134,7 +137,9 @@ private:
 	uint32 Minute = 0;
 	uint32 Second = 0;
 	FTimestamp CurrentTime;
-
+	
+	float TotalSeconds = 0;
+	
 	uint8 DayHourStart = 6;
 	uint8 NightHourStart = 20;
 	
