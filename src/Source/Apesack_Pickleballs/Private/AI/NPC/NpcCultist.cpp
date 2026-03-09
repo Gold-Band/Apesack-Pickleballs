@@ -15,17 +15,6 @@ ANpcCultist::ANpcCultist()
 	GetSideInterval = 1;
 }
 
-void ANpcCultist::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	
-	if ((SenseTimer+=DeltaSeconds) > SenseFriendliesInterval)
-	{
-		SenseTimer = 0;
-		TargetActor = NpcManager->FindNearestNpcOrPlayer(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide, FMath::Square(RunawayRadius));
-	}
-}
-
 void ANpcCultist::BeginPlay()
 {
 	
@@ -39,38 +28,17 @@ void ANpcCultist::BeginPlay()
 
 void ANpcCultist::CreateBehaviours()
 {
-	
 	FAction SummoningAction{"SummonEnemies"};
 	SummoningAction.Func = [&](const float DeltaTime){return SummonEnemies(DeltaTime);};
-	FAction RunawayAction{"Runaway"};
-	RunawayAction.Func = [&](const float DeltaTime){return Runaway(DeltaTime);};
 	
-	RunawayTask.Actions.Add(RunawayAction);
-	RunawayTask.Condition = [&]{return RunawayCondition();};
 	SummoningTask.Actions.Add(SummoningAction);
 	SummoningTask.Condition = [&]{return SummonCondition();};
+	SummoningTask.Cooldown = Cooldown_Summoning;
 	
-	
-	
-	HtnDomain->AssignTask(&RunawayTask);
 	HtnDomain->AssignTask(&SummoningTask);
 	
 	// Wait
 	Super::CreateBehaviours();
-}
-
-EActionState ANpcCultist::Runaway(float DeltaTime)
-{
-#if WITH_EDITOR
-	UE_LOG(LogTemp, Warning, TEXT("Runaway"));
-#endif
-	
-	return EActionState::Succeeded;
-}
-
-bool ANpcCultist::RunawayCondition() const
-{
-	return TargetActor != nullptr;
 }
 
 EActionState ANpcCultist::SummonEnemies(float DeltaTime)

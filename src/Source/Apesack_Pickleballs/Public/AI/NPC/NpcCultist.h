@@ -18,26 +18,11 @@ class APESACK_PICKLEBALLS_API ANpcCultist : public ANpc
 public:
 	ANpcCultist();
 	
-	virtual void Tick(float DeltaSeconds) override;
-	
-private:
-	float SenseFriendliesInterval = 1.5f;
-	float SenseTimer;
-	
 protected:
 	virtual void BeginPlay() override;
 	
 	virtual void CreateBehaviours() override;
 
-	//* Running Away *//
-	FTask RunawayTask{"Runaway"};
-	EActionState Runaway(float DeltaTime);
-	bool RunawayCondition() const;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
-	float RunawayRadius = 500.f;
-	
-	
 	//* Summoning *//
 	FTask SummoningTask{"Summoning"};
 	EActionState SummonEnemies(float DeltaTime);
@@ -59,9 +44,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning")
 	int RitualBaseQty = 1;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Properties|Summoning", meta=(DisplayName="Cooldown"))
+	float Cooldown_Summoning = 1.5f;
+	
 	int RitualQty;
 	
 	bool bRitualStarted = false;
+	
 	
 	UPROPERTY()
 	TObjectPtr<UWorldClockSubsystem> WorldClockSubsystem;
