@@ -18,12 +18,6 @@ class APESACK_PICKLEBALLS_API ANpcCultist : public ANpc
 public:
 	ANpcCultist();
 	
-	virtual void Tick(float DeltaSeconds) override;
-	
-private:
-	float SenseFriendliesInterval = 1.5f;
-	float SenseTimer;
-	
 protected:
 	virtual void BeginPlay() override;
 	

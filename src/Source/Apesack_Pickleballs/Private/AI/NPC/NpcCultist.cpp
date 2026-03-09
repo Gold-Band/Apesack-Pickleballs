@@ -15,17 +15,6 @@ ANpcCultist::ANpcCultist()
 	GetSideInterval = 1;
 }
 
-void ANpcCultist::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	
-	if ((SenseTimer+=DeltaSeconds) > SenseFriendliesInterval)
-	{
-		SenseTimer = 0;
-		TargetActor = NpcManager->FindNearestNpcOrPlayer(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide, FMath::Square(RunawayRadius));
-	}
-}
-
 void ANpcCultist::BeginPlay()
 {
 	
@@ -39,15 +28,12 @@ void ANpcCultist::BeginPlay()
 
 void ANpcCultist::CreateBehaviours()
 {
-	
 	FAction SummoningAction{"SummonEnemies"};
 	SummoningAction.Func = [&](const float DeltaTime){return SummonEnemies(DeltaTime);};
 	
 	SummoningTask.Actions.Add(SummoningAction);
 	SummoningTask.Condition = [&]{return SummonCondition();};
 	SummoningTask.Cooldown = Cooldown_Summoning;
-	
-	
 	
 	HtnDomain->AssignTask(&SummoningTask);
 	
