@@ -36,40 +36,36 @@ void ANpcCultist::BeginPlay()
 	WorldClockSubsystem = UWorldClockSubsystem::Get(GetWorld());
 }
 
-void ANpcCultist::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
-void ANpcCultist::BindActions()
-{
-	RunawayAction.ExecutionDelegate.BindUObject(this, &ANpcCultist::Runaway);
-	RunawayAction.ConditionDelegate.BindUObject(this, &ANpcCultist::RunawayCondition);
-	
-	SummoningAction.ExecutionDelegate.BindUObject(this, &ANpcCultist::SummonEnemies);
-	SummoningAction.ConditionDelegate.BindUObject(this, &ANpcCultist::SummonCondition);
-	
-	Super::BindActions();
-}
 
 void ANpcCultist::CreateBehaviours()
 {
-	RunawayTask.Actions.Add(&RunawayAction);
-	HtnDomain->AssignTask(&RunawayTask);
 	
-	SummoningTask.Actions.Add(&SummoningAction);
+	FAction SummoningAction{"SummonEnemies"};
+	SummoningAction.Func = [&](const float DeltaTime){return SummonEnemies(DeltaTime);};
+	FAction RunawayAction{"Runaway"};
+	RunawayAction.Func = [&](const float DeltaTime){return Runaway(DeltaTime);};
+	
+	RunawayTask.Actions.Add(RunawayAction);
+	RunawayTask.Condition = [&]{return RunawayCondition();};
+	SummoningTask.Actions.Add(SummoningAction);
+	SummoningTask.Condition = [&]{return SummonCondition();};
+	
+	
+	
+	HtnDomain->AssignTask(&RunawayTask);
 	HtnDomain->AssignTask(&SummoningTask);
 	
+	// Wait
 	Super::CreateBehaviours();
 }
 
-void ANpcCultist::Runaway(float DeltaTime)
+EActionState ANpcCultist::Runaway(float DeltaTime)
 {
 #if WITH_EDITOR
 	UE_LOG(LogTemp, Warning, TEXT("Runaway"));
 #endif
 	
-	RunawayAction.State = EActionState::Succeeded;
+	return EActionState::Succeeded;
 }
 
 bool ANpcCultist::RunawayCondition() const
@@ -77,18 +73,17 @@ bool ANpcCultist::RunawayCondition() const
 	return TargetActor != nullptr;
 }
 
-void ANpcCultist::SummonEnemies(float DeltaTime)
+EActionState ANpcCultist::SummonEnemies(float DeltaTime)
 {
 	if (IsRitualTime() && RitualQty-- > 0)
 	{
 		SummonEnemiesEvent();
-		SummoningAction.State = EActionState::Succeeded;
-		return;
+		return EActionState::Succeeded;
 	}
 	
 	// otherwise, the player is probably invading
 	SummonEnemiesEvent();
-	SummoningAction.State = EActionState::Succeeded;
+	return EActionState::Succeeded;
 }
 
 bool ANpcCultist::SummonCondition()

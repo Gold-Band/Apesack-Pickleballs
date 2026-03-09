@@ -72,7 +72,6 @@ void ANpc::BeginPlay()
 	
 	if (NpcManager) NpcManager->AddNpc(this, NpcType, MainSide);
 	
-	BindActions();
 	CreateBehaviours();
 	
 	if (Stats)
@@ -88,16 +87,13 @@ void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void ANpc::BindActions()
-{
-	// Wait
-	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
-}
-
 void ANpc::CreateBehaviours()
 {
+	FAction WaitAction{FString("Wait")};
+	WaitAction.Func = [&](const float DeltaTime){return Wait(DeltaTime);};
+	
 	// Wait
-	WaitTask.Actions.Add(&WaitAction);
+	WaitTask.Actions.Add(WaitAction);
 	HtnDomain->AssignTask(&WaitTask);
 }
 
@@ -116,9 +112,9 @@ FString ANpc::GetActorName() const
 	return GetCharacterName();
 }
 
-void ANpc::Wait(float DeltaTime)
+EActionState ANpc::Wait(float DeltaTime)
 {
-	WaitAction.State = EActionState::Succeeded;
+	return EActionState::Succeeded;
 }
 
 void ANpc::OnDeath_Implementation()

@@ -30,7 +30,6 @@ TArray<UListItemObject*> ANpcHostile::GetInfo() const
 	return Info;
 }
 
-
 void ANpcHostile::BeginPlay()
 {
 	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
@@ -47,38 +46,40 @@ void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void ANpcHostile::BindActions()
-{
-	WalkAction.ExecutionDelegate.BindUObject(this, &ThisClass::Walk);
-	
-	MoveToAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
-	MoveToAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveTo);
-	MoveToAction.ResetDelegate.BindUObject(this, &ThisClass::MoveToReset);
-	
-	MeleeAttackAction.ConditionDelegate.BindUObject(this, &ThisClass::MeleeAttackCondition);
-	MeleeAttackAction.ExecutionDelegate.BindUObject(this, &ThisClass::MeleeAttack);
-	
-	CooldownAction.ExecutionDelegate.BindUObject(this, &ThisClass::Cooldown);
-	CooldownAction.ResetDelegate.BindUObject(this, &ThisClass::CooldownReset);
-	
-	TargetAttackableAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetAttackableCondition);
-	TargetAttackableAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetAttackable);
-}
-
 void ANpcHostile::CreateBehaviours()
 {
+	FAction WalkAction{FString("Walk")};
+	WalkAction.Func = [&](const float DeltaTime){return Walk(DeltaTime);};
+	
+	FAction MoveToAction{FString("Move To")};
+	MoveToAction.Func = [&](const float DeltaTime){return MoveTo(DeltaTime);};
+	
+	FAction TargetAttackableAction{FString("Target Attackable")};
+	TargetAttackableAction.Func = [&](const float DeltaTime){return TargetAttackable(DeltaTime);};
+	
+	FAction MeleeAttackAction{FString("Attack")};
+	MeleeAttackAction.Func = [&](const float DeltaTime){return MeleeAttack(DeltaTime);};
+	
+	
 	// Melee Attack
-	MeleeAttackTask.Actions.Add(&TargetAttackableAction);
-	MeleeAttackTask.Actions.Add(&MoveToAction);
-	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
-	MeleeAttackTask.Actions.Add(&CooldownAction);
+	MeleeAttackTask.Actions.Add(TargetAttackableAction);
+	MeleeAttackTask.Actions.Add(MoveToAction);
+	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
-	HtnDomain->AssignTask(&MeleeAttackTask);
-	 
+	MeleeAttackTask.Condition = [&]{return TargetAttackableCondition() && MeleeAttackCondition() && MoveToCondition();};
+	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
+	
 	// Walk
-	MoveForwardTask.Actions.Add(&WalkAction);
+	MoveForwardTask.Actions.Add(WalkAction);
 	MoveForwardTask.bPrintDebug = bPrintDebug_MoveTo;
+	
+	
+	
+	HtnDomain->AssignTask(&MeleeAttackTask);
 	HtnDomain->AssignTask(&MoveForwardTask);
+	
+	// Wait
+	Super::CreateBehaviours();
 }
 
 void ANpcHostile::OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side)
@@ -97,38 +98,26 @@ float ANpcHostile::GetAngleBetweenVectors(const FVector& A, const FVector& B)
 	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
 }
 
-void ANpcHostile::Walk(float DeltaTime)
+EActionState ANpcHostile::Walk(float DeltaTime)
 {
 	if (MainSide == EOriginSide::Left) MoveForwardScaled(1);
 	else MoveForwardScaled(-1);
+	
+	return EActionState::Succeeded;
 }
 
-
-void ANpcHostile::Cooldown(float DeltaTime)
-{
-	Timer += DeltaTime;
-	if (Timer >= Delay) CooldownAction.State = EActionState::Succeeded;
-}
-
-
-void ANpcHostile::CooldownReset()
-{
-	Timer = 0.0f;
-}
-
-void ANpcHostile::MoveTo(float DeltaTime)
+EActionState ANpcHostile::MoveTo(float DeltaTime)
 {
 	// Is destination still valid?
 	if (bIsFirstTick)
 	{
 		bIsFirstTick = false;
-		return;
+		return EActionState::InProgress;
 	}
 	
 	if (!TargetActor)
 	{
-		MoveToAction.State = EActionState::Failed;
-		return;
+		return EActionState::Failed;
 	}
 	
 	// Are we there yet?
@@ -169,8 +158,7 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			{
 				if (It.Distance <= StopDistance)
 				{
-					MoveToAction.State = EActionState::Succeeded;
-					return;
+					return EActionState::Succeeded;
 				}
 			}
 		}
@@ -179,6 +167,8 @@ void ANpcHostile::MoveTo(float DeltaTime)
 	
 	MoveDirection = GetDirectionTo(TargetActor->GetActorLocation());
 	MoveForwardScaled(MoveDirection);
+	
+	return EActionState::InProgress;
 }
 
 bool ANpcHostile::MoveToCondition() const
@@ -192,21 +182,19 @@ void ANpcHostile::MoveToReset()
 	//TargetActor = nullptr;
 }
 
-void ANpcHostile::MeleeAttack(float DeltaTime)
+EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 {
 	// get target
 	if (TargetActor == nullptr)
 	{
-		MeleeAttackAction.State = EActionState::Failed;
-		return;
+		return EActionState::Failed;
 	}
 
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (TargetStatComponent == nullptr)
 	{
-		MeleeAttackAction.State = EActionState::Failed;
-		return;		
+		return EActionState::Failed;
 	}
 	
 		OnMeleeAttack();
@@ -235,8 +223,8 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 	    DamagePatch.MagicDamage,
 	    DamagePatch.DebuffDuration
 	);
-	MeleeAttackAction.State = EActionState::Succeeded;
-	Delay = Cooldown_MeleeAttack;
+	
+	return EActionState::Succeeded;
 }
 
 bool ANpcHostile::MeleeAttackCondition() const
@@ -244,7 +232,7 @@ bool ANpcHostile::MeleeAttackCondition() const
 	return /*NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide) != nullptr*/ true;
 }
 
-void ANpcHostile::TargetAttackable(float DeltaTime)
+EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 {
 	if (MainSide == EOriginSide::Left)
 	{
@@ -263,8 +251,8 @@ void ANpcHostile::TargetAttackable(float DeltaTime)
 	}
 #endif
 	
-	if (TargetActor != nullptr) TargetAttackableAction.State = EActionState::Succeeded;
-	else TargetAttackableAction.State = EActionState::Failed;
+	if (TargetActor != nullptr) return EActionState::Succeeded;
+	return EActionState::Failed;
 }
 
 bool ANpcHostile::TargetAttackableCondition() const

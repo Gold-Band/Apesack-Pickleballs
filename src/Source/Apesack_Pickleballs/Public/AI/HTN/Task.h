@@ -3,16 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AI/Actions/Action.h"
 
-class FAction;
+
+//class FAction;
 
 /**
  * Container of required actions to perform this task
  */
 
-DECLARE_DELEGATE(FResetSignature)
-DECLARE_DELEGATE(FOnStartedSignature)
-DECLARE_DELEGATE(FOnEndedSignature)
+//DECLARE_DELEGATE(FResetSignature)
+//DECLARE_DELEGATE(FOnStartedSignature)
+//DECLARE_DELEGATE(FOnEndedSignature)
+
+//DECLARE_DELEGATE_RetVal(bool, FConditionCheckSignature);
+//DECLARE_DELEGATE_OneParam(FExecutionFunctionSignature, float);
 
 class APESACK_PICKLEBALLS_API FTask
 {
@@ -28,24 +33,33 @@ public:
 	void Reset();
 	void SoftReset();
 	
-	TArray<FAction*> Actions;
-	bool bAutoReset;
-	float AutoResetInterval;
+	void DoCooldown(float DeltaTime);
+	bool IsOnCooldown() const;
+	
+	//bool bAutoReset;
+	//float AutoResetInterval;
 	bool bPrintDebug = false;
 	bool bResetOnFail = false;
 	
-	FOnStartedSignature OnStartedDelegate;
-	FOnEndedSignature OnEndedDelegate;
+	float Cooldown = 0;
+	
+	TArray<FAction> Actions;
+	TFunction<bool()> Condition;
+	TFunction<void()> OnStarted;
+	TFunction<void()> OnEnded;
+	
 	void OnTaskStarted();
 	
 private:
-	bool AutoResetCondition() const;
+	//bool AutoResetCondition() const;
+	float CooldownTimer;
 	
 	FString Name;
 	int Progress;
+	
 	bool bFailed;
 	bool bSuccess;
 	bool bTaskFirst;
 	
-	float TimeSinceReset;
+	//float TimeSinceReset;
 };
