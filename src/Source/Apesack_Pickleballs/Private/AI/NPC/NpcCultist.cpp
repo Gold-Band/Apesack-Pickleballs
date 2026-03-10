@@ -2,8 +2,10 @@
 #include "AI/NPC/NpcCultist.h"
 
 #include "AI/HTN/HTNComponent.h"
+#include "Buildings/RitualZone.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Managers/NpcManager.h"
+#include "Movement/CircularPawnMovementComponent.h"
 #include "WorldClock/WorldClockSubsystem.h"
 
 // Sets default values
@@ -11,34 +13,101 @@ ANpcCultist::ANpcCultist()
 {
 	NpcType = ENpcTag::Hostile;
 	CharacterName = "Cultist";
-	
-	GetSideInterval = 1;
 }
 
 void ANpcCultist::BeginPlay()
 {
-	
-	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
-	MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
+	MainSide = ADefaultGameMode::GetActorSideFromOrigin(this);
 	
 	Super::BeginPlay();
 	WorldClockSubsystem = UWorldClockSubsystem::Get(GetWorld());
 }
 
+void ANpcCultist::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	
+	if (MySpawner && bIsOccupyingRitualZone) MySpawner->RemoveOccupant();
+}
+
+bool ANpcCultist::GetSideCheckCondition()
+{
+	return false;
+}
+
 
 void ANpcCultist::CreateBehaviours()
 {
-	FAction SummoningAction{"SummonEnemies"};
+	FAction SummoningAction{"Summon Enemies"};
 	SummoningAction.Func = [&](const float DeltaTime){return SummonEnemies(DeltaTime);};
+	
+	FAction MoveToVectorAction{FString("Move To Vector")};
+	MoveToVectorAction.Func = [&](const float DeltaTime){ return MoveToVector(DeltaTime);};
+	
+	FAction SelectRitualZoneAction{FString("Select Ritual Zone")};
+	SelectRitualZoneAction.Func = [&](const float DeltaTime){ return SelectRitualZone(DeltaTime);};
+	
+	FAction JoinRitualCircleAction{FString("Join Circle")};
+	JoinRitualCircleAction.Func = [&](const float DeltaTime){return JoinRitualCircle(DeltaTime);};
 	
 	SummoningTask.Actions.Add(SummoningAction);
 	SummoningTask.Condition = [&]{return SummonCondition();};
 	SummoningTask.Cooldown = Cooldown_Summoning;
 	
+	OccupyRitualZoneTask.Actions.Add(SelectRitualZoneAction);
+	OccupyRitualZoneTask.Actions.Add(MoveToVectorAction);
+	OccupyRitualZoneTask.Actions.Add(JoinRitualCircleAction);
+	OccupyRitualZoneTask.Condition = [&]{return OccupyRitualZoneCondition();};
+	OccupyRitualZoneTask.Cooldown = 1.0f;
+	
 	HtnDomain->AssignTask(&SummoningTask);
+	HtnDomain->AssignTask(&OccupyRitualZoneTask);
 	
 	// Wait
 	Super::CreateBehaviours();
+}
+
+EActionState ANpcCultist::MoveToVector(float DeltaTime)
+{
+	// Are we there yet?
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetLocation);
+	if (DistanceSquared <= StopDistance)
+	{
+		return EActionState::Succeeded;
+	}
+	
+	// Move
+	MoveDirection = GetDirectionTo(TargetLocation);
+	MoveForwardScaled(MoveDirection);
+	
+	return EActionState::InProgress;
+}
+
+EActionState ANpcCultist::SelectRitualZone(float DeltaTime)
+{
+	MySpawner = UBuildingsManager::Get(GetWorld())->GetGotoRitualZone(MainSide);
+	
+	if (!MySpawner) return EActionState::Failed;
+	
+	const float Radius = MovementComp->Radius;
+	TargetLocation = MySpawner->GetActorLocation().GetClampedToSize2D(Radius, Radius);
+	
+	return EActionState::Succeeded;
+}
+
+EActionState ANpcCultist::JoinRitualCircle(float DeltaTime)
+{
+	if (!MySpawner->HasRoom()) return EActionState::Failed;
+	
+	bIsOccupyingRitualZone = true;
+	MySpawner->AddOccupant(this);
+	OnArrivedAtRitualZoneEvent();
+	return EActionState::Succeeded;
+}
+
+bool ANpcCultist::OccupyRitualZoneCondition() const
+{
+	return bCanMove && !bIsOccupyingRitualZone;
 }
 
 EActionState ANpcCultist::SummonEnemies(float DeltaTime)
@@ -56,7 +125,7 @@ EActionState ANpcCultist::SummonEnemies(float DeltaTime)
 
 bool ANpcCultist::SummonCondition()
 {
-	return bSummonEnabled && (IsRitualTime() || bSummonEnemies);
+	return bSummonEnabled && (IsRitualTime() || bSummonEnemies) && bIsOccupyingRitualZone;
 }
 
 bool ANpcCultist::IsRitualTime()

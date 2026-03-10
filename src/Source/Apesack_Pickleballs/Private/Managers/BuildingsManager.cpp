@@ -2,6 +2,7 @@
 
 #include "Buildings/ArcherTower.h"
 #include "Buildings/Building.h"
+#include "Buildings/RitualZone.h"
 #include "Buildings/Wall.h"
 
 UBuildingsManager* UBuildingsManager::Get(const UObject* WorldContextObject)
@@ -48,8 +49,8 @@ void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType Buildi
 	}
 	if (!bInserted) ModifyArray->Add(NewBuilding);
 	
-	
 	// print	
+#if WITH_EDITOR
 	FString TypeString;
 	TArray<ABuilding*>* LeftArray;
 	TArray<ABuilding*>* RightArray;
@@ -59,14 +60,14 @@ void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType Buildi
 		LeftArray = &LeftWalls;
 		RightArray = &RightWalls;
 	}
-	else
+	else if (BuildingType == EBuildingType::Tower)
 	{
 		TypeString = "Towers";
 		LeftArray = &LeftTowers;
 		RightArray = &RightTowers;
 	}
+	else return;
 	
-#if WITH_EDITOR
 	UE_LOG(LogTemp, Warning, TEXT("Num%s = %i  |  Leftmost = %s  |  Rightmost = %s"), 
 		*TypeString, LeftArray->Num()+RightArray->Num(), 
 		LeftArray->IsEmpty()? TEXT("Nothing") : *LeftArray->Last()->GetActorNameOrLabel(), 
@@ -113,6 +114,28 @@ AActor* UBuildingsManager::GetNearestBuilding(const FVector& FromLocation, EBuil
 	
 	return FoundActor;
 	
+}
+
+ARitualZone* UBuildingsManager::GetGotoRitualZone(EOriginSide Side)
+{
+	const TArray<ABuilding*>* SearchArray = GetArray(EBuildingType::Ritual, Side);
+	if (!SearchArray || SearchArray->IsEmpty()) return nullptr;
+	
+	// get the ritual zone with the least amount of cultists
+	int Least = 99999;
+	ARitualZone* ZoneWithLeastOccupants = nullptr;
+	for (int i = 0; i < SearchArray->Num(); ++i)
+	{
+		const auto Zone = Cast<ARitualZone>((*SearchArray)[i]);
+		const int NumOccupants = Zone->GetNumOccupants();
+		if (NumOccupants < Least)
+		{
+			Least = NumOccupants;
+			ZoneWithLeastOccupants = Zone;
+		}
+	}
+	
+	return ZoneWithLeastOccupants;
 }
 
 bool UBuildingsManager::DoVacantTowersExist(EOriginSide Side) const

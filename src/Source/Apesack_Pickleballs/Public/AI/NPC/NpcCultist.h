@@ -7,6 +7,7 @@
 #include "AI/HTN/Task.h"
 #include "NpcCultist.generated.h"
 
+class ARitualZone;
 class UWorldClockSubsystem;
 class UNpcManager;
 
@@ -20,9 +21,39 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual bool GetSideCheckCondition() override;
 	virtual void CreateBehaviours() override;
 
+	//* Occupying a ritual zone *//
+	FTask OccupyRitualZoneTask{"OccupyRitualZone"};
+	EActionState MoveToVector(float DeltaTime);
+	EActionState SelectRitualZone(float DeltaTime);
+	EActionState JoinRitualCircle(float DeltaTime);
+	bool OccupyRitualZoneCondition() const;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	ARitualZone* MySpawner;
+	
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="OnArrivedAtRitualZone"))
+	void OnArrivedAtRitualZoneEvent();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To")
+	float MoveSpeed = 200.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Move To Vector")
+	float StopDistance = 200.f;
+	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To")
+	bool bCanMove = true;
+	
+	UPROPERTY(VisibleAnywhere, Category="Action Properties|Move To Vector")
+	FVector TargetLocation;
+	
+	bool bIsOccupyingRitualZone = false;
+	
+	
+	
 	//* Summoning *//
 	FTask SummoningTask{"Summoning"};
 	EActionState SummonEnemies(float DeltaTime);

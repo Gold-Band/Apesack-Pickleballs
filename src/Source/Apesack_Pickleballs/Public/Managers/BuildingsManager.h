@@ -5,6 +5,7 @@
 #include "BuildingsManager.generated.h"
 
 class ABuilding;
+class ARitualZone;
 class AArcherTower;
 class AWall;
 
@@ -54,7 +55,7 @@ public:
 	
 	AActor* GetFarthestBuilding(EBuildingType Type, EOriginSide Side);
 	AActor* GetNearestBuilding(const FVector& FromLocation, EBuildingType Type, EOriginSide Side, bool bDamaged);
-	
+	ARitualZone* GetGotoRitualZone(EOriginSide Side);
 	bool DoVacantTowersExist(EOriginSide Side) const;
 	bool WallsExist(EOriginSide Side) const;
 	

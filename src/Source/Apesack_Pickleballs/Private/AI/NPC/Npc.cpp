@@ -145,6 +145,7 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 	const FVector Start = GetActorLocation();
 	const FVector End = Start - GetActorForwardVector() * KnockDistance * InstigatorDirection;
 	const float Duration = 0.3f; 
+	
 	// move back
 	FCTween::Play(
 	Start,

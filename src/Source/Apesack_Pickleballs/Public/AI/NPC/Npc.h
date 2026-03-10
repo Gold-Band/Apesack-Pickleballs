@@ -89,7 +89,6 @@ protected:
 	UFUNCTION()
 	virtual void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
 	
-protected:
 	//*
 	//* General Properties
 	//*
