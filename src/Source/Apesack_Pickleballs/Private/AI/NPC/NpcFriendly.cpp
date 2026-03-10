@@ -831,6 +831,8 @@ bool ANpcFriendly::TargetBuildingCondition() const
 
 EActionState ANpcFriendly::MeleeAttack(float DeltaTime)
 {
+
+
 	if (!TargetActor || !Stats)
 	{
 		return EActionState::Failed;
@@ -838,7 +840,7 @@ EActionState ANpcFriendly::MeleeAttack(float DeltaTime)
 
 	UStatsComponent* TargetStatComponent =
 		TargetActor->GetComponentByClass<UStatsComponent>();
-
+OnMeleeAttack();
 	if (!TargetStatComponent)
 	{
 		return EActionState::Failed;
