@@ -6,6 +6,7 @@
 #include "TxtListObject.h"
 #include "BtnListObject.generated.h"
 
+class UBorder;
 class UButton;
 /**
  * 
@@ -14,20 +15,17 @@ UCLASS()
 class APESACK_PICKLEBALLS_API UBtnListObject : public UTxtListObject
 {
 	GENERATED_BODY()
-
-	protected:
+	
+protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UButton> ActionBtn;
+	TObjectPtr<UBorder> Border;
 	
 	UFUNCTION(BlueprintCallable)
-	void OnButtonClickedForBuild();
-	
-private:
-	UFUNCTION()
 	void OnButtonClicked();
 	
+private:
 	TFunction<void()> ButtonFunction;
 	
 	UPROPERTY()

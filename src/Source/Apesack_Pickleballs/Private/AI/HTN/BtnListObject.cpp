@@ -3,7 +3,6 @@
 
 #include "AI/HTN/BtnListObject.h"
 #include "AI/HTN/ListItemObject.h"
-#include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "UI/InfoPanel.h"
 
@@ -24,16 +23,13 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 		const FString Txt = FString::Printf(TEXT("%s"), *ListItem->DisplayText.ToString());
 		Text->SetText(FText::FromString(Txt));
 	}
-	
-	ActionBtn->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButtonClicked);
+
 	ButtonFunction = ListItem->OnActionCalledFunction;
 	Parent = ListItem->Parent;
 	Cost = ListItem->Cost;
 	bCloseOnClicked = ListItem->bCloseOnClicked;
 	
 	ListItem->ConstructedWidget = this;
-	
-	ActionBtn->SetIsEnabled(!ListItem->bDisable);
 }
 
 void UBtnListObject::OnButtonClicked()
@@ -57,13 +53,4 @@ void UBtnListObject::OnButtonClicked()
 			InfoPanel->Refresh();
 		}
 	}
-}
-
-void UBtnListObject::OnButtonClickedForBuild()
-{
-#if !WITH_EDITOR
-	OnButtonClicked();
-#else
-	UE_LOG(LogTemp, Warning, TEXT("Button click override is set to work in build only."))
-#endif
 }
