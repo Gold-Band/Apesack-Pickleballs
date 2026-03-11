@@ -1000,8 +1000,8 @@ EActionState ANpcFriendly::RangedAttack(float DeltaTime)
 			*TargetActor->GetActorNameOrLabel()
 		);
 	}
-	return EActionState::Failed;
 #endif
+	return EActionState::Failed;
 }
 
 bool ANpcFriendly::RangedAttackCondition() const
