@@ -34,12 +34,16 @@ public:
 	static EOriginSide GetActorSideFrom(const AActor* FromActor, const AActor* OtherActor);
 	
 	static FVector WorldOriginNormal;
+	static float GameplayRadius;
 	
 	UFUNCTION(BlueprintPure)
 	AActor* GetArrow();
 	
 protected:
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	void OnDayTicked(uint8 Day);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bEnableClock = true;
