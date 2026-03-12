@@ -8,6 +8,7 @@
 
 
 FVector ADefaultGameMode::WorldOriginNormal = FVector(0.0f, 1.0f, 0.0f);
+float ADefaultGameMode::GameplayRadius = 19000.0f;
 
 FString ADefaultGameMode::GetRandomNpcName() const
 {
@@ -68,7 +69,13 @@ void ADefaultGameMode::BeginPlay()
 	WorldClock->AllowClockTicking(bEnableClock);
 	WorldClock->SetNightStartHour(NightStartHour);
 	WorldClock->SetNightEndHour(NightEndHour);
+	WorldClock->OnDayTickedDelegate.AddDynamic(this, &ADefaultGameMode::OnDayTicked);
 	
 	// setup an arrow pool
 	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 50);
+}
+
+void ADefaultGameMode::OnDayTicked(uint8 Day)
+{
+	// spawn cultist
 }
