@@ -86,7 +86,7 @@ protected:
 	
 	virtual void OnDeath_Implementation();
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	virtual void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
 	
 	//*

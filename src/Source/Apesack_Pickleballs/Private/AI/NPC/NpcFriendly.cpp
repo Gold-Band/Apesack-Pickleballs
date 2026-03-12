@@ -942,7 +942,7 @@ EActionState ANpcFriendly::RangedAttack(float DeltaTime)
 	// --------------------------------
 	// 3. APPLY stats TO ARROW
 	// --------------------------------
-
+Arrow->ShooterActor = this;
 	// Base damage (ranged-scaled)
 	Arrow->Damage = 5.f;
 
