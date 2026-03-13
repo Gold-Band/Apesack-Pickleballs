@@ -66,11 +66,14 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(MoveToAction);
 	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
-	MeleeAttackTask.Condition = [&]{return TargetAttackableCondition() && MeleeAttackCondition() && MoveToCondition();};
+	MeleeAttackTask.Condition = [&]{return TargetAttackableCondition() && MoveToCondition();};
+	MeleeAttackTask.OnStarted = [&] {bCanMove = true;};
+	MeleeAttackTask.OnEnded = [&] { if (!MeleeAttackTask.Failed()) bCanMove = false;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Walk
 	MoveForwardTask.Actions.Add(WalkAction);
+	MoveForwardTask.Condition = [&] {return MoveToCondition();};
 	MoveForwardTask.bPrintDebug = bPrintDebug_MoveTo;
 	
 	
