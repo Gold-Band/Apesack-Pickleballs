@@ -152,13 +152,15 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 	End,
 	[&](const FVector& t)
 	{
+		if (!this) return;
 		SetActorLocation(t);
 	},
 	Duration,
 	EFCEase::OutQuad)->SetOnComplete([&]()
 	{
+		if (!this) return;
 		bWasHit = false;
-	});
+	})->SetAutoDestroy(true);
 	
 	// jump
 	FCTween::Play(
@@ -173,5 +175,5 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
 	},
 	Duration/4,
-	EFCEase::OutQuad)->SetYoyo(true);
+	EFCEase::OutQuad)->SetYoyo(true)->SetAutoDestroy(true);
 }

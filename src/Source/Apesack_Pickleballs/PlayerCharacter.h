@@ -5,6 +5,7 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
+class FCTweenInstanceVector;
 class ADefaultGameMode;
 enum class EOriginSide : uint8;
 class UStatsComponent;
@@ -121,6 +122,10 @@ private:
 	
 	UFUNCTION()
 	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
+	
+	// for on death crash
+	FCTweenInstanceVector* KnockbackTween;
+	FCTweenInstanceVector* JumpTween;
 	
 	bool bWasHit = false;
 };
