@@ -102,6 +102,9 @@ EActionState ANpcCultist::JoinRitualCircle(float DeltaTime)
 	bIsOccupyingRitualZone = true;
 	MySpawner->AddOccupant(this);
 	OnArrivedAtRitualZoneEvent();
+	
+	// calculate when i should start spawning
+	
 	return EActionState::Succeeded;
 }
 
