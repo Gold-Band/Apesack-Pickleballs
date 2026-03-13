@@ -133,7 +133,7 @@ void ANpcFriendly::CreateBehaviours()
 	BuildTask.Actions.Add(TargetNearestBuildingAction);
 	BuildTask.Actions.Add(MoveToVectorAction);
 	BuildTask.Actions.Add(MeleeAttackAction);
-	BuildTask.Condition = [&]{return MoveCondition() && TargetBuildingCondition();};
+	BuildTask.Condition = [&]{return MoveCondition() && TargetBuildingCondition() && MeleeAttackCondition();};
 	BuildTask.Cooldown = Cooldown_MeleeAttack;
 	BuildTask.OnEnded = [&]{MoveToReset();};
 	
