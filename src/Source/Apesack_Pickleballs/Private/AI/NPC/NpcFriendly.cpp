@@ -417,7 +417,7 @@ void ANpcFriendly::NewRadiusTween(float NewRadius)
 	{
 		if (!this || !bGotoLocation) return;
 		TargetLocation = TargetLocation.GetClampedToSize2D(MovementComp->Radius,MovementComp->Radius);
-	});
+	})->SetAutoDestroy(true);
 }
 
 void ANpcFriendly::OnDeath_Implementation()

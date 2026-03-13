@@ -43,6 +43,7 @@ void APlayerCharacter::BeginPlay() {
 }
 
 void APlayerCharacter::BeginDestroy() {
+	FCTween::ClearActiveTweens();
 	Super::BeginDestroy();
 }
 
@@ -145,6 +146,8 @@ void APlayerCharacter::Move(const FVector& Direction)
 
 void APlayerCharacter::OnDeath()
 {
+	//FCTween::ClearActiveTweens();
+	//FCTween::Deinitialize();
 }
 
 void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor)
@@ -164,7 +167,8 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	const float Duration = 0.3f; 
 	
 	// move back
-	FCTween::Play(
+	
+	FCTweenInstance* TweenInstanceVector = FCTween::Play(
 	Start,
 	End,
 	[&](const FVector& t)
@@ -176,7 +180,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	EFCEase::OutQuad)->SetOnComplete([&]()
 	{
 		bWasHit = false;
-	});
+	})->SetAutoDestroy(true);
 	
 	// jump
 	FCTween::Play(
@@ -189,7 +193,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
 	},
 	Duration/4,
-	EFCEase::OutQuad)->SetYoyo(true);
+	EFCEase::OutQuad)->SetYoyo(true)->SetAutoDestroy(true);
 }
 
 
