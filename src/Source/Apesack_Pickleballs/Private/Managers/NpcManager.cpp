@@ -130,7 +130,7 @@ void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)
 	BuildingsManager->OnWallDestroyedDelegate.AddLambda([&](const AWall* NewWall, const EOriginSide Side){ RecalculateSafeZone(Side, NewWall->DistanceFromOrigin); });
 	
 	
-	ReDrawSafeZoneBounds();
+	//ReDrawSafeZoneBounds();
 }
 
 void UNpcManager::SetWorldOrigin(const FVector& NewWorldOrigin)
