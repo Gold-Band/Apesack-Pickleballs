@@ -23,7 +23,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void Close();
 	
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void Refresh();
 	
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere);
