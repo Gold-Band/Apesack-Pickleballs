@@ -75,13 +75,18 @@ void UBuildingsManager::AddBuilding(ABuilding* NewBuilding, EBuildingType Buildi
 #endif
 }
 
-void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType, EOriginSide Side)
+void UBuildingsManager::RemoveBuilding(ABuilding* OldBuilding, const EBuildingType BuildingType, const EOriginSide Side)
 {
 	TArray<ABuilding*>* ModifyArray = GetArray(BuildingType,Side);
 	
 	if (!ModifyArray) return;
 	
 	ModifyArray->Remove(OldBuilding);
+	
+	if (BuildingType == EBuildingType::Wall && OnWallDestroyedDelegate.IsBound())
+	{
+		OnWallDestroyedDelegate.Broadcast(Cast<AWall>(OldBuilding), Side);
+	}
 }
 
 AActor* UBuildingsManager::GetFarthestBuilding(EBuildingType Type, EOriginSide Side)

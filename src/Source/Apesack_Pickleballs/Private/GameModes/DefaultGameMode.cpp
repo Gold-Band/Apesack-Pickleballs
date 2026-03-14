@@ -29,14 +29,14 @@ float ADefaultGameMode::GetAngleBetweenVectors(const FVector& A, const FVector& 
 	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
 }
 
-float ADefaultGameMode::GetDistanceToOrigin(const FVector& FromLocation)
+float ADefaultGameMode::GetAngleToOrigin(const FVector& FromLocation)
 {
 	return GetAngleBetweenVectors(FromLocation, WorldOriginNormal);
 }
 
 EOriginSide ADefaultGameMode::GetActorSideFromOrigin(const AActor* Actor, float& OutAngle)
 {
-	OutAngle = GetDistanceToOrigin(Actor->GetActorLocation());
+	OutAngle = GetAngleToOrigin(Actor->GetActorLocation());
 	return OutAngle < 0? EOriginSide::Left : EOriginSide::Right;
 }
 

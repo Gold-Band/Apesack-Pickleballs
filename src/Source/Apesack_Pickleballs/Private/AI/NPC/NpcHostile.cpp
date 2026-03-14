@@ -32,7 +32,7 @@ TArray<UListItemObject*> ANpcHostile::GetInfo() const
 
 void ANpcHostile::BeginPlay()
 {
-	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	const float DistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
 	MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
 	
 	Super::BeginPlay();

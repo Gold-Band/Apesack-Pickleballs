@@ -101,7 +101,8 @@ void ANpcFriendly::CreateBehaviours()
 	FAction GetDefensePositionAction{FString("Get Defense Position")};
 	GetDefensePositionAction.Func =[&](const float DeltaTime){ return GetDefensePosition(DeltaTime);};
 	
-	
+	FAction GetSafeSpotAction{FString("Get Safe Spot")};
+	GetSafeSpotAction.Func = [&](const float DeltaTime) {return GetSafeSpot(DeltaTime);};
 	
 	
 	// designing tasks //
@@ -157,10 +158,16 @@ void ANpcFriendly::CreateBehaviours()
 	FollowTask.Condition = [&]{return bEnabled_FollowPlayer && MoveCondition();};
 	FollowTask.Cooldown = 0;
 	
+	// Goto safe zone
+	GotoSafeZoneTask.Actions.Add(GetSafeSpotAction);
+	GotoSafeZoneTask.Actions.Add(MoveToVectorAction);
+	GotoSafeZoneTask.Condition = [&]{return GetSafeSpotCondition() && MoveCondition();};
+	GotoSafeZoneTask.Cooldown = 0;
+	
 	// Wander
 	WanderTask.Actions.Add(MoveTimedAction);
 	WanderTask.Condition = [&]{return MoveTimedCondition();};
-	WanderTask.OnStarted = [&]{SetMoveTime();};
+	WanderTask.OnStarted = [&]{SetMoveTime(); GotoSafeZoneTask.Reset();};
 	WanderTask.OnEnded = [&]{MoveTimedReset();};
 	WanderTask.Cooldown = Cooldown_Wander;
 	
@@ -172,6 +179,7 @@ void ANpcFriendly::CreateBehaviours()
 	HtnDomain->AssignTask(&MeleeAttackTask);
 	HtnDomain->AssignTask(&BuildTask);
 	HtnDomain->AssignTask(&FollowTask);
+	HtnDomain->AssignTask(&GotoSafeZoneTask);
 	HtnDomain->AssignTask(&WanderTask);
 	
 	// adding the default Wait task
@@ -580,7 +588,7 @@ EActionState ANpcFriendly::MoveTimed(float DeltaTime)
 
 bool ANpcFriendly::MoveTimedCondition() const
 {
-	return MoveCondition() && !bIsPartyMember && !bIsNighttime && !TargetActor;	
+	return MoveCondition() && !bIsPartyMember && !TargetActor;	
 }
 
 void ANpcFriendly::MoveTimedReset()
@@ -1078,6 +1086,21 @@ bool ANpcFriendly::GetDefensePositionCondition() const
 	//if (bPrintDebug_DefendWall) UE_LOG(LogTemp, Warning, TEXT("defend conditions: %s, %s, %s, %s, %s"), IsCombatant()?TEXT("t"):TEXT("f"),
 	//	!bIsPartyMember?TEXT("t"):TEXT("f"), !bAssumedPosition?TEXT("t"):TEXT("f"), (bIsNighttime||bRaid)?TEXT("t"):TEXT("f"), !bIsClicked?TEXT("t"):TEXT("f"));
 	return IsCombatant() && !bIsPartyMember && !bAssumedPosition && (bIsNighttime||bRaid) && !bIsClicked;
+}
+
+EActionState ANpcFriendly::GetSafeSpot(float DeltaTime)
+{
+	TargetLocation = ADefaultGameMode::WorldOriginNormal * ADefaultGameMode::GameplayRadius;
+	
+	bCanMove = true;
+	return EActionState::Succeeded;
+}
+
+bool ANpcFriendly::GetSafeSpotCondition() const
+{
+	const float AbsAngle = FMath::Abs(ADefaultGameMode::GetAngleToOrigin(GetActorLocation()));
+	const bool bIsInSafeZone = AbsAngle < NpcManager->GetMaxSafeAngle(MainSide);
+	return !bIsInSafeZone && !bIsPartyMember && (bIsNighttime || bRaid);
 }
 
 void ANpcFriendly::LogBool(const FString& Name, const bool Value, const bool Simple) const
