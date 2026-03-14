@@ -110,6 +110,8 @@ public:
 	
 	APlayerCharacter* GetPlayer() const;
 	
+	float GetMaxSafeAngle(const EOriginSide Side) const;
+	
 private:
 	// Returns CheckActor if it passes the inspection. Else, it returns null.
 	bool IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist, const float CheckRadiusSquared) const;
@@ -118,6 +120,10 @@ private:
 	TArray<AActor*>* GetArray(ENpcSearchOption SearchFilter);
 	
 	float GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutActor);
+	
+	void RecalculateSafeZone(const EOriginSide Side, const float FarthestWallAngle);
+	
+	void ReDrawSafeZoneBounds() const;
 	
 	UPROPERTY()
 	AActor* PreviousLeftMostVulnerableAsset;
@@ -136,14 +142,13 @@ private:
 	UPROPERTY()
 	TArray<AActor*> AllFriendlies;
 	
-	//UPROPERTY()
-	//TArray<AActor*> PartyMembers;
-	
-	
 	// tick interval
 	float TickInterval = 0.2f;
 	float Timer;
 	
-	APlayerCharacter* PlayerRef = nullptr;
+	// x = left side, y = right side
+	FVector2D MaxSafeAngles {1.5f,1.5f}; // min value
+	float SafeZoneWallPaddingAngle = 2.0f;
 	
+	APlayerCharacter* PlayerRef = nullptr;
 };

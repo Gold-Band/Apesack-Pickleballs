@@ -70,6 +70,8 @@ void ANpc::BeginPlay()
 	NpcManager = UNpcManager::Get(GetWorld());
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	
+	if (GetSideCheckCondition()) MainSide = ADefaultGameMode::GetActorSideFromOrigin(this); 
+	
 	if (NpcManager) NpcManager->AddNpc(this, NpcType, MainSide);
 	
 	CreateBehaviours();

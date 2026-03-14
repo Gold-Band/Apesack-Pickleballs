@@ -27,7 +27,7 @@ public:
 
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
-	static float GetDistanceToOrigin(const FVector& FromLocation);
+	static float GetAngleToOrigin(const FVector& FromLocation);
 	
 	static EOriginSide GetActorSideFromOrigin(const AActor* Actor, float& OutAngle);
 	static EOriginSide GetActorSideFromOrigin(const AActor* Actor);

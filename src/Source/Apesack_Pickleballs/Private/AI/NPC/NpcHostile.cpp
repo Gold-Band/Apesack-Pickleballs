@@ -32,7 +32,7 @@ TArray<UListItemObject*> ANpcHostile::GetInfo() const
 
 void ANpcHostile::BeginPlay()
 {
-	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	const float DistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
 	MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
 	
 	Super::BeginPlay();
@@ -60,20 +60,20 @@ void ANpcHostile::CreateBehaviours()
 	FAction MeleeAttackAction{FString("Attack")};
 	MeleeAttackAction.Func = [&](const float DeltaTime){return MeleeAttack(DeltaTime);};
 	
-	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(TargetAttackableAction);
 	MeleeAttackTask.Actions.Add(MoveToAction);
 	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
-	MeleeAttackTask.Condition = [&]{return TargetAttackableCondition() && MeleeAttackCondition() && MoveToCondition();};
+	MeleeAttackTask.Condition = [&]{return TargetAttackableCondition() && MoveToCondition();};
+	MeleeAttackTask.OnStarted = [&] {bCanMove = true;};
+	MeleeAttackTask.OnEnded = [&] { if (!MeleeAttackTask.Failed()) bCanMove = false;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Walk
 	MoveForwardTask.Actions.Add(WalkAction);
+	MoveForwardTask.Condition = [&] {return MoveToCondition();};
 	MoveForwardTask.bPrintDebug = bPrintDebug_MoveTo;
-	
-	
 	
 	HtnDomain->AssignTask(&MeleeAttackTask);
 	HtnDomain->AssignTask(&MoveForwardTask);
@@ -87,15 +87,6 @@ void ANpcHostile::OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side
 	if (Side != MainSide) return;
 	
 	MeleeAttackTask.Reset();
-}
-
-float ANpcHostile::GetAngleBetweenVectors(const FVector& A, const FVector& B)
-{
-	if (A.IsNearlyZero() || B.IsNearlyZero()) return 0.f;
-	
-	const float Dot = FVector::DotProduct(A, B);
-	const float CrossDot = FVector::CrossProduct(A, B).Dot(FVector::UpVector);
-	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
 }
 
 EActionState ANpcHostile::Walk(float DeltaTime)
@@ -227,11 +218,6 @@ EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 	return EActionState::Succeeded;
 }
 
-bool ANpcHostile::MeleeAttackCondition() const
-{
-	return /*NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide) != nullptr*/ true;
-}
-
 EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 {
 	if (MainSide == EOriginSide::Left)
@@ -246,7 +232,7 @@ EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 #if WITH_EDITOR
 	if (bPrintDebug_TargetNearestAny)
 	{
-		const float Angle = GetAngleBetweenVectors(GetActorLocation(), TargetActor->GetActorLocation());
+		const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), TargetActor->GetActorLocation());
 		UE_LOG(LogTemp, Warning, TEXT("%s::NearestAttackable=%s (Angle=%f)"), *GetActorNameOrLabel(),TargetActor? *TargetActor->GetActorNameOrLabel(): TEXT("Null"), Angle);
 	}
 #endif

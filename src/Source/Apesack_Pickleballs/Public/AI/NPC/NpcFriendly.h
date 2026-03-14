@@ -37,8 +37,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void SetInitialWeaponType(int Type);
 
-
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -243,6 +241,8 @@ protected:
 	bool bNewBuilding = false;
 	
 	//* Goto Safezone *//
+	EActionState GetSafeSpot(float DeltaTime);
+	bool GetSafeSpotCondition() const;
 	
 	
 	//**
@@ -257,7 +257,7 @@ protected:
 	FTask HideTask{"Hide"};
 	FTask OccupyTowerTask{"Man Archer Tower"};
 	FTask DefendWallTask{"Defend Wall"};
-	FTask ReturnToSafeZone{"Return To Safe Zone"};
+	FTask GotoSafeZoneTask{"Go To Safe Zone"};
 
 	
 	
@@ -290,6 +290,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Defend Wall", meta=(DisplayName="Print Debug"))
 	bool bPrintDebug_DefendWall = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Goto Safe Zone", meta=(DisplayName="Print Debug"))
+	bool bPrintDebug_GotoSafeZone = false;
 	
 	void LogBool(const FString& Name, const bool Value, const bool Simple = true) const;
 	FString BoolToString(const bool Value, const bool Simple = false) const {return Simple? (Value? "T":"F") : (Value?"True":"False");}
