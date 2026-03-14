@@ -120,7 +120,7 @@ void ANpcFriendly::CreateBehaviours()
 	DefendWallTask.OnEnded = [&]{OnGotoCompleted();};
 	DefendWallTask.Condition = [&]{return GetDefensePositionCondition() && MoveCondition();};
 	DefendWallTask.bPrintDebug = bPrintDebug_DefendWall;
-	DefendWallTask.Cooldown = 3.f;
+	DefendWallTask.Cooldown = 1.f;
 	
 	// Occupy Tower
 	OccupyTowerTask.Actions.Add(TargetFarthestTowerAction);
@@ -128,7 +128,7 @@ void ANpcFriendly::CreateBehaviours()
 	OccupyTowerTask.Actions.Add(OccupyTowerAction);
 	OccupyTowerTask.Condition = [&]{return OccupyTowerCondition() && MoveCondition();};
 	OccupyTowerTask.bPrintDebug = bPrintDebug_TargetFurthestTower;
-	OccupyTowerTask.Cooldown = 3.f;
+	OccupyTowerTask.Cooldown = 1.f;
 	
 	// Build
 	BuildTask.Actions.Add(TargetNearestBuildingAction);
@@ -588,7 +588,7 @@ EActionState ANpcFriendly::MoveTimed(float DeltaTime)
 
 bool ANpcFriendly::MoveTimedCondition() const
 {
-	return MoveCondition() && !bIsPartyMember && !TargetActor;	
+	return MoveCondition() && !bIsPartyMember && !TargetActor && !bAssumedPosition;	
 }
 
 void ANpcFriendly::MoveTimedReset()
@@ -1100,7 +1100,7 @@ bool ANpcFriendly::GetSafeSpotCondition() const
 {
 	const float AbsAngle = FMath::Abs(ADefaultGameMode::GetAngleToOrigin(GetActorLocation()));
 	const bool bIsInSafeZone = AbsAngle < NpcManager->GetMaxSafeAngle(MainSide);
-	return !bIsInSafeZone && !bIsPartyMember && (bIsNighttime || bRaid);
+	return !bIsInSafeZone && !bIsPartyMember && (bIsNighttime || bRaid) && !IsCombatant();
 }
 
 void ANpcFriendly::LogBool(const FString& Name, const bool Value, const bool Simple) const
