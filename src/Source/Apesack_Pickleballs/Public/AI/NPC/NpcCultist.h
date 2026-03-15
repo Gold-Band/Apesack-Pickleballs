@@ -31,6 +31,7 @@ protected:
 	EActionState SelectRitualZone(float DeltaTime);
 	EActionState JoinRitualCircle(float DeltaTime);
 	bool OccupyRitualZoneCondition() const;
+	virtual void OnDeath_Implementation() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	ARitualZone* MySpawner;

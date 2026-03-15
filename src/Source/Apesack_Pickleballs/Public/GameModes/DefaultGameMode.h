@@ -42,9 +42,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UFUNCTION()
-	void OnDayTicked(uint8 Day);
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bEnableClock = true;
 	

@@ -6,6 +6,7 @@
 #include "NpcManager.generated.h"
 
 
+class ANpcCultist;
 class APlayerCharacter;
 class ANpc;
 class ANpcFriendly;
@@ -78,9 +79,9 @@ public:
 	static FOnMostVulnerableAssetChangedSignature OnMostVulnerableAssetChangedDelegate;
 	static AActor* LeftMostVulnerableAsset;
 	static AActor* RightMostVulnerableAsset;
-	
 	static FOnRaidDetectedSignature OnRaidDetectedDelegate;
 
+	
 	virtual ETickableTickType GetTickableTickType() const override;
 	
 	virtual TStatId GetStatId() const override;
@@ -111,6 +112,8 @@ public:
 	APlayerCharacter* GetPlayer() const;
 	
 	float GetMaxSafeAngle(const EOriginSide Side) const;
+	
+	void OnCultistDied(const EOriginSide Side);
 	
 private:
 	// Returns CheckActor if it passes the inspection. Else, it returns null.
@@ -151,4 +154,7 @@ private:
 	float SafeZoneWallPaddingAngle = 2.0f;
 	
 	APlayerCharacter* PlayerRef = nullptr;
+	
+	UPROPERTY()
+	TSubclassOf<ANpcCultist> CultistClass;
 };

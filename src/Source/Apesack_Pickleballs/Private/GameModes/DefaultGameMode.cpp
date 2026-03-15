@@ -69,13 +69,7 @@ void ADefaultGameMode::BeginPlay()
 	WorldClock->AllowClockTicking(bEnableClock);
 	WorldClock->SetNightStartHour(NightStartHour);
 	WorldClock->SetNightEndHour(NightEndHour);
-	WorldClock->OnDayTickedDelegate.AddDynamic(this, &ADefaultGameMode::OnDayTicked);
 	
 	// setup an arrow pool
 	if (ArrowClass)	ArrowPool.Initialize(GetWorld(), ArrowClass, 50);
-}
-
-void ADefaultGameMode::OnDayTicked(uint8 Day)
-{
-	// spawn cultist
 }

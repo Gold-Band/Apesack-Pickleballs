@@ -113,6 +113,14 @@ bool ANpcCultist::OccupyRitualZoneCondition() const
 	return bCanMove && !bIsOccupyingRitualZone;
 }
 
+void ANpcCultist::OnDeath_Implementation()
+{
+	Super::OnDeath_Implementation();
+	
+	// signal that more cultists are needed
+	NpcManager->OnCultistDied(MainSide);
+}
+
 EActionState ANpcCultist::SummonEnemies(float DeltaTime)
 {
 	if (IsRitualTime() && RitualQty-- > 0)

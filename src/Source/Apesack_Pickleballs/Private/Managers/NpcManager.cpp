@@ -1,5 +1,6 @@
 #include "Managers/NpcManager.h"
 
+#include "AI/NPC/NpcCultist.h"
 #include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Buildings/Building.h"
 #include "Buildings/Wall.h"
@@ -48,7 +49,13 @@ FOnRaidDetectedSignature UNpcManager::OnRaidDetectedDelegate;
 
 UNpcManager::UNpcManager()
 {
-		
+	// get enemy classes
+	
+	static ConstructorHelpers::FClassFinder<ANpcCultist> CultistClassFinder{TEXT("/Game/Blueprints/Characters/BP_Cultist")};
+	if (CultistClassFinder.Succeeded())
+	{
+		CultistClass = CultistClassFinder.Class;
+	}
 }
 
 ETickableTickType UNpcManager::GetTickableTickType() const
@@ -346,6 +353,16 @@ APlayerCharacter* UNpcManager::GetPlayer() const
 float UNpcManager::GetMaxSafeAngle(const EOriginSide Side) const
 {
 	return Side == EOriginSide::Left? MaxSafeAngles.X : MaxSafeAngles.Y;
+}
+
+void UNpcManager::OnCultistDied(const EOriginSide Side)
+{
+	// spawn a new cultist
+	const FVector Axis = Side == EOriginSide::Right ? FVector::UpVector : FVector::DownVector;
+	const float Radius = ADefaultGameMode::GameplayRadius + FMath::RandRange(0,100);
+	const FVector SpawnLocation = ADefaultGameMode::WorldOriginNormal.RotateAngleAxis(1, Axis).GetClampedToSize2D(Radius, Radius);
+
+	GetWorld()->SpawnActor(CultistClass.Get(), &SpawnLocation);
 }
 
 bool UNpcManager::IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist,
