@@ -27,6 +27,7 @@ public:
 
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	static float GetAngleToOrigin(const FVector& FromLocation);
 	
 	static EOriginSide GetActorSideFromOrigin(const AActor* Actor, float& OutAngle);

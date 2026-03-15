@@ -8,7 +8,7 @@
 
 
 FVector ADefaultGameMode::WorldOriginNormal = FVector(0.0f, 1.0f, 0.0f);
-float ADefaultGameMode::GameplayRadius = 19000.0f;
+float ADefaultGameMode::GameplayRadius = 18905.0f;
 
 FString ADefaultGameMode::GetRandomNpcName() const
 {

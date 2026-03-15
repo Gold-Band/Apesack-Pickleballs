@@ -3,6 +3,7 @@
 
 #include "AI/HTN/HTNComponent.h"
 #include "Buildings/RitualZone.h"
+#include "Buildings/Wall.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Managers/NpcManager.h"
 #include "Movement/CircularPawnMovementComponent.h"
@@ -21,13 +22,17 @@ void ANpcCultist::BeginPlay()
 	
 	Super::BeginPlay();
 	WorldClockSubsystem = UWorldClockSubsystem::Get(GetWorld());
+	
+	BuildingsManager = UBuildingsManager::Get(GetWorld());
 }
 
 void ANpcCultist::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayReason);
-	
 	if (MySpawner && bIsOccupyingRitualZone) MySpawner->RemoveOccupant();
+	BuildingsManager->OnNewWallBuiltDelegate.RemoveAll(this);
+	BuildingsManager->OnWallDestroyedDelegate.RemoveAll(this);
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 bool ANpcCultist::GetSideCheckCondition()
@@ -103,7 +108,9 @@ EActionState ANpcCultist::JoinRitualCircle(float DeltaTime)
 	MySpawner->AddOccupant(this);
 	OnArrivedAtRitualZoneEvent();
 	
-	// calculate when i should start spawning
+	BuildingsManager->OnNewWallBuiltDelegate.AddLambda([&](const AWall* Wall, const EOriginSide Side){RecalculateRitualStartTime();});
+	BuildingsManager->OnWallDestroyedDelegate.AddLambda([&](const AWall* Wall, const EOriginSide Side){RecalculateRitualStartTime();});
+	RecalculateRitualStartTime();
 	
 	return EActionState::Succeeded;
 }
@@ -150,4 +157,21 @@ bool ANpcCultist::IsRitualTime()
 	}
 	
 	return bIsRitualTime && RitualQty > 0;
+}
+
+void ANpcCultist::RecalculateRitualStartTime()
+{
+	// calculate when i should start spawning
+	const AActor* FarthestWall = UBuildingsManager::Get(GetWorld())->GetFarthestBuilding(EBuildingType::Wall,MainSide);
+	const float FarthestWallAngle = FarthestWall? Cast<AWall>(FarthestWall)->DistanceFromOrigin : 0;
+	const float AngleToOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
+	const float AngleToWall = FMath::Abs(AngleToOrigin) - FMath::Abs(FarthestWallAngle);
+	
+	
+	//At timescale=140 and movespeed=200, gremlins will travel ~15.3 degrees per hour 
+	constexpr float AngularSpeed = 15.3f;
+	
+	RitualStartHour = WorldClockSubsystem->GetNightStartHour() - AngleToWall/AngularSpeed + 1;
+	
+	//UE_LOG(LogTemp, Warning, TEXT("Spawn hour = %i"), RitualStartHour)
 }

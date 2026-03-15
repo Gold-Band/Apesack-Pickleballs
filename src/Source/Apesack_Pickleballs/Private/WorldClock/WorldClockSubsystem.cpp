@@ -156,6 +156,11 @@ uint8 UWorldClockSubsystem::GetSeconds() const
     return Second;
 }
 
+uint8 UWorldClockSubsystem::GetNightStartHour() const
+{
+	return NightHourStart;
+}
+
 void UWorldClockSubsystem::SetNightStartHour(const uint8 StartHour)
 {
 	NightHourStart = StartHour;

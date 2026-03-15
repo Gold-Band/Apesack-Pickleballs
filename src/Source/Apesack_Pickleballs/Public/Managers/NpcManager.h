@@ -88,6 +88,7 @@ public:
 	
 	virtual void Tick(float DeltaTime) override;
 	
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	static UNpcManager* Get(const UObject* WorldContextObject);
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
@@ -113,6 +114,7 @@ public:
 	
 	float GetMaxSafeAngle(const EOriginSide Side) const;
 	
+	UFUNCTION(BlueprintCallable)
 	void OnCultistDied(const EOriginSide Side);
 	
 private:

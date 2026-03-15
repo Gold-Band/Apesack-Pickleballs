@@ -7,6 +7,8 @@
 #include "AI/HTN/Task.h"
 #include "NpcCultist.generated.h"
 
+class AWall;
+class UBuildingsManager;
 class ARitualZone;
 class UWorldClockSubsystem;
 class UNpcManager;
@@ -83,6 +85,10 @@ protected:
 	
 	bool bRitualStarted = false;
 	
+	void RecalculateRitualStartTime();
+	
+	UPROPERTY()
+	TObjectPtr<UBuildingsManager> BuildingsManager;
 	
 	UPROPERTY()
 	TObjectPtr<UWorldClockSubsystem> WorldClockSubsystem;

@@ -357,10 +357,12 @@ float UNpcManager::GetMaxSafeAngle(const EOriginSide Side) const
 
 void UNpcManager::OnCultistDied(const EOriginSide Side)
 {
+	if (Side == EOriginSide::Any) return;
+	
 	// spawn a new cultist
-	const FVector Axis = Side == EOriginSide::Right ? FVector::UpVector : FVector::DownVector;
-	const float Radius = ADefaultGameMode::GameplayRadius + FMath::RandRange(0,100);
-	const FVector SpawnLocation = ADefaultGameMode::WorldOriginNormal.RotateAngleAxis(1, Axis).GetClampedToSize2D(Radius, Radius);
+	const FVector Axis = Side == EOriginSide::Left ? FVector::UpVector : FVector::DownVector;
+	const float Radius = ADefaultGameMode::GameplayRadius + FMath::RandRange(-80,80);
+	const FVector SpawnLocation = ADefaultGameMode::WorldOriginNormal.RotateAngleAxis(179, Axis).GetClampedToSize2D(Radius, Radius) + FVector::UpVector * 60.0f;
 
 	GetWorld()->SpawnActor(CultistClass.Get(), &SpawnLocation);
 }

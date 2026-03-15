@@ -57,6 +57,7 @@ public:
 
 	static bool IsDaytime;
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static UWorldClockSubsystem* Get(const UObject* WorldContext)
     {
         if (const UWorld* W = WorldContext ? WorldContext->GetWorld() : nullptr)
@@ -129,6 +130,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	uint8 GetSeconds() const;
 
+	UFUNCTION(BlueprintPure)
+	uint8 GetNightStartHour() const;
+	
 	UFUNCTION(BlueprintCallable)
 	void SetNightStartHour(const uint8 StartHour);
 	
