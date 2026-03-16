@@ -14,18 +14,18 @@ default:
 [windows]
 open:
     @echo "{{BOLD + ITALIC + BLUE}}Launching project{{NORMAL}}"
-    @& "{{ue_path_win}}" (Resolve-Path ".\src\Apesack_Pickleballs.uproject").Path
+    @& "{{ue_path_win}}" (Resolve-Path ".\src\AFoolsReign.uproject").Path
 
 # Opens the project
 [unix]
 open:
 	@echo "{{BOLD + ITALIC + BLUE}}Launching project{{NORMAL}}"
-	@"${{ue_path_unix}}" "$(shell pwd)/src/Apesack_Pickleballs.uproject"
+	@"${{ue_path_unix}}" "$(shell pwd)/src/AFoolsReign.uproject"
 
 # Opens the project via Rider
 rider:
     @echo "{{BOLD + ITALIC + BLUE}}Opening project in Rider{{NORMAL}}"
-    @rider ./src/Apesack_Pickleballs.uproject
+    @rider ./src/AFoolsReign.uproject
 
 # Deletes Binaries directory
 [windows]
