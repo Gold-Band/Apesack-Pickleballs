@@ -8,30 +8,26 @@ FTask::FTask(const FString& TaskName) : Name(TaskName)
 	Progress = 0;
 	bFailed = false;
 	bSuccess = false;
-	bAutoReset = false;
-	AutoResetInterval = 0.2f;
-	TimeSinceReset = 0;
+	CooldownTimer = Cooldown;
 	bTaskFirst = true;
 }
 
 bool FTask::CanPerform() const
 {
-	for (const auto Action : Actions)
-	{
-		if (Action->CanExecute() == false) return false; 
-	}
-	return true;
+	const bool bIsOnCooldown = IsOnCooldown();
+	
+	/*#if WITH_EDITOR
+	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Cooldown(%s):%s"), *Name, CooldownTimer<Cooldown?TEXT("True"):TEXT("False"))
+#endif*/
+	
+	if (!Condition) return !bIsOnCooldown;
+	return Condition() && !bIsOnCooldown;
 }
 
 void FTask::Reset()
 {
 	SoftReset();
-	TimeSinceReset = 0;
 	Progress=0;
-	for (const auto Action : Actions)
-	{
-		Action->Reset(); 
-	}
 }
 
 void FTask::SoftReset()
@@ -39,41 +35,58 @@ void FTask::SoftReset()
 	bFailed=false;
 	bSuccess=false;
 	bTaskFirst = true;
+	CooldownTimer = 0.0f;
+}
+
+void FTask::DoCooldown(float DeltaTime)
+{
+	CooldownTimer += DeltaTime;
+}
+
+bool FTask::IsOnCooldown() const
+{
+	return CooldownTimer < Cooldown;
 }
 
 void FTask::OnTaskStarted()
 {
-	OnStartedDelegate.ExecuteIfBound();
 	bTaskFirst = false;
-}
-
-// returns true if we want to reset
-bool FTask::AutoResetCondition() const
-{
-	return bAutoReset == true && TimeSinceReset >= AutoResetInterval;	
+	if (OnStarted) OnStarted();
 }
 
 void FTask::Run(float DeltaTime)
 {
-	if (bTaskFirst) OnTaskStarted();
-	
-	if (AutoResetCondition()) Reset();
-	
 	if (!Actions.IsValidIndex(Progress))
 	{
 		Reset();
-		OnEndedDelegate.ExecuteIfBound();
+		if (OnEnded) OnEnded();
 	}
 	
-	FAction* CurrentAction = Actions[Progress];
+	auto* CurrentAction = &Actions[Progress];
+	const auto& Func = CurrentAction->Func;
+	
+	
+#if WITH_EDITOR
 	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Executing \"%s\" (from %s)"), *CurrentAction->GetName(), *Name);
+#endif
 	
-	CurrentAction->ExecutionDelegate.Execute(DeltaTime);
+	if (bTaskFirst) OnTaskStarted();
 	
-	switch (CurrentAction->State)
+	if (!Func)
+	{
+#if WITH_EDITOR
+		if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\" (invalid func)!"), *Name, *CurrentAction->GetName());
+#endif
+		bFailed = true;
+		return;
+	}
+	
+	switch (Func(DeltaTime))
 	{
 	case EActionState::Failed:
+#if WITH_EDITOR
 		if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\"!"), *Name, *CurrentAction->GetName());
+#endif
 		bFailed = true;
 		break;
 	case EActionState::Succeeded:
@@ -81,6 +94,4 @@ void FTask::Run(float DeltaTime)
 		bSuccess = true;
 	default:; 
 	}
-	
-	if (bAutoReset) TimeSinceReset += DeltaTime;
 }

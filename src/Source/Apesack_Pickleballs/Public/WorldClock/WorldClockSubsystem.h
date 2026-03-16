@@ -40,6 +40,7 @@ enum class EWorldClockBroadcastTiming : uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimeTickedSignature, const FTimestamp&, NewTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDayTickedSignature, uint8, NewDay);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNightStartedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNightEndedSignature);
 
@@ -56,6 +57,7 @@ public:
 
 	static bool IsDaytime;
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static UWorldClockSubsystem* Get(const UObject* WorldContext)
     {
         if (const UWorld* W = WorldContext ? WorldContext->GetWorld() : nullptr)
@@ -86,6 +88,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnTimeTickedSignature OnTimeTickedDelegate;
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnDayTickedSignature OnDayTickedDelegate;
+	
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnNightStartedSignature OnNightStartedDelegate;
 	
@@ -106,6 +111,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetTime(const uint8 NewDay, const uint8 NewHour, const uint8 NewMinute, const uint8 NewSecond);
+
+	UFUNCTION(BlueprintPure)
+	float GetNormalizedTime() const;
 	
 	UFUNCTION(BlueprintPure)
 	FTimestamp GetTime() const;
@@ -122,15 +130,26 @@ public:
 	UFUNCTION(BlueprintPure)
 	uint8 GetSeconds() const;
 
+	UFUNCTION(BlueprintPure)
+	uint8 GetNightStartHour() const;
+	
+	UFUNCTION(BlueprintCallable)
+	void SetNightStartHour(const uint8 StartHour);
+	
+	UFUNCTION(BlueprintCallable)
+	void SetNightEndHour(const uint8 EndHour);
+	
 private:
 	uint32 Day = 0;
 	uint32 Hour = 18;
 	uint32 Minute = 0;
 	uint32 Second = 0;
 	FTimestamp CurrentTime;
-
+	
+	float TotalSeconds = 0;
+	
 	uint8 DayHourStart = 6;
-	uint8 NightHourStart = 22;
+	uint8 NightHourStart = 20;
 	
 	bool bAllowClockTicking = true;
 	bool bIsNight = false;

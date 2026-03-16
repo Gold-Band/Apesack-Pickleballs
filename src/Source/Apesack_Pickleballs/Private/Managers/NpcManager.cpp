@@ -1,7 +1,9 @@
 #include "Managers/NpcManager.h"
 
+#include "AI/NPC/NpcCultist.h"
 #include "Apesack_Pickleballs/PlayerCharacter.h"
 #include "Buildings/Building.h"
+#include "Buildings/Wall.h"
 #include "GameModes/DefaultGameMode.h"
 
 /*void FActorTernaryTree::Add(AActor* Actor, ENpcTag Tag)
@@ -47,7 +49,13 @@ FOnRaidDetectedSignature UNpcManager::OnRaidDetectedDelegate;
 
 UNpcManager::UNpcManager()
 {
-		
+	// get enemy classes
+	
+	static ConstructorHelpers::FClassFinder<ANpcCultist> CultistClassFinder{TEXT("/Game/Blueprints/Characters/BP_Cultist")};
+	if (CultistClassFinder.Succeeded())
+	{
+		CultistClass = CultistClassFinder.Class;
+	}
 }
 
 ETickableTickType UNpcManager::GetTickableTickType() const
@@ -73,7 +81,7 @@ void UNpcManager::Tick(float DeltaTime)
 	SortByOriginAngle(&AllFriendlies);
 	SortByOriginAngle(&AllHostiles);
 	
-	const float PlayerDist = PlayerRef? ADefaultGameMode::GetDistanceToOrigin(PlayerRef->GetActorLocation()) : 0;
+	const float PlayerDist = PlayerRef? ADefaultGameMode::GetAngleToOrigin(PlayerRef->GetActorLocation()) : 0;
 	
 	//*
 	//* Left Side : Most Vulnerable Asset
@@ -82,7 +90,9 @@ void UNpcManager::Tick(float DeltaTime)
 	if (PlayerDist < Dist) LeftMostVulnerableAsset = PlayerRef;
 	if (LeftMostVulnerableAsset != PreviousLeftMostVulnerableAsset)
 	{
+#if WITH_EDITOR
 		UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+#endif
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(LeftMostVulnerableAsset, EOriginSide::Left);
 	}
 	
@@ -95,7 +105,9 @@ void UNpcManager::Tick(float DeltaTime)
 	if (PlayerDist > Dist) RightMostVulnerableAsset = PlayerRef;
 	if (RightMostVulnerableAsset != PreviousRightMostVulnerableAsset)
 	{
+#if WITH_EDITOR
 		UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
+#endif
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(RightMostVulnerableAsset, EOriginSide::Right);
 	}
 	
@@ -120,6 +132,12 @@ void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)
 	Super::OnWorldBeginPlay(InWorld);
 	BuildingsManager = UBuildingsManager::Get(GetWorld());
 	PlayerRef = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	BuildingsManager->OnNewWallBuiltDelegate.AddLambda([&](const AWall* NewWall, const EOriginSide Side){ RecalculateSafeZone(Side, NewWall->DistanceFromOrigin); });
+	BuildingsManager->OnWallDestroyedDelegate.AddLambda([&](const AWall* NewWall, const EOriginSide Side){ RecalculateSafeZone(Side, NewWall->DistanceFromOrigin); });
+	
+	
+	//ReDrawSafeZoneBounds();
 }
 
 void UNpcManager::SetWorldOrigin(const FVector& NewWorldOrigin)
@@ -332,6 +350,23 @@ APlayerCharacter* UNpcManager::GetPlayer() const
 	return PlayerRef;
 }
 
+float UNpcManager::GetMaxSafeAngle(const EOriginSide Side) const
+{
+	return Side == EOriginSide::Left? MaxSafeAngles.X : MaxSafeAngles.Y;
+}
+
+void UNpcManager::OnCultistDied(const EOriginSide Side)
+{
+	if (Side == EOriginSide::Any) return;
+	
+	// spawn a new cultist
+	const FVector Axis = Side == EOriginSide::Left ? FVector::UpVector : FVector::DownVector;
+	const float Radius = ADefaultGameMode::GameplayRadius + FMath::RandRange(-80,80);
+	const FVector SpawnLocation = ADefaultGameMode::WorldOriginNormal.RotateAngleAxis(179, Axis).GetClampedToSize2D(Radius, Radius) + FVector::UpVector * 60.0f;
+
+	GetWorld()->SpawnActor(CultistClass.Get(), &SpawnLocation);
+}
+
 bool UNpcManager::IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist,
                                       const float CheckRadius) const
 {
@@ -348,7 +383,7 @@ bool UNpcManager::IsCorrectSide(const EOriginSide Side, const FVector& WorldLoca
 {
 	if (Side == EOriginSide::Any) return true;
 	
-	const float Angle = ADefaultGameMode::GetDistanceToOrigin(WorldLocation);
+	const float Angle = ADefaultGameMode::GetAngleToOrigin(WorldLocation);
 	if ((Angle < 0 && Side == EOriginSide::Left) || 
 		(Angle >= 0 && Side == EOriginSide::Right))
 	{
@@ -384,11 +419,11 @@ float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutAc
 		OutActor = nullptr;
 		if (Npc == nullptr) OutActor = Building;
 		if (Building == nullptr) OutActor = Npc;
-		return OutActor? ADefaultGameMode::GetDistanceToOrigin(OutActor->GetActorLocation()) : 0;
+		return OutActor? ADefaultGameMode::GetAngleToOrigin(OutActor->GetActorLocation()) : 0;
 	}
 	
 	// Compare
-	const float NpcDistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
+	const float NpcDistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(Npc->GetActorLocation());
 	
 	if (Side == EOriginSide::Left)
 	{
@@ -398,7 +433,7 @@ float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutAc
 			return Building->DistanceFromOrigin;
 		}
 		OutActor = Npc;
-		return ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
+		return ADefaultGameMode::GetAngleToOrigin(Npc->GetActorLocation());
 	}
 	
 	if (Building->DistanceFromOrigin > NpcDistanceFromOrigin)
@@ -407,5 +442,28 @@ float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutAc
 		return Building->DistanceFromOrigin;
 	}
 	OutActor = Npc;
-	return ADefaultGameMode::GetDistanceToOrigin(Npc->GetActorLocation());
+	return ADefaultGameMode::GetAngleToOrigin(Npc->GetActorLocation());
+}
+
+void UNpcManager::RecalculateSafeZone(const EOriginSide Side, const float FarthestWallAngle)
+{
+	const float Angle = FMath::Abs(FarthestWallAngle) - SafeZoneWallPaddingAngle;
+	if (Side == EOriginSide::Left) MaxSafeAngles.X = Angle;
+	else MaxSafeAngles.Y = Angle;
+	
+	//ReDrawSafeZoneBounds();	
+}
+
+void UNpcManager::ReDrawSafeZoneBounds() const
+{
+#if WITH_EDITOR
+	FlushPersistentDebugLines(GetWorld());
+	const FVector Origin = ADefaultGameMode::WorldOriginNormal * ADefaultGameMode::GameplayRadius;
+	const FVector Max1 = Origin.RotateAngleAxis(MaxSafeAngles.X, FVector::UpVector);
+	const FVector Max2 = Origin.RotateAngleAxis(-MaxSafeAngles.Y, FVector::UpVector);
+	const FVector Min = Origin;
+	DrawDebugLine(GetWorld(), Max1, Max1 + FVector::UpVector * 100.0f, FColor::Red, true);
+	DrawDebugLine(GetWorld(), Min, Min + FVector::UpVector * 100.0f, FColor::Yellow, true);
+	DrawDebugLine(GetWorld(), Max2, Max2 + FVector::UpVector * 100.0f, FColor::Red, true);
+#endif
 }

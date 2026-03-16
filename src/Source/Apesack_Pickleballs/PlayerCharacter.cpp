@@ -15,8 +15,6 @@ APlayerCharacter::APlayerCharacter() {
 	PrimaryActorTick.bCanEverTick = true;
 
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
-	DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
-
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +31,7 @@ void APlayerCharacter::BeginPlay() {
 	}
 	
 	Radius = GetActorLocation().Size2D();
+	DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
 	
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	if (Stats)
@@ -44,6 +43,7 @@ void APlayerCharacter::BeginPlay() {
 }
 
 void APlayerCharacter::BeginDestroy() {
+	FCTween::ClearActiveTweens();
 	Super::BeginDestroy();
 }
 
@@ -52,18 +52,6 @@ EOriginSide APlayerCharacter::GetActorSide(AActor* Actor) const
 	if (!Actor) return EOriginSide::Any;
 	const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), Actor->GetActorLocation());
 	return Angle > 0? EOriginSide::Left : EOriginSide::Right;
-}
-
-void APlayerCharacter::IncrementCoins() {
-	Coins++;
-	PrintCoins();
-}
-
-bool APlayerCharacter::SpendCoins(int requestedCoins) {
-	if(Coins < requestedCoins) return false;
-	Coins -= requestedCoins;
-	PrintCoins();
-	return true;
 }
 
 // Called to bind functionality to input
@@ -75,6 +63,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		if(!MoveAction.IsNull())
 		{
 			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);
+			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Completed, this, &APlayerCharacter::OnStoppedMoving);
 		}
 		if (!SprintAction.IsNull())
 		{
@@ -86,13 +75,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		if (!LazyMoveAction.IsNull())
 		{
 			Input->BindAction(LazyMoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::LazyMove);
+			Input->BindAction(LazyMoveAction.LoadSynchronous(), ETriggerEvent::Completed, this, &APlayerCharacter::OnStoppedMoving);
 		}
 	}
 }
 
 void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
 	FVector Value = Instance.GetValue().Get<FVector>();
-
 	Move(Value);
 }
 
@@ -112,6 +101,12 @@ void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
 		
 		Move(Value);
 	}
+}
+
+void APlayerCharacter::OnStoppedMoving(const FInputActionInstance& Instance)
+{
+	MoveDirection = 0;
+	if (ExitBattleFormationDelegate.IsBound() && !bSensesHostiles) ExitBattleFormationDelegate.Broadcast();
 }
 
 void APlayerCharacter::Move(const FVector& Direction)
@@ -143,24 +138,16 @@ void APlayerCharacter::Move(const FVector& Direction)
 		}
 	}
 
+	MoveDirection = Direction.X;
 	
 	AddMovementInput(Direction.X * GetActorForwardVector());
 	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Direction.X, MovementComp->MaxSpeed);
 }
 
-
-void APlayerCharacter::PrintCoins() const {
-	if(!LoggingEnabled || !GEngine) return;
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		1,
-		FColor::Emerald,
-		FString::Printf(TEXT("Coins: %i"), Coins)
-	);
-}
-
 void APlayerCharacter::OnDeath()
 {
+	//FCTween::ClearActiveTweens();
+	//FCTween::Deinitialize();
 }
 
 void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor)
@@ -180,18 +167,20 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	const float Duration = 0.3f; 
 	
 	// move back
-	FCTween::Play(
+	
+	FCTweenInstance* TweenInstanceVector = FCTween::Play(
 	Start,
 	End,
 	[&](const FVector& t)
 	{
+		if (!this) return;
 		SetActorLocation(t);
 	},
 	Duration,
 	EFCEase::OutQuad)->SetOnComplete([&]()
 	{
 		bWasHit = false;
-	});
+	})->SetAutoDestroy(true);
 	
 	// jump
 	FCTween::Play(
@@ -204,7 +193,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
 	},
 	Duration/4,
-	EFCEase::OutQuad)->SetYoyo(true);
+	EFCEase::OutQuad)->SetYoyo(true)->SetAutoDestroy(true);
 }
 
 

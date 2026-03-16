@@ -12,26 +12,12 @@ enum class EActionState : uint8
 };
 
 
-DECLARE_DELEGATE_OneParam(FExecutionFunctionSignature, float);
-DECLARE_DELEGATE_RetVal(bool, FConditionCheckSignature);
-DECLARE_DELEGATE(FResetSignature);
-
-class APESACK_PICKLEBALLS_API FAction // does one little thing
+struct APESACK_PICKLEBALLS_API FAction // does one little thing
 {
-
-public:
-	explicit FAction(const FString& ActionName);
-	~FAction();
+	explicit FAction(const FString& ActionName) : Name(ActionName) {}
 	
-	void Reset();
-	bool CanExecute() const;
-
 	FString GetName() const {return Name;}
-	EActionState State;
-	
-	FExecutionFunctionSignature ExecutionDelegate;
-	FConditionCheckSignature ConditionDelegate;
-	FResetSignature ResetDelegate;
+	TFunction<EActionState(float)> Func;
 	
 private:
 	FString Name = "Action Base";

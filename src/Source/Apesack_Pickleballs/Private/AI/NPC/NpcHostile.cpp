@@ -6,6 +6,7 @@
 #include "GameModes/DefaultGameMode.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Managers/NpcManager.h"
+#include "Movement/CircularPawnMovementComponent.h"
 
 // Sets default values
 ANpcHostile::ANpcHostile()
@@ -29,18 +30,14 @@ TArray<UListItemObject*> ANpcHostile::GetInfo() const
 	return Info;
 }
 
-
 void ANpcHostile::BeginPlay()
 {
-	const float DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	const float DistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
 	MainSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right;
 	
 	Super::BeginPlay();
 	
 	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
-	
-	IgnoreActors = NpcManager->GetNpcs(ENpcSearchOption::AnyHostile, EOriginSide::Any);	
-	IgnoreActors.Add(this);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -49,38 +46,40 @@ void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void ANpcHostile::BindActions()
-{
-	WalkAction.ExecutionDelegate.BindUObject(this, &ThisClass::Walk);
-	
-	MoveToAction.ConditionDelegate.BindUObject(this, &ThisClass::MoveToCondition);
-	MoveToAction.ExecutionDelegate.BindUObject(this, &ThisClass::MoveTo);
-	MoveToAction.ResetDelegate.BindUObject(this, &ThisClass::MoveToReset);
-	
-	MeleeAttackAction.ConditionDelegate.BindUObject(this, &ThisClass::MeleeAttackCondition);
-	MeleeAttackAction.ExecutionDelegate.BindUObject(this, &ThisClass::MeleeAttack);
-	
-	CooldownAction.ExecutionDelegate.BindUObject(this, &ThisClass::Cooldown);
-	CooldownAction.ResetDelegate.BindUObject(this, &ThisClass::CooldownReset);
-	
-	TargetAttackableAction.ConditionDelegate.BindUObject(this, &ThisClass::TargetAttackableCondition);
-	TargetAttackableAction.ExecutionDelegate.BindUObject(this, &ThisClass::TargetAttackable);
-}
-
 void ANpcHostile::CreateBehaviours()
 {
+	FAction WalkAction{FString("Walk")};
+	WalkAction.Func = [&](const float DeltaTime){return Walk(DeltaTime);};
+	
+	FAction MoveToAction{FString("Move To")};
+	MoveToAction.Func = [&](const float DeltaTime){return MoveTo(DeltaTime);};
+	
+	FAction TargetAttackableAction{FString("Target Attackable")};
+	TargetAttackableAction.Func = [&](const float DeltaTime){return TargetAttackable(DeltaTime);};
+	
+	FAction MeleeAttackAction{FString("Attack")};
+	MeleeAttackAction.Func = [&](const float DeltaTime){return MeleeAttack(DeltaTime);};
+	
 	// Melee Attack
-	MeleeAttackTask.Actions.Add(&TargetAttackableAction);
-	MeleeAttackTask.Actions.Add(&MoveToAction);
-	MeleeAttackTask.Actions.Add(&MeleeAttackAction);
-	MeleeAttackTask.Actions.Add(&CooldownAction);
+	MeleeAttackTask.Actions.Add(TargetAttackableAction);
+	MeleeAttackTask.Actions.Add(MoveToAction);
+	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
-	HtnDomain->AssignTask(&MeleeAttackTask);
-	 
+	MeleeAttackTask.Condition = [&]{return TargetAttackableCondition() && MoveToCondition();};
+	MeleeAttackTask.OnStarted = [&] {bCanMove = true;};
+	MeleeAttackTask.OnEnded = [&] { if (!MeleeAttackTask.Failed()) bCanMove = false;};
+	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
+	
 	// Walk
-	MoveForwardTask.Actions.Add(&WalkAction);
+	MoveForwardTask.Actions.Add(WalkAction);
+	MoveForwardTask.Condition = [&] {return MoveToCondition();};
 	MoveForwardTask.bPrintDebug = bPrintDebug_MoveTo;
+	
+	HtnDomain->AssignTask(&MeleeAttackTask);
 	HtnDomain->AssignTask(&MoveForwardTask);
+	
+	// Wait
+	Super::CreateBehaviours();
 }
 
 void ANpcHostile::OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side)
@@ -90,51 +89,30 @@ void ANpcHostile::OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side
 	MeleeAttackTask.Reset();
 }
 
-float ANpcHostile::GetAngleBetweenVectors(const FVector& A, const FVector& B)
-{
-	if (A.IsNearlyZero() || B.IsNearlyZero()) return 0.f;
-	
-	const float Dot = FVector::DotProduct(A, B);
-	const float CrossDot = FVector::CrossProduct(A, B).Dot(FVector::UpVector);
-	return FMath::RadiansToDegrees(FMath::Atan2(CrossDot, Dot));
-}
-
-void ANpcHostile::Walk(float DeltaTime)
+EActionState ANpcHostile::Walk(float DeltaTime)
 {
 	if (MainSide == EOriginSide::Left) MoveForwardScaled(1);
 	else MoveForwardScaled(-1);
+	
+	return EActionState::Succeeded;
 }
 
-
-void ANpcHostile::Cooldown(float DeltaTime)
-{
-	Timer += DeltaTime;
-	if (Timer >= Delay) CooldownAction.State = EActionState::Succeeded;
-}
-
-
-void ANpcHostile::CooldownReset()
-{
-	Timer = 0.0f;
-}
-
-void ANpcHostile::MoveTo(float DeltaTime)
+EActionState ANpcHostile::MoveTo(float DeltaTime)
 {
 	// Is destination still valid?
 	if (bIsFirstTick)
 	{
 		bIsFirstTick = false;
-		return;
+		return EActionState::InProgress;
 	}
 	
 	if (!TargetActor)
 	{
-		MoveToAction.State = EActionState::Failed;
-		return;
+		return EActionState::Failed;
 	}
 	
 	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation()); // this crashes sometimes on first tick
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation().GetClampedToMaxSize2D(MovementComp->Radius)); // this crashes sometimes on first tick
 	if (DistanceSquared <= StartRaycastingDistanceSquared && MoveToTimer >= RaycastInterval)
 	{
 		MoveToTimer = 0;
@@ -142,13 +120,15 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			GetWorld(), // world
 			GetActorLocation(), // start 
 			TargetActor->GetActorLocation(), // end 
-			UEngineTypes::ConvertToTraceType(ECC_Visibility), // channel
+			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), // channel
 			false,
-			IgnoreActors, // ignore 
+			TArray<AActor*>{}, // ignore 
 			bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
 			HitResults,
 			true);
 		
+	
+#if WITH_EDITOR
 		if (bPrintDebug_MoveTo)
 		{
 			FString HitActors;
@@ -159,6 +139,7 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
 			UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
 		}
+#endif
 		
 		for (const auto& It : HitResults)
 		{
@@ -166,19 +147,19 @@ void ANpcHostile::MoveTo(float DeltaTime)
 			
 			if (HitActor == TargetActor)
 			{
-				//if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("Distance = %f"), It.Distance);
 				if (It.Distance <= StopDistance)
 				{
-					MoveToAction.State = EActionState::Succeeded;
-					return;
+					return EActionState::Succeeded;
 				}
 			}
 		}
 	}
 	MoveToTimer+=DeltaTime;
 	
-	const float Direction = FVector::DotProduct(TargetActor->GetActorLocation() - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
-	MoveForwardScaled(Direction);
+	MoveDirection = GetDirectionTo(TargetActor->GetActorLocation());
+	MoveForwardScaled(MoveDirection);
+	
+	return EActionState::InProgress;
 }
 
 bool ANpcHostile::MoveToCondition() const
@@ -192,21 +173,19 @@ void ANpcHostile::MoveToReset()
 	//TargetActor = nullptr;
 }
 
-void ANpcHostile::MeleeAttack(float DeltaTime)
+EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 {
 	// get target
 	if (TargetActor == nullptr)
 	{
-		MeleeAttackAction.State = EActionState::Failed;
-		return;
+		return EActionState::Failed;
 	}
 
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (TargetStatComponent == nullptr)
 	{
-		MeleeAttackAction.State = EActionState::Failed;
-		return;		
+		return EActionState::Failed;
 	}
 	
 		OnMeleeAttack();
@@ -235,35 +214,31 @@ void ANpcHostile::MeleeAttack(float DeltaTime)
 	    DamagePatch.MagicDamage,
 	    DamagePatch.DebuffDuration
 	);
-	MeleeAttackAction.State = EActionState::Succeeded;
-	Delay = Cooldown_MeleeAttack;
+	
+	return EActionState::Succeeded;
 }
 
-bool ANpcHostile::MeleeAttackCondition() const
+EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 {
-	return NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyFriendly, MainSide) != nullptr;
-}
-
-void ANpcHostile::TargetAttackable(float DeltaTime)
-{
-	float Angle = 0;
 	if (MainSide == EOriginSide::Left)
 	{
-		//Angle = GetAngleBetweenVectors(GetActorLocation(), UNpcManager::LeftMostVulnerableAsset->GetActorLocation());
-		//if (Angle < 0) TargetActor = UNpcManager::LeftMostVulnerableAsset;
 		TargetActor = UNpcManager::LeftMostVulnerableAsset;
 	}
 	else
 	{
-		//Angle = GetAngleBetweenVectors(GetActorLocation(), UNpcManager::LeftMostVulnerableAsset->GetActorLocation());
-		//if (Angle > 0) TargetActor = UNpcManager::RightMostVulnerableAsset;
 		TargetActor = UNpcManager::RightMostVulnerableAsset;
 	}
 	
-	if (bPrintDebug_TargetNearestAny) UE_LOG(LogTemp, Warning, TEXT("%s::NearestAttackable=%s (Angle=%f)"), *GetActorNameOrLabel(),TargetActor? *TargetActor->GetActorNameOrLabel(): TEXT("Null"), Angle);
+#if WITH_EDITOR
+	if (bPrintDebug_TargetNearestAny)
+	{
+		const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), TargetActor->GetActorLocation());
+		UE_LOG(LogTemp, Warning, TEXT("%s::NearestAttackable=%s (Angle=%f)"), *GetActorNameOrLabel(),TargetActor? *TargetActor->GetActorNameOrLabel(): TEXT("Null"), Angle);
+	}
+#endif
 	
-	if (TargetActor != nullptr) TargetAttackableAction.State = EActionState::Succeeded;
-	else TargetAttackableAction.State = EActionState::Failed;
+	if (TargetActor != nullptr) return EActionState::Succeeded;
+	return EActionState::Failed;
 }
 
 bool ANpcHostile::TargetAttackableCondition() const

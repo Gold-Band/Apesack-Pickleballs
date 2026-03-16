@@ -35,7 +35,9 @@ public:
 	void OnLanded();
 	
 	UFUNCTION(BlueprintCallable)
-	virtual bool LaunchAt(const TArray<AActor*>& IgnoreActors, const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
+	virtual bool LaunchAt(const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
+	
+	bool IsLineOfSightToTargetBlocked(const FVector& StartLocation, const FVector& TargetLocation) const;
 	
 	UPROPERTY(EditAnywhere)
 	float Speed = 1000.0f;

@@ -37,10 +37,16 @@ void ANpc::Tick(float DeltaSeconds)
 	}
 }
 
-float ANpc::GetDirectionToTown()
+float ANpc::GetDirectionTo(const FVector& Location) const
 {
-	return OriginDirection;
-	//OriginDirection = ADefaultGameMode
+	return FVector::DotProduct(Location - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
+}
+
+float ANpc::GetSpeed() const
+{
+	if (bIsLerping) return 10;
+	if (!MovementComp) return 0;
+	return MovementComp->Velocity.SquaredLength() / 100;
 }
 
 UStatsComponent* ANpc::GetStats()
@@ -64,9 +70,10 @@ void ANpc::BeginPlay()
 	NpcManager = UNpcManager::Get(GetWorld());
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	
+	if (GetSideCheckCondition()) MainSide = ADefaultGameMode::GetActorSideFromOrigin(this); 
+	
 	if (NpcManager) NpcManager->AddNpc(this, NpcType, MainSide);
 	
-	BindActions();
 	CreateBehaviours();
 	
 	if (Stats)
@@ -82,16 +89,13 @@ void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void ANpc::BindActions()
-{
-	// Wait
-	WaitAction.ExecutionDelegate.BindUObject(this, &ThisClass::Wait);
-}
-
 void ANpc::CreateBehaviours()
 {
+	FAction WaitAction{FString("Wait")};
+	WaitAction.Func = [&](const float DeltaTime){return Wait(DeltaTime);};
+	
 	// Wait
-	WaitTask.Actions.Add(&WaitAction);
+	WaitTask.Actions.Add(WaitAction);
 	HtnDomain->AssignTask(&WaitTask);
 }
 
@@ -110,9 +114,9 @@ FString ANpc::GetActorName() const
 	return GetCharacterName();
 }
 
-void ANpc::Wait(float DeltaTime)
+EActionState ANpc::Wait(float DeltaTime)
 {
-	WaitAction.State = EActionState::Succeeded;
+	return EActionState::Succeeded;
 }
 
 void ANpc::OnDeath_Implementation()
@@ -133,31 +137,32 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 		if (InstigatorActor) UE_LOG(LogTemp, Warning, TEXT("Hit by = %s"), *InstigatorActor->GetActorNameOrLabel());
 	}
 	
-	int InstigatorDirection = 1;
-	if (InstigatorActor)
-	{
-		float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), InstigatorActor->GetActorLocation());
-		if (Angle > 0) InstigatorDirection = -1;
-	}
+	if (!InstigatorActor) return;
+
+	const float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), InstigatorActor->GetActorLocation());
+	const int InstigatorDirection = Angle>0? -1 : 1;
 	
 	
 	const float KnockDistance = DamageType == 1? MeleeKnockbackParams.KnockedDistance : RangedKnockbackParams.KnockedDistance;
 	const FVector Start = GetActorLocation();
 	const FVector End = Start - GetActorForwardVector() * KnockDistance * InstigatorDirection;
 	const float Duration = 0.3f; 
+	
 	// move back
 	FCTween::Play(
 	Start,
 	End,
 	[&](const FVector& t)
 	{
+		if (!this) return;
 		SetActorLocation(t);
 	},
 	Duration,
 	EFCEase::OutQuad)->SetOnComplete([&]()
 	{
+		if (!this) return;
 		bWasHit = false;
-	});
+	})->SetAutoDestroy(true);
 	
 	// jump
 	FCTween::Play(
@@ -172,5 +177,5 @@ void ANpc::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, 
 		SetActorLocation(FVector{Location.X, Location.Y, t.Z});
 	},
 	Duration/4,
-	EFCEase::OutQuad)->SetYoyo(true);
+	EFCEase::OutQuad)->SetYoyo(true)->SetAutoDestroy(true);
 }

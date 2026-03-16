@@ -27,13 +27,15 @@ public:
 
 	static float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
-	static float GetDistanceToOrigin(const FVector& FromLocation);
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	static float GetAngleToOrigin(const FVector& FromLocation);
 	
 	static EOriginSide GetActorSideFromOrigin(const AActor* Actor, float& OutAngle);
 	static EOriginSide GetActorSideFromOrigin(const AActor* Actor);
 	static EOriginSide GetActorSideFrom(const AActor* FromActor, const AActor* OtherActor);
 	
 	static FVector WorldOriginNormal;
+	static float GameplayRadius;
 	
 	UFUNCTION(BlueprintPure)
 	AActor* GetArrow();
@@ -49,6 +51,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GameTimeScale = 1000.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int NightStartHour = 20;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int NightEndHour = 6;
 	
 private:
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess=true))

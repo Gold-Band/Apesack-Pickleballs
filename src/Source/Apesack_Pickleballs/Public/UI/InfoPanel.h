@@ -20,6 +20,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnActionEntryClicked(int Cost);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void Close();
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void Refresh();
+	
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere);
 	bool bTransactionSucceeded;
 	

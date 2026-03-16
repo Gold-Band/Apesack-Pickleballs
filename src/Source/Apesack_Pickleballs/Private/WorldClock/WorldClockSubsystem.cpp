@@ -12,6 +12,10 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 	if (bAllowClockTicking)
 	{
 		Milliseconds += DeltaTime * TimeScale;
+		
+		TotalSeconds += Milliseconds;
+		TotalSeconds = TotalSeconds >= 86400 ? 0: TotalSeconds;
+		
 		if (Milliseconds >= 1)
 		{
 			msFloor = FMath::Floor(Milliseconds);
@@ -38,12 +42,15 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 		{
 			Day += FMath::Floor(Hour/24);
 			Hour = Hour%24;
+			if (OnDayTickedDelegate.IsBound()) OnDayTickedDelegate.Broadcast(Day);
 			TryBroadcast(EWorldClockBroadcastTiming::EveryDay);
 		}
 		
 		if ((Hour >= NightHourStart || Hour < DayHourStart) && IsDaytime)
 		{
+#if WITH_EDITOR
 			UE_LOG(LogTemp, Log, TEXT("Night Started"))
+#endif
 			IsDaytime = false;
 			if (OnNightStartedDelegate.IsBound())
 			{
@@ -52,7 +59,9 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 		}
 		else if (Hour >= DayHourStart && Hour < NightHourStart && !IsDaytime)
 		{
+#if WITH_EDITOR
 			UE_LOG(LogTemp, Log, TEXT("Night Ended"))
+#endif
 			IsDaytime = true;
 			if (OnNightEndedDelegate.IsBound()) OnNightEndedDelegate.Broadcast();
 		}
@@ -117,6 +126,11 @@ void UWorldClockSubsystem::SetTime(const uint8 NewDay, const uint8 NewHour, cons
 	Second = NewSecond;
 }
 
+float UWorldClockSubsystem::GetNormalizedTime() const
+{
+	return TotalSeconds / 86400.0f;
+}
+
 FTimestamp UWorldClockSubsystem::GetTime() const
 {
     return CurrentTime;
@@ -140,4 +154,19 @@ uint8 UWorldClockSubsystem::GetMinutes() const
 uint8 UWorldClockSubsystem::GetSeconds() const
 {
     return Second;
+}
+
+uint8 UWorldClockSubsystem::GetNightStartHour() const
+{
+	return NightHourStart;
+}
+
+void UWorldClockSubsystem::SetNightStartHour(const uint8 StartHour)
+{
+	NightHourStart = StartHour;
+}
+
+void UWorldClockSubsystem::SetNightEndHour(const uint8 EndHour)
+{
+	DayHourStart = EndHour;
 }

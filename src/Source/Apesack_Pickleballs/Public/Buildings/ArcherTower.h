@@ -29,7 +29,6 @@ public:
 	virtual TArray<UListItemObject*> GetInfo() const override;
 	virtual TArray<UListItemObject*> GetActions() override;
 	
-	
 protected:
 	
 	UPROPERTY(VisibleAnywhere)

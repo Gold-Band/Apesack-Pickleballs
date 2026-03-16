@@ -22,8 +22,8 @@ bool UHTNComponent::UpdatePlan()
 		if (!Task->CanPerform()) continue;
 		if (Task->Failed())
 		{
-			if (Task->bResetOnFail) Task->Reset();
-			else Task->SoftReset();
+			//if (Task->bResetOnFail) Task->Reset();
+			//Task->SoftReset();
 			continue;
 		}
 		
@@ -41,7 +41,12 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 	
 	int r = 0;
 	bool bHasValidTask = false;
-	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT(""));
+	
+	
+#if WITH_EDITOR
+	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT(" . . . "));
+#endif
+	
 	while (bHasValidTask == false) // default is false
 	{
 		bHasValidTask = UpdatePlan(); // sets has valid task (to true)
@@ -54,8 +59,24 @@ void UHTNComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FAc
 			{
 				// but do the next action right away
 				bHasValidTask = false;
+				
+#if WITH_EDITOR
 				if (bPrintDebug) UE_LOG(LogTemp, Error, TEXT("Try the next task.. (recursions=%i)"),++r);
+#endif
+			}
+			else if (CurrentTask->Succeeded()) // reset all failed tasks
+			{
+				for (const auto Task : Tasks)
+				{
+					if (Task->Failed()) Task->Reset();
+				}
 			}
 		}
+	}
+	
+	// cooldown tasks
+	for (const auto Task : Tasks)
+	{
+		if (Task->IsOnCooldown()) Task->DoCooldown(DeltaTime);
 	}
 }

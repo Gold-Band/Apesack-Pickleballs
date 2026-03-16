@@ -5,6 +5,7 @@
 #include "BuildingsManager.generated.h"
 
 class ABuilding;
+class ARitualZone;
 class AArcherTower;
 class AWall;
 
@@ -13,6 +14,7 @@ enum class EBuildingType : uint8
 {
 	Wall,
 	Tower,
+	Ritual,
 	Any
 };
 
@@ -31,6 +33,8 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnNewArcherTowerBuiltSignature, AArcherTow
 // delegate for when a wall is built
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnNewWallBuiltSignature, AWall*, EOriginSide);
 
+// delegate for when a wall is built
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnWallDestroyedSignature, AWall*, EOriginSide);
 
 
 UCLASS()
@@ -39,23 +43,28 @@ class UBuildingsManager: public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
-	UBuildingsManager();
+	UBuildingsManager(){};
 	
-	static FOnNewArcherTowerBuiltSignature OnNewArcherTowerBuiltDelegate;
-	static FOnNewWallBuiltSignature OnNewWallBuiltDelegate;
+	FOnNewArcherTowerBuiltSignature OnNewArcherTowerBuiltDelegate;
+	FOnNewWallBuiltSignature OnNewWallBuiltDelegate;
+	FOnWallDestroyedSignature OnWallDestroyedDelegate;
 	
 	static UBuildingsManager* Get(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintCallable)
 	void AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType, EOriginSide Side);
-	void RemoveBuilding(ABuilding* OldBuilding, EBuildingType BuildingType, EOriginSide Side);
+	UFUNCTION(BlueprintCallable)
+	void RemoveBuilding(ABuilding* OldBuilding, const EBuildingType BuildingType, const EOriginSide Side);
 	
 	AActor* GetFarthestBuilding(EBuildingType Type, EOriginSide Side);
 	AActor* GetNearestBuilding(const FVector& FromLocation, EBuildingType Type, EOriginSide Side, bool bDamaged);
-	
+	ARitualZone* GetGotoRitualZone(EOriginSide Side);
 	bool DoVacantTowersExist(EOriginSide Side) const;
 	bool WallsExist(EOriginSide Side) const;
 	
 private:
+	const TArray<ABuilding*>* GetArrayConst(EBuildingType Type, EOriginSide Side) const;
+	TArray<ABuilding*>* GetArray(EBuildingType Type, EOriginSide Side);
 	
 	UPROPERTY()
 	TArray<ABuilding*> RightWalls;
@@ -68,4 +77,10 @@ private:
 	
 	UPROPERTY()
 	TArray<ABuilding*> LeftTowers;
+	
+	UPROPERTY()
+	TArray<ABuilding*> RightRitualZones;
+	
+	UPROPERTY()
+	TArray<ABuilding*> LeftRitualZones;
 };

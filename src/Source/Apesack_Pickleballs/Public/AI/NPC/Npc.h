@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AI/Actions/Action.h"
 #include "AI/HTN/Task.h"
 #include "GameFramework/Pawn.h"
 #include "Interfaces/ClickableActor.h"
@@ -11,7 +10,6 @@
 #include "Engine/DataTable.h"
 #include "Npc.generated.h"
 
-class FAction;
 class UHTNComponent;
 class UStatsComponent;
 class UNpcManager;
@@ -53,7 +51,15 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 	UFUNCTION(BlueprintPure)
-	float GetDirectionToTown();
+	int GetMoveDirection() const {return MoveDirection; }
+	float GetDirectionTo(const FVector& Location) const;
+	
+	UFUNCTION(BlueprintPure)
+	float GetSpeed() const;
+	
+	virtual void OnClicked() override;
+	virtual FString GetActorName() const override;
+	void MoveForwardScaled(float Scale);
 	
 	UStatsComponent* GetStats();
 	FString GetCharacterName() const {return CharacterName;}
@@ -62,12 +68,6 @@ public:
 	FVector GetProjectileSpawnLocation() const;
 private:
 	FVector GetProjectileSpawnLocation_Implementation() const;
-public:
-	
-	//*
-	//* Actions
-	//*
-	void MoveForwardScaled(float Scale);
 	
 	
 protected:
@@ -78,7 +78,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnActorClicked();
 	
-	virtual void BindActions();
 	virtual void CreateBehaviours();
 	virtual bool GetSideCheckCondition();
 	
@@ -87,19 +86,9 @@ protected:
 	
 	virtual void OnDeath_Implementation();
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	virtual void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
 	
-public:
-	virtual void OnClicked() override;
-	virtual FString GetActorName() const override;
-
-private:
-	
-	// direction to the player's town (left or right)
-	float OriginDirection = 0;
-	
-protected:
 	//*
 	//* General Properties
 	//*
@@ -112,7 +101,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Action Properties|Targeting")
 	AActor* TargetActor = nullptr;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Properties")
 	EOriginSide MainSide;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
@@ -121,6 +110,8 @@ protected:
 	float Timer = 0;
 	
 	int MoveDirection = 1;
+	bool bIsLerping;
+	
 	
 	TArray<FHitResult> HitResults;
 	
@@ -141,8 +132,7 @@ protected:
 	
 	//* Wait *//
 	FTask WaitTask{"Wait"};
-	FAction WaitAction{FString("Wait")};
-	void Wait(float DeltaTime);
+	EActionState Wait(float DeltaTime);
 	
 	
 	//**

@@ -6,6 +6,7 @@
 #include "NpcManager.generated.h"
 
 
+class ANpcCultist;
 class APlayerCharacter;
 class ANpc;
 class ANpcFriendly;
@@ -78,15 +79,16 @@ public:
 	static FOnMostVulnerableAssetChangedSignature OnMostVulnerableAssetChangedDelegate;
 	static AActor* LeftMostVulnerableAsset;
 	static AActor* RightMostVulnerableAsset;
-	
 	static FOnRaidDetectedSignature OnRaidDetectedDelegate;
 
+	
 	virtual ETickableTickType GetTickableTickType() const override;
 	
 	virtual TStatId GetStatId() const override;
 	
 	virtual void Tick(float DeltaTime) override;
 	
+	UFUNCTION(BlueprintPure, BlueprintCallable)
 	static UNpcManager* Get(const UObject* WorldContextObject);
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
@@ -110,6 +112,11 @@ public:
 	
 	APlayerCharacter* GetPlayer() const;
 	
+	float GetMaxSafeAngle(const EOriginSide Side) const;
+	
+	UFUNCTION(BlueprintCallable)
+	void OnCultistDied(const EOriginSide Side);
+	
 private:
 	// Returns CheckActor if it passes the inspection. Else, it returns null.
 	bool IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist, const float CheckRadiusSquared) const;
@@ -118,6 +125,10 @@ private:
 	TArray<AActor*>* GetArray(ENpcSearchOption SearchFilter);
 	
 	float GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutActor);
+	
+	void RecalculateSafeZone(const EOriginSide Side, const float FarthestWallAngle);
+	
+	void ReDrawSafeZoneBounds() const;
 	
 	UPROPERTY()
 	AActor* PreviousLeftMostVulnerableAsset;
@@ -136,14 +147,16 @@ private:
 	UPROPERTY()
 	TArray<AActor*> AllFriendlies;
 	
-	//UPROPERTY()
-	//TArray<AActor*> PartyMembers;
-	
-	
 	// tick interval
 	float TickInterval = 0.2f;
 	float Timer;
 	
+	// x = left side, y = right side
+	FVector2D MaxSafeAngles {1.5f,1.5f}; // min value
+	float SafeZoneWallPaddingAngle = 2.0f;
+	
 	APlayerCharacter* PlayerRef = nullptr;
 	
+	UPROPERTY()
+	TSubclassOf<ANpcCultist> CultistClass;
 };

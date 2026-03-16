@@ -19,6 +19,6 @@ class APESACK_PICKLEBALLS_API UTxtListObject : public UUserWidget, public IUserO
 protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTextBlock> Text;
 };

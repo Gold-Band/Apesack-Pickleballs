@@ -18,8 +18,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
 	float Radius;
-
+	
 protected:
 	virtual void BeginPlay() override;
-	
+
 };

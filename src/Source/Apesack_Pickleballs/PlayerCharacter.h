@@ -5,6 +5,7 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
+class FCTweenInstanceVector;
 class ADefaultGameMode;
 enum class EOriginSide : uint8;
 class UStatsComponent;
@@ -22,18 +23,15 @@ class APESACK_PICKLEBALLS_API APlayerCharacter : public APawn {
 public:
 	APlayerCharacter();
 	
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	int Coins;
-
-	UFUNCTION(BlueprintCallable)
-	void IncrementCoins();
-
-	UFUNCTION(BlueprintCallable)
-	bool SpendCoins(int requestedCoins);
-	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintPure)
+	int GetMoveDirection() const {return MoveDirection; }
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsSprinting() const {return bIsSprinting; }
+	
 	UPROPERTY(BlueprintCallable)
 	FEnterBattleFormationSignature EnterBattleFormationDelegate;
 	
@@ -48,7 +46,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
 	bool bInWorldBoundary = false;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Character Properties")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
 	bool bRecalculateSide = false;
 	
 protected:
@@ -71,6 +69,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, Category = "Character Properties")
 	EOriginSide MainSide;
+	
+	UPROPERTY(BlueprintReadWrite)
+	bool bSensesHostiles = false;
 	
 private:
 	
@@ -99,10 +100,11 @@ private:
     
 // Sprint handlers
 	void StartSprinting(const struct FInputActionInstance& Instance);
-void StopSprinting(const struct FInputActionInstance& Instance);
+	void StopSprinting(const struct FInputActionInstance& Instance);
 
 	float DefaultSpeed = 0.1f;
-    private: bool bIsSprinting = false;
+    bool bIsSprinting = false;
+	int MoveDirection = 0;
 
 	UFUNCTION()
 	void HandleMove(const FInputActionInstance& Instance);
@@ -110,15 +112,20 @@ void StopSprinting(const struct FInputActionInstance& Instance);
 	UFUNCTION()
 	void LazyMove(const FInputActionInstance& Instance);
 	
-	void Move(const FVector& Direction);
+	UFUNCTION()
+	void OnStoppedMoving(const FInputActionInstance& Instance);
 	
-	void PrintCoins() const;
+	void Move(const FVector& Direction);
 	
 	UFUNCTION()
 	void OnDeath();
 	
 	UFUNCTION()
 	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
+	
+	// for on death crash
+	FCTweenInstanceVector* KnockbackTween;
+	FCTweenInstanceVector* JumpTween;
 	
 	bool bWasHit = false;
 };

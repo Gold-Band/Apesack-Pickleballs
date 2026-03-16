@@ -3,7 +3,6 @@
 
 #include "AI/HTN/BtnListObject.h"
 #include "AI/HTN/ListItemObject.h"
-#include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "UI/InfoPanel.h"
 
@@ -24,13 +23,13 @@ void UBtnListObject::NativeOnListItemObjectSet(UObject* ListItemObject)
 		const FString Txt = FString::Printf(TEXT("%s"), *ListItem->DisplayText.ToString());
 		Text->SetText(FText::FromString(Txt));
 	}
-	
-	ActionBtn->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButtonClicked);
+
 	ButtonFunction = ListItem->OnActionCalledFunction;
 	Parent = ListItem->Parent;
 	Cost = ListItem->Cost;
+	bCloseOnClicked = ListItem->bCloseOnClicked;
 	
-	ActionBtn->SetIsEnabled(!ListItem->bDisable);
+	ListItem->ConstructedWidget = this;
 }
 
 void UBtnListObject::OnButtonClicked()
@@ -42,5 +41,16 @@ void UBtnListObject::OnButtonClicked()
 	{
 		ButtonFunction.CheckCallable();
 		ButtonFunction();
+		
+		if (bCloseOnClicked)
+		{
+			//close
+			InfoPanel->Close();
+		}
+		else
+		{
+			//refresh
+			InfoPanel->Refresh();
+		}
 	}
 }

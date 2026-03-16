@@ -39,7 +39,7 @@ void ABuilding::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	DistanceFromOrigin = ADefaultGameMode::GetDistanceToOrigin(GetActorLocation());
+	DistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
 	BuildingSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right; 
 	
 	UBuildingsManager::Get(GetWorld())->AddBuilding(this, BuildingType, BuildingSide);
