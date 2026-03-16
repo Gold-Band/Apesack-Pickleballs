@@ -85,3 +85,6 @@ Plugins/Developer/RiderLink/*
 
 # FMOD
 Content/FMOD/PrivateIntegrationData/
+
+# Upgrade logs
+UpgradeLog.htm
