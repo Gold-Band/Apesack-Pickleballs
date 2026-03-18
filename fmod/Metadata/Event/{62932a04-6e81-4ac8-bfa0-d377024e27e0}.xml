@@ -5,7 +5,7 @@
 			<value>Arrow Fired</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{7c0c8fe7-3d4f-44b9-b94a-06bdea80d393}</destination>
@@ -59,7 +59,14 @@
 			<destination>{0346ebd8-3ae1-4650-9b0f-d72cf7840232}</destination>
 		</relationship>
 	</object>
-	<object class="EventAutomatableProperties" id="{a897e574-ab4a-4439-9fcd-f77de64a3616}" />
+	<object class="EventAutomatableProperties" id="{a897e574-ab4a-4439-9fcd-f77de64a3616}">
+		<property name="minimumDistance">
+			<value>10</value>
+		</property>
+		<property name="maximumDistance">
+			<value>40</value>
+		</property>
+	</object>
 	<object class="MarkerTrack" id="{a6fb037f-63a7-49ef-ad5f-ade4df8dab4b}" />
 	<object class="Timeline" id="{0526d3cc-b18f-4c85-9fec-55f0f8453f0d}">
 		<property name="isProxyEnabled">
@@ -96,6 +103,7 @@
 	<object class="MixerBusEffectChain" id="{3b8abc3f-eda5-4fd9-9c12-749115cd3324}">
 		<relationship name="effects">
 			<destination>{a8902ba7-b154-4527-8876-2c5090937d47}</destination>
+			<destination>{f9a0086c-1c9e-4ded-b760-63aa014a298a}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{dfbdbee1-9f57-435a-8779-b42bf913349b}" />
@@ -110,6 +118,7 @@
 	</object>
 	<object class="MixerBusFader" id="{2f23acac-9396-440e-98db-9385a81c8795}" />
 	<object class="MixerBusFader" id="{a8902ba7-b154-4527-8876-2c5090937d47}" />
+	<object class="SpatialiserEffect" id="{f9a0086c-1c9e-4ded-b760-63aa014a298a}" />
 	<object class="SingleSound" id="{cf42f00b-63bd-4895-a808-512bd7256a42}">
 		<relationship name="audioFile">
 			<destination>{c4baa761-2acc-4daf-811f-b68047dfdc05}</destination>
