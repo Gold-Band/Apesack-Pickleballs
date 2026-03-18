@@ -436,26 +436,25 @@ void UNpcManager::RefreshNearbyVulnerables(const EOriginSide Side)
 	
 	if (Side == EOriginSide::Left) ModifyArray = &LeftVulnerables;
 	else ModifyArray = &RightVulnerables;
+	
+	ModifyArray->Empty();
 
 	bMostVulnerableIsPlayer = (Side == EOriginSide::Left && LeftMostVulnerableAsset == PlayerRef )|| (Side==EOriginSide::Right && RightMostVulnerableAsset == PlayerRef);
 	
-	if (bMostVulnerableIsAWall || bMostVulnerableIsPlayer)
-	{
-		ModifyArray->Empty();
-		return;
-	}
+	if (bMostVulnerableIsPlayer) {UE_LOG(LogTemp, Warning, TEXT("bMostVulnerableIsPlayer"));}
+	else if (bMostVulnerableIsAWall) return;
 	
 	const AActor* Npc = Side == EOriginSide::Left ? LeftMostVulnerableAsset : RightMostVulnerableAsset;
 	if (!Npc) return;
 	constexpr float Range = 1.f;
 	
-	// Debug draw the range
+	/*// Debug draw the range
 #if WITH_EDITOR
 	DrawDebugLine(GetWorld(), Npc->GetActorLocation(), Npc->GetActorLocation() + FVector::UpVector * 150.f, FColor::Yellow, false, 0.2);
 	const FVector RangeEnd = Npc->GetActorLocation().RotateAngleAxis(Range, Side == EOriginSide::Right ? FVector::UpVector : FVector::DownVector);
 	DrawDebugLine(GetWorld(), RangeEnd, RangeEnd + FVector::UpVector * 150.f, FColor::Yellow, false, 0.2);
 #endif
-	//
+	//*/
 	
 	
 	// to make the for loop look nice :)
@@ -470,10 +469,10 @@ void UNpcManager::RefreshNearbyVulnerables(const EOriginSide Side)
 		ModifyArray->Add(AllFriendlies[i]);
 		
 		// make it clear what was added
-#if WITH_EDITOR
+/*#if WITH_EDITOR
 		const AActor* Added = AllFriendlies[i];
 		DrawDebugLine(GetWorld(), Added->GetActorLocation(), Added->GetActorLocation() + FVector::UpVector * 100.f, FColor::Green, false, 0.2f);
-#endif
+#endif*/
 	}
 }
 
