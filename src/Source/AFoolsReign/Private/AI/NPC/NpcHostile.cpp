@@ -160,12 +160,13 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 	}
 	else if (!bIsWall)
 	{
-		if (DistanceSquared <= StartRaycastingDistanceSquared)
+		if (DistanceSquared <= StartRaycastingDistanceSquared*4)
 		{
 			const float TargetRadius = TargetActor->GetActorLocation().Size2D();
-			
-			constexpr float Speed = 10;
-			const float Alpha = Speed/TargetRadius;
+			const float Dist = FMath::Abs( TargetRadius - MovementComp->Radius);
+			//UE_LOG(LogTemp, Warning, TEXT("Lerping"))
+			constexpr float Speed = 2;
+			const float Alpha = Speed/Dist;
 			MovementComp->Radius = FMath::Lerp(MovementComp->Radius, TargetRadius, FMath::Clamp(Alpha, 0,1)); 
 		}
 		if (DistanceSquared <= FMath::Square(StopDistance))
