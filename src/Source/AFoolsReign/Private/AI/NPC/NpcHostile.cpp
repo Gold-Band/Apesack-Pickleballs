@@ -68,9 +68,9 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(MoveToAction);
 	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
-	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition() && MoveToCondition();};
-	MeleeAttackTask.OnStarted = [&] {bCanMove = true;};
-	MeleeAttackTask.OnEnded = [&] { if (!MeleeAttackTask.Failed()) bCanMove = false;};
+	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition();};
+	MeleeAttackTask.OnStarted = [&] {bCanMove = false;};
+	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Walk
@@ -247,7 +247,7 @@ bool ANpcHostile::MeleeAttackCondition() const
 
 EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 {
-	TargetActor = NpcManager->GetAttackable(MainSide, ENpcSearchOption::AnyFriendly);
+	TargetActor = NpcManager->GetAttackable(MainSide);
 	
 #if WITH_EDITOR
 	if (bPrintDebug_TargetNearestAny)

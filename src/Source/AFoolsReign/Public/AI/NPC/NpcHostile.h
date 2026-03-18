@@ -69,7 +69,7 @@ protected:
 	float RaycastInterval = 0.2f;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool bCanMove = true;
+	bool bCanMove = false;
 	
 	float MoveToTimer = 0;
 	

@@ -89,7 +89,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnCultistDied(const EOriginSide Side);
 	
-	AActor* GetAttackable(const EOriginSide Side, const ENpcSearchOption Filter);
+	AActor* GetAttackable(const EOriginSide Side);
 
 	bool IsMostVulnerableAWall() const {return bMostVulnerableIsAWall;};
 	
@@ -109,6 +109,7 @@ private:
 	void ReDrawSafeZoneBounds() const;
 	
 	bool bMostVulnerableIsAWall;
+	bool bMostVulnerableIsPlayer;
 	
 	UPROPERTY()
 	AActor* PreviousLeftMostVulnerableAsset;
