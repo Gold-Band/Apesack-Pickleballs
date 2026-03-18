@@ -9,7 +9,6 @@
 #include "AFoolsReign/PlayerCharacter.h"
 #include "Buildings/ArcherTower.h"
 #include "GameModes/DefaultGameMode.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Managers/NpcManager.h"
 #include "Movement/CircularPawnMovementComponent.h"
 #include "Projectiles/Arrow.h"
@@ -70,9 +69,6 @@ void ANpcFriendly::CreateBehaviours()
 	// designing actions //
 	FAction MoveTimedAction{FString("Move Timed")};
 	MoveTimedAction.Func = [&](const float DeltaTime){return MoveTimed(DeltaTime);};
-	
-	FAction MoveToAction{FString("Move To")};
-	MoveToAction.Func = [&](const float DeltaTime){ return MoveTo(DeltaTime);};
 	
 	FAction MoveToVectorAction{FString("Move To Vector")};
 	MoveToVectorAction.Func = [&](const float DeltaTime){ return MoveToVector(DeltaTime);};
@@ -136,7 +132,7 @@ void ANpcFriendly::CreateBehaviours()
 	BuildTask.Actions.Add(MeleeAttackAction);
 	BuildTask.Condition = [&]{return MoveCondition() && TargetBuildingCondition() && MeleeAttackCondition();};
 	BuildTask.Cooldown = Cooldown_MeleeAttack;
-	BuildTask.OnEnded = [&]{MoveToReset();};
+	//BuildTask.OnEnded = [&]{MoveToReset();};
 	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(TargetNearestEnemyAction);
@@ -606,69 +602,6 @@ void ANpcFriendly::SetMoveTime()
 #endif
 }
 
-EActionState ANpcFriendly::MoveTo(float DeltaTime)
-{
-	// Is destination still valid?
-	if (TargetActor == nullptr)
-	{
-#if WITH_EDITOR
-		if (bPrintDebug_MoveTo) UE_LOG(LogTemp, Warning, TEXT("mans null"));
-#endif
-		return EActionState::Failed;
-	}
-	
-	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation().GetClampedToMaxSize2D(MovementComp->Radius));
-	if (Timer >= RaycastInterval && DistanceSquared <= StartRaycastingDistanceSquared)
-	{
-		Timer = 0;
-		
-		UKismetSystemLibrary::LineTraceMulti(
-			GetWorld(), // world
-			GetActorLocation(), // start 
-			TargetActor->GetActorLocation(), // end 
-			UEngineTypes::ConvertToTraceType(ECC_Visibility), // channel
-			false,
-			TArray<AActor*>{this}, // ignore 
-			bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
-			HitResults,
-			true);
-		
-#if WITH_EDITOR
-		if (bPrintDebug_MoveTo)
-		{
-			FString HitActors;
-			for (auto It = HitResults.CreateConstIterator(); It; ++It)
-			{
-				HitActors.Append(FString::Printf(TEXT(", %s"), *It->GetActor()->GetActorNameOrLabel()));
-			}
-			UE_LOG(LogTemp, Warning, TEXT("Num actors in sight = %i%s"), HitResults.Num(), *HitActors);
-			UE_LOG(LogTemp, Warning, TEXT("Target = %s"), *TargetActor->GetActorNameOrLabel());
-		}
-#endif
-		
-		for (const auto& It : HitResults)
-		{
-			AActor* HitActor = It.GetActor();
-			
-			if (HitActor == TargetActor)
-			{
-				if (It.Distance <= StopDistance)
-				{
-					return EActionState::Succeeded;
-				}
-			}
-		}
-	}
-	Timer+=DeltaTime;
-	
-	// Move
-	MoveDirection = GetDirectionTo(TargetLocation);
-	MoveForwardScaled(MoveDirection);
-	
-	return EActionState::InProgress;
-}
-
 EActionState ANpcFriendly::MoveToVector(float DeltaTime)
 {
 	// Are we there yet?
@@ -787,7 +720,7 @@ EActionState ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 	}
 #endif
 	
-	if (TargetActor != nullptr) return EActionState::Succeeded;
+	if (TargetActor != nullptr /*&& FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation()) < FMath::Square(TargetingDistance)*/) return EActionState::Succeeded;
 	return EActionState::Failed;
 }
 
@@ -839,8 +772,6 @@ bool ANpcFriendly::TargetBuildingCondition() const
 
 EActionState ANpcFriendly::MeleeAttack(float DeltaTime)
 {
-
-
 	if (!TargetActor || !Stats)
 	{
 		return EActionState::Failed;

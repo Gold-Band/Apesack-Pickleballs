@@ -87,7 +87,6 @@ protected:
 	
 	//* Target Attackable *//
 	EActionState TargetAttackable(float DeltaTime);
-	bool TargetAttackableCondition() const;
 	
 	
 	

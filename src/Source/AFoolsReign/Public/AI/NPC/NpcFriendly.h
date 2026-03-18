@@ -36,7 +36,7 @@ public:
 	void OnBowAttack(bool bIsFacingTarget);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void SetInitialWeaponType(int Type);
-
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -121,7 +121,7 @@ protected:
 	
 	//* Move To *//
 	
-	EActionState MoveTo(float DeltaTime); // move to an actor
+	//EActionState MoveTo(float DeltaTime); // move to an actor
 	EActionState MoveToVector(float DeltaTime); // move to a point
 	EActionState MoveToOffset(float DeltaTime); // move to an actor with an offset
 	bool MoveCondition() const;

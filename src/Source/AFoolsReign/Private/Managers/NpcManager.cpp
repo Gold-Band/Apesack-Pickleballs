@@ -6,39 +6,6 @@
 #include "Buildings/Wall.h"
 #include "GameModes/DefaultGameMode.h"
 
-/*void FActorTernaryTree::Add(AActor* Actor, ENpcTag Tag)
-{
-	TUniquePtr<FNode>* CheckNode = &Root;
-
-	while (true)
-	{
-		if (!CheckNode->IsValid()) // set
-		{
-			*CheckNode = MakeUnique<FNode>(Actor, Tag);
-			return;
-		}
-	
-		if (Tag < CheckNode->Get()->Tag) // left
-		{
-			CheckNode = &CheckNode->Get()->LeftChild;
-		}
-		else if (Tag == CheckNode->Get()->Tag) // middle
-		{
-			CheckNode = &CheckNode->Get()->MiddleChild;
-		}
-		else // right
-		{
-			CheckNode = &CheckNode->Get()->RightChild;
-		}
-	}
-}
-
-void FActorTernaryTree::Remove(AActor* Actor, ENpcTag Tag)
-{
-	
-}*/
-
-
 FOnMostVulnerableAssetChangedSignature UNpcManager::OnMostVulnerableAssetChangedDelegate; 
 AActor* UNpcManager::LeftMostVulnerableAsset = nullptr;
 AActor* UNpcManager::RightMostVulnerableAsset = nullptr;
@@ -86,7 +53,8 @@ void UNpcManager::Tick(float DeltaTime)
 	//*
 	//* Left Side : Most Vulnerable Asset
 	PreviousLeftMostVulnerableAsset = LeftMostVulnerableAsset;
-	float Dist = GetMostVulnerableAsset(EOriginSide::Left, LeftMostVulnerableAsset);
+	float Dist = GetMostVulnerableAssetAndDistance(EOriginSide::Left, LeftMostVulnerableAsset);
+	RefreshNearbyVulnerables(EOriginSide::Left);
 	if (PlayerDist < Dist) LeftMostVulnerableAsset = PlayerRef;
 	if (LeftMostVulnerableAsset != PreviousLeftMostVulnerableAsset)
 	{
@@ -101,7 +69,8 @@ void UNpcManager::Tick(float DeltaTime)
 	//*
 	//* Right Side : Most Vulnerable Asset
 	PreviousRightMostVulnerableAsset = RightMostVulnerableAsset;
-	Dist = GetMostVulnerableAsset(EOriginSide::Right, RightMostVulnerableAsset);
+	Dist = GetMostVulnerableAssetAndDistance(EOriginSide::Right, RightMostVulnerableAsset);
+	RefreshNearbyVulnerables(EOriginSide::Right);
 	if (PlayerDist > Dist) RightMostVulnerableAsset = PlayerRef;
 	if (RightMostVulnerableAsset != PreviousRightMostVulnerableAsset)
 	{
@@ -138,11 +107,6 @@ void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)
 	
 	
 	//ReDrawSafeZoneBounds();
-}
-
-void UNpcManager::SetWorldOrigin(const FVector& NewWorldOrigin)
-{
-	WorldOrigin = NewWorldOrigin;
 }
 
 void UNpcManager::AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side)
@@ -367,6 +331,24 @@ void UNpcManager::OnCultistDied(const EOriginSide Side)
 	GetWorld()->SpawnActor(CultistClass.Get(), &SpawnLocation);
 }
 
+AActor* UNpcManager::GetAttackable(const EOriginSide Side, const ENpcSearchOption Filter)
+{
+	switch (Filter)
+	{
+	case ENpcSearchOption::Any:
+		break;
+	case ENpcSearchOption::AnyHostile:
+		
+		break;
+	case ENpcSearchOption::AnyFriendly:
+		if (Side == EOriginSide::Left) return LeftVulnerables.IsEmpty()? LeftMostVulnerableAsset: LeftVulnerables[FMath::RandRange(0, LeftVulnerables.Num()-1)];
+		return RightVulnerables.IsEmpty()? RightMostVulnerableAsset: RightVulnerables[FMath::RandRange(0, RightVulnerables.Num()-1)];
+	default: ;
+	}
+	
+	return nullptr;
+}
+
 bool UNpcManager::IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist,
                                       const float CheckRadius) const
 {
@@ -405,7 +387,7 @@ TArray<AActor*>* UNpcManager::GetArray(ENpcSearchOption SearchFilter)
 	}
 }
 
-float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutActor)
+float UNpcManager::GetMostVulnerableAssetAndDistance(const EOriginSide Side, AActor*& OutActor)
 {
 	// Get farthest Npc	
 	AActor* Npc = GetFarthestFriendlyNpc(Side);
@@ -417,8 +399,13 @@ float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutAc
 	if (!Npc || !Building)
 	{
 		OutActor = nullptr;
+		
 		if (Npc == nullptr) OutActor = Building;
+		else bMostVulnerableIsAWall = false;
+		
 		if (Building == nullptr) OutActor = Npc;
+		else bMostVulnerableIsAWall = true;
+		
 		return OutActor? ADefaultGameMode::GetAngleToOrigin(OutActor->GetActorLocation()) : 0;
 	}
 	
@@ -430,19 +417,69 @@ float UNpcManager::GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutAc
 		if (Building->DistanceFromOrigin < NpcDistanceFromOrigin)
 		{
 			OutActor = Building;
+			bMostVulnerableIsAWall = true;
 			return Building->DistanceFromOrigin;
 		}
 		OutActor = Npc;
+		bMostVulnerableIsAWall = false;
 		return ADefaultGameMode::GetAngleToOrigin(Npc->GetActorLocation());
 	}
 	
 	if (Building->DistanceFromOrigin > NpcDistanceFromOrigin)
 	{
 		OutActor = Building;
+		bMostVulnerableIsAWall = true;
 		return Building->DistanceFromOrigin;
 	}
 	OutActor = Npc;
+	bMostVulnerableIsAWall = false;
 	return ADefaultGameMode::GetAngleToOrigin(Npc->GetActorLocation());
+}
+
+void UNpcManager::RefreshNearbyVulnerables(const EOriginSide Side)
+{
+	TArray<AActor*>* ModifyArray;
+	
+	if (Side == EOriginSide::Left) ModifyArray = &LeftVulnerables;
+	else ModifyArray = &RightVulnerables;
+	
+	if (bMostVulnerableIsAWall)
+	{
+		ModifyArray->Empty();
+		return;
+	}
+	
+	const AActor* Npc = Side == EOriginSide::Left ? LeftMostVulnerableAsset : RightMostVulnerableAsset;
+	if (!Npc) return;
+	constexpr float Range = 1.f;
+	
+	// Debug draw the range
+/*#if WITH_EDITOR
+	DrawDebugLine(GetWorld(), Npc->GetActorLocation(), Npc->GetActorLocation() + FVector::UpVector * 150.f, FColor::Yellow, false, 0.2);
+	const FVector RangeEnd = Npc->GetActorLocation().RotateAngleAxis(Range, Side == EOriginSide::Right ? FVector::UpVector : FVector::DownVector);
+	DrawDebugLine(GetWorld(), RangeEnd, RangeEnd + FVector::UpVector * 150.f, FColor::Yellow, false, 0.2);
+#endif
+	//*/
+	
+	
+	// to make the for loop look nice :)
+	const auto Condition = [Range, Npc] (const AActor* Other) { return FMath::Abs(ADefaultGameMode::GetAngleBetweenVectors(Npc->GetActorLocation(),Other->GetActorLocation())) <= Range;};
+	const auto Start = [Side] (const TArray<AActor*>& Arr){ return Side==EOriginSide::Left?0:Arr.Num()-1;};
+	const auto Next = [Side](int& Out){return Side==EOriginSide::Left?Out++:Out--;};
+	
+	// this is npc array. look back
+	for (int i = Start(AllFriendlies); AllFriendlies.IsValidIndex(i) && Condition(AllFriendlies[i]); Next(i))
+	{
+		//if (AllFriendlies[i] == Npc) continue;
+		ModifyArray->Add(AllFriendlies[i]);
+		
+		// make it clear what was added
+/*#if WITH_EDITOR
+		const AActor* Added = AllFriendlies[i];
+		//UE_LOG(LogTemp, Warning, TEXT("Adding %s to most vulnerables"), *Added->GetActorLabel())
+		DrawDebugLine(GetWorld(), Added->GetActorLocation(), Added->GetActorLocation() + FVector::UpVector * 100.f, FColor::Green, false, 0.2f);
+#endif*/
+	}
 }
 
 void UNpcManager::RecalculateSafeZone(const EOriginSide Side, const float FarthestWallAngle)
