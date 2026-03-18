@@ -60,7 +60,7 @@
 			<destination>{a2cda488-e7e2-47a6-ac13-32562aff91c4}</destination>
 		</relationship>
 		<relationship name="output">
-			<destination>{760cd3a1-5eff-40cd-a519-af1342e689ef}</destination>
+			<destination>{0346ebd8-3ae1-4650-9b0f-d72cf7840232}</destination>
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{c0070142-d792-46fd-b312-f91b9808f169}" />
@@ -104,6 +104,9 @@
 			<destination>{c59a243c-f97d-4ab9-a1bb-c62e304980ea}</destination>
 			<destination>{35635315-3c8a-4f88-9fc1-4e5088a54210}</destination>
 		</relationship>
+		<relationship name="markers">
+			<destination>{db4fa4af-ac4a-4f35-ae69-15e31eba05ab}</destination>
+		</relationship>
 	</object>
 	<object class="ParameterProxy" id="{268e79ca-3c94-4325-bffc-6dc2e9ad9b4c}">
 		<relationship name="preset">
@@ -122,7 +125,7 @@
 	</object>
 	<object class="EventMixerMaster" id="{599718e0-0a8f-490a-aee9-0ef525b8ecde}">
 		<property name="volume">
-			<value>-8</value>
+			<value>3</value>
 		</property>
 		<relationship name="effectChain">
 			<destination>{6b824d8d-609f-4aa5-972e-ad1897e4af04}</destination>
@@ -242,6 +245,20 @@
 			<destination>{599718e0-0a8f-490a-aee9-0ef525b8ecde}</destination>
 		</relationship>
 	</object>
+	<object class="LoopRegion" id="{db4fa4af-ac4a-4f35-ae69-15e31eba05ab}">
+		<property name="position">
+			<value>0</value>
+		</property>
+		<property name="length">
+			<value>64</value>
+		</property>
+		<relationship name="timeline">
+			<destination>{70d5e193-8b66-4400-b3a8-941e8572a6ed}</destination>
+		</relationship>
+		<relationship name="markerTrack">
+			<destination>{be9579e8-a2a1-41ea-8ab0-9298b34b9a8a}</destination>
+		</relationship>
+	</object>
 	<object class="MixerBusEffectChain" id="{6b824d8d-609f-4aa5-972e-ad1897e4af04}">
 		<relationship name="effects">
 			<destination>{8016aa24-ffcd-45fc-ba0e-35dd7e097a37}</destination>
@@ -354,7 +371,7 @@
 			<value>1</value>
 		</property>
 		<property name="value">
-			<value>-14</value>
+			<value>-21.5</value>
 		</property>
 	</object>
 	<object class="AutomationPoint" id="{17a978d4-988e-4db3-b906-2b02ed8d33c0}">
