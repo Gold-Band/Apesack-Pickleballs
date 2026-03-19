@@ -5,7 +5,7 @@
 			<value>Item Metal Drop</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{42a5b07c-1651-4ee9-a061-93578329fc1c}</destination>
@@ -161,6 +161,7 @@
 	<object class="MixerBusEffectChain" id="{4b55e192-837f-45fe-87b0-14a5d1b82306}">
 		<relationship name="effects">
 			<destination>{17e52ecd-37ae-4d87-99b8-a2890cd6cd72}</destination>
+			<destination>{2eed4fee-ebbf-4b07-b3e0-48c930264afb}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{4c0a3f08-bd4b-4819-85a0-4d0c73991b78}" />
@@ -178,6 +179,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{2b6acdc1-15af-439b-a891-eb0baecddf5b}" />
 	<object class="MixerBusFader" id="{17e52ecd-37ae-4d87-99b8-a2890cd6cd72}" />
+	<object class="SpatialiserEffect" id="{2eed4fee-ebbf-4b07-b3e0-48c930264afb}" />
 	<object class="MixerBusFader" id="{5188312c-1fe1-4142-a57d-8955bb95f6f1}" />
 	<object class="MixerBusFader" id="{ecacb5f2-d98f-4b66-acd6-fdcf6a41e313}" />
 </objects>

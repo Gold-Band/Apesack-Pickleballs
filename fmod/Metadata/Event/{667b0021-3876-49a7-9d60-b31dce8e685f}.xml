@@ -5,7 +5,7 @@
 			<value>Tower Build</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{9f8a804c-2f7f-488b-b6f2-e1f187e983f1}</destination>
@@ -103,6 +103,7 @@
 	<object class="MixerBusEffectChain" id="{c6976882-bfe2-42cb-a187-620463690313}">
 		<relationship name="effects">
 			<destination>{0617f69d-4e73-404d-bff9-bb4af426cd81}</destination>
+			<destination>{98e9a286-669d-418c-ab2b-3894c7af5805}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{b08176c4-9134-4669-acb4-02806d7ce439}" />
@@ -113,4 +114,5 @@
 	</object>
 	<object class="MixerBusFader" id="{17d5ab2e-5bc9-4501-aa16-c602c23022e9}" />
 	<object class="MixerBusFader" id="{0617f69d-4e73-404d-bff9-bb4af426cd81}" />
+	<object class="SpatialiserEffect" id="{98e9a286-669d-418c-ab2b-3894c7af5805}" />
 </objects>

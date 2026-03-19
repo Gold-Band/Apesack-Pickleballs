@@ -5,7 +5,7 @@
 			<value>Arrow Hit Flesh</value>
 		</property>
 		<property name="outputFormat">
-			<value>0</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{7c0c8fe7-3d4f-44b9-b94a-06bdea80d393}</destination>
@@ -103,6 +103,7 @@
 	<object class="MixerBusEffectChain" id="{b4a4b30e-a662-485c-86be-82a3de618c8b}">
 		<relationship name="effects">
 			<destination>{73eca5f7-8c6f-453e-a38a-9ec523b1e5e7}</destination>
+			<destination>{f2c72893-0108-4c6d-9cdc-1e83bac87b07}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{317238a3-22f5-425a-b9e5-c3c00609b62b}" />
@@ -117,6 +118,7 @@
 	</object>
 	<object class="MixerBusFader" id="{f5bdcc4d-303b-4a2e-8954-4577b5de8899}" />
 	<object class="MixerBusFader" id="{73eca5f7-8c6f-453e-a38a-9ec523b1e5e7}" />
+	<object class="SpatialiserEffect" id="{f2c72893-0108-4c6d-9cdc-1e83bac87b07}" />
 	<object class="SingleSound" id="{95bfebe8-0dad-4e12-9beb-41a06782c8c1}">
 		<relationship name="audioFile">
 			<destination>{404faaa6-6524-41d7-bc06-9a5774964588}</destination>

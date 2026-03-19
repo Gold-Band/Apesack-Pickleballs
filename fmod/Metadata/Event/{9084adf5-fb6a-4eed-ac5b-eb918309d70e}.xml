@@ -5,7 +5,7 @@
 			<value>Coin Collect</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{20afb9fc-6bd8-4116-9604-d3ba63fae792}</destination>
@@ -106,6 +106,7 @@
 	<object class="MixerBusEffectChain" id="{d54360bc-b7ce-4253-9dc7-afb0ddb74a02}">
 		<relationship name="effects">
 			<destination>{db2014ac-a820-420a-9633-205c6438dcd8}</destination>
+			<destination>{d204a395-8901-48e2-b6f2-3623c7a02ff4}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{718931bd-773a-4498-8b7c-697d8e538655}" />
@@ -121,6 +122,7 @@
 	</object>
 	<object class="MixerBusFader" id="{a0538714-8bb4-4981-bb29-fdcccd0519b8}" />
 	<object class="MixerBusFader" id="{db2014ac-a820-420a-9633-205c6438dcd8}" />
+	<object class="SpatialiserEffect" id="{d204a395-8901-48e2-b6f2-3623c7a02ff4}" />
 	<object class="RandomizerModulator" id="{61825ded-bdd0-46a8-ad32-e7b829dadc23}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>pitch</value>
