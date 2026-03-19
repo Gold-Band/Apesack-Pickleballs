@@ -55,6 +55,7 @@ public:
 	static AActor* RightMostVulnerableAsset;
 	static FOnRaidDetectedSignature OnRaidDetectedDelegate;
 
+	virtual void Deinitialize() override;
 	
 	virtual ETickableTickType GetTickableTickType() const override;
 	
@@ -109,7 +110,7 @@ private:
 	void ReDrawSafeZoneBounds() const;
 	
 	bool bMostVulnerableIsAWall;
-	bool bMostVulnerableIsPlayer;
+	//bool bMostVulnerableIsPlayer;
 	
 	UPROPERTY()
 	AActor* PreviousLeftMostVulnerableAsset;
@@ -142,8 +143,13 @@ private:
 	FVector2D MaxSafeAngles {1.5f,1.5f}; // min value
 	float SafeZoneWallPaddingAngle = 2.0f;
 	
+	UPROPERTY()
 	APlayerCharacter* PlayerRef = nullptr;
 	
 	UPROPERTY()
 	TSubclassOf<ANpcCultist> CultistClass;
+	
+	bool bDrawDebug_MostVulerable = false;
+	bool bDrawDebug_VulnerableGroup = false;
+	bool bDrawDebug_SafeZoneBounds = false;
 };
