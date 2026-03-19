@@ -30,11 +30,9 @@ protected:
 	
 private:
 	void OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side);
-	float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
 	// patch for a mysterious bug
 	bool bIsFirstTick = true;
-
 	
 protected:
 	//TArray<AActor*> IgnoreActors;
@@ -69,7 +67,7 @@ protected:
 	float RaycastInterval = 0.2f;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool bCanMove = false;
+	bool bCanMove = true;
 	
 	float MoveToTimer = 0;
 	

@@ -69,7 +69,7 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
 	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition();};
-	MeleeAttackTask.OnStarted = [&] {bCanMove = false;};
+	//MeleeAttackTask.OnStarted = [&] {bCanMove = false;};
 	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
@@ -109,7 +109,7 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 		return EActionState::InProgress;
 	}
 	
-	if (!TargetActor)
+	if (!TargetActor || !bCanMove)
 	{
 		return EActionState::Failed;
 	}
@@ -196,6 +196,8 @@ void ANpcHostile::MoveToReset()
 
 EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 {
+	bCanMove = false;
+	
 	// get target
 	if (TargetActor == nullptr)
 	{
