@@ -86,6 +86,7 @@ public:
 
 	// Effects
 	float DebuffDuration = 0.f;
+	float BleedDamage = 0.f;
 
    float ProficiencyDamageType = 1.f;
 

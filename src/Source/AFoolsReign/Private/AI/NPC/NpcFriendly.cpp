@@ -891,7 +891,8 @@ OnMeleeAttack();
 	    DamagePatch.FireDamage,
 	    DamagePatch.PoisonDamage,
 	    DamagePatch.MagicDamage,
-	    DamagePatch.DebuffDuration
+	    DamagePatch.DebuffDuration,
+		DamagePatch.BleedDamage
 	);
 	
 	
@@ -982,6 +983,7 @@ Arrow->ShooterActor = this;
 	// Effects
 	Arrow->DebuffDuration = DamagePatch.DebuffDuration;
 	Arrow->bDrawPathDebug = bPrintDebug_RangedAttack;
+	Arrow->BleedDamage = DamagePatch.BleedDamage;
 	
 	//* 3. Launch
 	if (Arrow->LaunchAt(GetProjectileSpawnLocation(),TargetActor->GetActorLocation()))

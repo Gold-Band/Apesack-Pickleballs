@@ -33,6 +33,7 @@ struct FDamagePatch
     UPROPERTY(BlueprintReadWrite, Category="Damage") float PoisonDamage = 0;
     UPROPERTY(BlueprintReadWrite, Category="Damage") float MagicDamage = 0;
     UPROPERTY(BlueprintReadWrite, Category="Damage") float DebuffDuration = 0;
+	UPROPERTY(BlueprintReadWrite, Category="Damage") float BleedDamage = 0;
 };
 
 
@@ -66,7 +67,8 @@ void ApplyDamagePatch(
 	float FireDamage,
 	float PoisonDamage,
 	float MagicDamage,
-	float DebuffDuration
+	float DebuffDuration,
+	float BleedDamage
 );
 
 

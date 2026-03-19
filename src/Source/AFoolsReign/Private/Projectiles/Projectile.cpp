@@ -52,7 +52,8 @@ void AProjectile::Tick(float DeltaTime)
 				FireDamage,
 				PoisonDamage,
 				MagicDamage,
-				DebuffDuration
+				DebuffDuration,
+				BleedDamage
 			);
 		}
 		

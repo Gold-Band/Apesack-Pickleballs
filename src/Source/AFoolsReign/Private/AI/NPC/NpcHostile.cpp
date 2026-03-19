@@ -212,7 +212,8 @@ EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 	    DamagePatch.FireDamage,
 	    DamagePatch.PoisonDamage,
 	    DamagePatch.MagicDamage,
-	    DamagePatch.DebuffDuration
+	    DamagePatch.DebuffDuration,
+		DamagePatch.BleedDamage
 	);
 	
 	return EActionState::Succeeded;
