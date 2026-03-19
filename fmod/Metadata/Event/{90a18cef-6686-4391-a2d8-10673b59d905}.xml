@@ -50,10 +50,17 @@
 			<destination>{76b3964d-7505-44b6-bb34-c4033d2703fb}</destination>
 		</relationship>
 		<relationship name="output">
-			<destination>{46f8ad8e-84ac-427e-a1d7-a3a798ed2a03}</destination>
+			<destination>{0346ebd8-3ae1-4650-9b0f-d72cf7840232}</destination>
 		</relationship>
 	</object>
-	<object class="EventAutomatableProperties" id="{a012ebc7-8ee4-4a4d-97cd-e722505084cc}" />
+	<object class="EventAutomatableProperties" id="{a012ebc7-8ee4-4a4d-97cd-e722505084cc}">
+		<property name="minimumDistance">
+			<value>10</value>
+		</property>
+		<property name="maximumDistance">
+			<value>40</value>
+		</property>
+	</object>
 	<object class="MarkerTrack" id="{3c25d8f7-ec7f-480c-aa7d-7309e593da1f}" />
 	<object class="Timeline" id="{87675d74-3246-415a-a0f7-f1b559b9c56e}">
 		<property name="isProxyEnabled">

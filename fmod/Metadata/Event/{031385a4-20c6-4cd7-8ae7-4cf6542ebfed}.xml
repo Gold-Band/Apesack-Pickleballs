@@ -5,7 +5,7 @@
 			<value>Reclick</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{868dcf19-3a67-47bf-9f41-deeeb3959c8e}</destination>
@@ -56,10 +56,17 @@
 			<destination>{197d3ff8-8d10-4971-b513-6b9bea82483e}</destination>
 		</relationship>
 		<relationship name="output">
-			<destination>{46f8ad8e-84ac-427e-a1d7-a3a798ed2a03}</destination>
+			<destination>{0346ebd8-3ae1-4650-9b0f-d72cf7840232}</destination>
 		</relationship>
 	</object>
-	<object class="EventAutomatableProperties" id="{0446fbe1-7ffb-4761-bf6a-1cefc01a53a8}" />
+	<object class="EventAutomatableProperties" id="{0446fbe1-7ffb-4761-bf6a-1cefc01a53a8}">
+		<property name="minimumDistance">
+			<value>10</value>
+		</property>
+		<property name="maximumDistance">
+			<value>40</value>
+		</property>
+	</object>
 	<object class="MarkerTrack" id="{328eb607-4979-4a38-a7e4-97d36197f835}" />
 	<object class="Timeline" id="{784b89d0-e098-4f80-964f-da4694ac4d18}">
 		<property name="isProxyEnabled">
@@ -96,6 +103,7 @@
 	<object class="MixerBusEffectChain" id="{564a73d0-0c61-4197-a205-29e976d38d3c}">
 		<relationship name="effects">
 			<destination>{873f32ee-ce06-44eb-a797-4a36040d38f3}</destination>
+			<destination>{d4142d1a-72d6-43ca-bef2-99db4f9c27c1}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{a2ee4465-b493-48dc-a371-a2b7dff14735}" />
@@ -106,4 +114,5 @@
 	</object>
 	<object class="MixerBusFader" id="{3a14b777-50ca-48d2-a900-5fdb77675c29}" />
 	<object class="MixerBusFader" id="{873f32ee-ce06-44eb-a797-4a36040d38f3}" />
+	<object class="SpatialiserEffect" id="{d4142d1a-72d6-43ca-bef2-99db4f9c27c1}" />
 </objects>

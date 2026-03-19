@@ -5,7 +5,7 @@
 			<value>Arrow Hit Ground</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{7c0c8fe7-3d4f-44b9-b94a-06bdea80d393}</destination>
@@ -56,10 +56,17 @@
 			<destination>{72a7b83c-112e-42e3-82aa-129046bfa207}</destination>
 		</relationship>
 		<relationship name="output">
-			<destination>{46f8ad8e-84ac-427e-a1d7-a3a798ed2a03}</destination>
+			<destination>{0346ebd8-3ae1-4650-9b0f-d72cf7840232}</destination>
 		</relationship>
 	</object>
-	<object class="EventAutomatableProperties" id="{5f92fc32-92a4-42f3-86cc-3bc9635198e8}" />
+	<object class="EventAutomatableProperties" id="{5f92fc32-92a4-42f3-86cc-3bc9635198e8}">
+		<property name="minimumDistance">
+			<value>10</value>
+		</property>
+		<property name="maximumDistance">
+			<value>40</value>
+		</property>
+	</object>
 	<object class="MarkerTrack" id="{bcaf344e-64d1-467a-8cd7-957388e2f116}" />
 	<object class="Timeline" id="{9bd9d17c-16a5-4b9f-b0ac-440194bad56f}">
 		<property name="isProxyEnabled">
@@ -96,6 +103,7 @@
 	<object class="MixerBusEffectChain" id="{b6cae0cb-22b0-4238-868a-187e4c25dee9}">
 		<relationship name="effects">
 			<destination>{2231af3d-a207-44d6-af34-4546b4494c21}</destination>
+			<destination>{521a1521-8fa2-4a2b-a0c2-f0278e43cc72}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{d74350b5-5169-4e10-81c4-e7387714742c}" />
@@ -109,4 +117,5 @@
 	</object>
 	<object class="MixerBusFader" id="{9cf1b545-d6cb-49ed-b3ea-43b339963163}" />
 	<object class="MixerBusFader" id="{2231af3d-a207-44d6-af34-4546b4494c21}" />
+	<object class="SpatialiserEffect" id="{521a1521-8fa2-4a2b-a0c2-f0278e43cc72}" />
 </objects>
