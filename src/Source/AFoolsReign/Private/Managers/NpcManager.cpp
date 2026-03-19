@@ -500,7 +500,7 @@ void UNpcManager::RecalculateSafeZone(const EOriginSide Side, const float Farthe
 	if (Side == EOriginSide::Left) MaxSafeAngles.X = Angle;
 	else MaxSafeAngles.Y = Angle;
 	
-	//ReDrawSafeZoneBounds();	
+	if (bDrawDebug_SafeZoneBounds) ReDrawSafeZoneBounds();	
 }
 
 void UNpcManager::ReDrawSafeZoneBounds() const
