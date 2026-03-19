@@ -29,32 +29,6 @@ enum class ENpcTag : uint8
 	Party = 3
 };
 
-/*
-class FNode
-{
-public:
-	explicit FNode(AActor* ActorPtr = nullptr, ENpcTag NpcTag = ENpcTag::None): Actor(ActorPtr), Tag(NpcTag), 
-	LeftChild(nullptr), MiddleChild(nullptr), RightChild(nullptr) {}
-	AActor* Actor;
-	ENpcTag Tag;
-	
-	TUniquePtr<FNode> LeftChild;
-	TUniquePtr<FNode> MiddleChild;
-	TUniquePtr<FNode> RightChild;
-};
-
-class FActorTernaryTree
-{
-public:
-	TUniquePtr<FNode> Root;
-	
-	void Add(AActor* Actor, ENpcTag Tag);
-	void Remove(AActor* Actor, ENpcTag Tag);
-	//void Sort();	
-	//void Get();	
-};*/
-
-
 
 // delegate for when an npc or building is the newly most exposed to the enemy
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMostVulnerableAssetChangedSignature, AActor*, EOriginSide);
@@ -93,8 +67,6 @@ public:
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
-	void SetWorldOrigin(const FVector& NewWorldOrigin);	
-	
 	void AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
 	void RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
 	AActor* FindNearestNpc(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float CheckRadiusSquared = UE_MAX_FLT);
@@ -117,6 +89,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnCultistDied(const EOriginSide Side);
 	
+	AActor* GetAttackable(const EOriginSide Side);
+
+	bool IsMostVulnerableAWall() const {return bMostVulnerableIsAWall;};
+	
 private:
 	// Returns CheckActor if it passes the inspection. Else, it returns null.
 	bool IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist, const float CheckRadiusSquared) const;
@@ -124,11 +100,16 @@ private:
 	
 	TArray<AActor*>* GetArray(ENpcSearchOption SearchFilter);
 	
-	float GetMostVulnerableAsset(const EOriginSide Side, AActor*& OutActor);
+	float GetMostVulnerableAssetAndDistance(const EOriginSide Side, AActor*& OutActor);
+	
+	void RefreshNearbyVulnerables(const EOriginSide Side);
 	
 	void RecalculateSafeZone(const EOriginSide Side, const float FarthestWallAngle);
 	
 	void ReDrawSafeZoneBounds() const;
+	
+	bool bMostVulnerableIsAWall;
+	bool bMostVulnerableIsPlayer;
 	
 	UPROPERTY()
 	AActor* PreviousLeftMostVulnerableAsset;
@@ -137,9 +118,15 @@ private:
 	AActor* PreviousRightMostVulnerableAsset; 
 	
 	UPROPERTY()
+	TArray<AActor*> LeftVulnerables;
+	
+	UPROPERTY()
+	TArray<AActor*> RightVulnerables;
+	
+	UPROPERTY()
 	UBuildingsManager* BuildingsManager;
 	
-	FVector WorldOrigin;
+	//FVector WorldOrigin;
 	
 	UPROPERTY()
 	TArray<AActor*> AllHostiles;

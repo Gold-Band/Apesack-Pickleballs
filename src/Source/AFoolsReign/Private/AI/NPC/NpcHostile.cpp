@@ -1,8 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "AI/NPC/NpcHostile.h"
+
+#include "MathUtil.h"
 #include "StatsComponent.h"
 #include "AI/HTN/HTNComponent.h"
 #include "AI/HTN/ListItemObject.h"
+#include "AI/NPC/NpcFriendly.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Managers/NpcManager.h"
@@ -65,9 +68,9 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(MoveToAction);
 	MeleeAttackTask.Actions.Add(MeleeAttackAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
-	MeleeAttackTask.Condition = [&]{return TargetAttackableCondition() && MoveToCondition();};
-	MeleeAttackTask.OnStarted = [&] {bCanMove = true;};
-	MeleeAttackTask.OnEnded = [&] { if (!MeleeAttackTask.Failed()) bCanMove = false;};
+	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition();};
+	MeleeAttackTask.OnStarted = [&] {bCanMove = false;};
+	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Walk
@@ -112,10 +115,12 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 	}
 	
 	// Are we there yet?
-	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation().GetClampedToMaxSize2D(MovementComp->Radius)); // this crashes sometimes on first tick
-	if (DistanceSquared <= StartRaycastingDistanceSquared && MoveToTimer >= RaycastInterval)
+	const float DistanceSquared = FVector::DistSquaredXY(GetActorLocation(), TargetActor->GetActorLocation().GetClampedToSize2D(MovementComp->Radius,MovementComp->Radius)); // this crashes sometimes on first tick
+	const bool bIsWall = NpcManager->IsMostVulnerableAWall();
+	if (DistanceSquared <= StartRaycastingDistanceSquared && MoveToTimer >= RaycastInterval && bIsWall)
 	{
 		MoveToTimer = 0;
+		
 		UKismetSystemLibrary::LineTraceMulti(
 			GetWorld(), // world
 			GetActorLocation(), // start 
@@ -126,8 +131,7 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 			bPrintDebug_MoveTo? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, // debug
 			HitResults,
 			true);
-		
-	
+
 #if WITH_EDITOR
 		if (bPrintDebug_MoveTo)
 		{
@@ -154,6 +158,23 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 			}
 		}
 	}
+	else if (!bIsWall)
+	{
+		if (DistanceSquared <= StartRaycastingDistanceSquared*4)
+		{
+			const float TargetRadius = TargetActor->GetActorLocation().Size2D();
+			const float Dist = FMath::Abs( TargetRadius - MovementComp->Radius);
+			//UE_LOG(LogTemp, Warning, TEXT("Lerping"))
+			constexpr float Speed = 2;
+			const float Alpha = Speed/Dist;
+			MovementComp->Radius = FMath::Lerp(MovementComp->Radius, TargetRadius, FMath::Clamp(Alpha, 0,1)); 
+		}
+		if (DistanceSquared <= FMath::Square(StopDistance))
+		{
+			return EActionState::Succeeded;
+		}
+	}
+	
 	MoveToTimer+=DeltaTime;
 	
 	MoveDirection = GetDirectionTo(TargetActor->GetActorLocation());
@@ -219,16 +240,15 @@ EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 	return EActionState::Succeeded;
 }
 
+bool ANpcHostile::MeleeAttackCondition() const
+{
+	if (MainSide == EOriginSide::Left) return UNpcManager::LeftMostVulnerableAsset != nullptr;
+	return UNpcManager::RightMostVulnerableAsset != nullptr;
+}
+
 EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 {
-	if (MainSide == EOriginSide::Left)
-	{
-		TargetActor = UNpcManager::LeftMostVulnerableAsset;
-	}
-	else
-	{
-		TargetActor = UNpcManager::RightMostVulnerableAsset;
-	}
+	TargetActor = NpcManager->GetAttackable(MainSide);
 	
 #if WITH_EDITOR
 	if (bPrintDebug_TargetNearestAny)
@@ -237,13 +257,7 @@ EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 		UE_LOG(LogTemp, Warning, TEXT("%s::NearestAttackable=%s (Angle=%f)"), *GetActorNameOrLabel(),TargetActor? *TargetActor->GetActorNameOrLabel(): TEXT("Null"), Angle);
 	}
 #endif
-	
+
 	if (TargetActor != nullptr) return EActionState::Succeeded;
 	return EActionState::Failed;
-}
-
-bool ANpcHostile::TargetAttackableCondition() const
-{
-	if (MainSide == EOriginSide::Left) return UNpcManager::LeftMostVulnerableAsset != nullptr;
-	return UNpcManager::RightMostVulnerableAsset != nullptr;
 }
