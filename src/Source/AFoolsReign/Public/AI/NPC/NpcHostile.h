@@ -73,8 +73,12 @@ protected:
 	
 	
 	//* Melee Attack *//
-	EActionState MeleeAttack(float DeltaTime);
+	EActionState MeleeAnimation(float DeltaTime);
+	EActionState CheckHit(float DeltaTime);
 	bool MeleeAttackCondition() const;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="ApplyDamageDelay"))
+	float DamageDelay = 0.3f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
 	float Cooldown_MeleeAttack = 0.75f;
@@ -86,6 +90,11 @@ protected:
 	//* Target Attackable *//
 	EActionState TargetAttackable(float DeltaTime);
 	
+	
+	//* Delay *//
+	EActionState Delay(float DeltaTime);
+	float DelayTime;
+	float Timer;
 	
 	
 	

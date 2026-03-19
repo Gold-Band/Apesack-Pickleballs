@@ -80,7 +80,7 @@ void AProjectile::Tick(float DeltaTime)
 	}
 }
 
-bool AProjectile::LaunchAt(const FVector& StartLocation,
+bool AProjectile::CanLaunchAt(const FVector& StartLocation,
 	const FVector& TargetLocation, float Accuracy)
 {
 	bPathSucceeded = true;
@@ -98,8 +98,6 @@ bool AProjectile::LaunchAt(const FVector& StartLocation,
 		return false;
 	}
 	
-	SetActorLocation(StartLocation);
-	Enable();
 	return true;
 }
 

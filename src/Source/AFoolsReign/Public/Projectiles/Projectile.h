@@ -35,7 +35,7 @@ public:
 	void OnLanded();
 	
 	UFUNCTION(BlueprintCallable)
-	virtual bool LaunchAt(const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
+	virtual bool CanLaunchAt(const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
 	
 	bool IsLineOfSightToTargetBlocked(const FVector& StartLocation, const FVector& TargetLocation) const;
 	

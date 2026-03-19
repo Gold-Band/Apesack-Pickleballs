@@ -60,16 +60,24 @@ void ANpcHostile::CreateBehaviours()
 	FAction TargetAttackableAction{FString("Target Attackable")};
 	TargetAttackableAction.Func = [&](const float DeltaTime){return TargetAttackable(DeltaTime);};
 	
-	FAction MeleeAttackAction{FString("Attack")};
-	MeleeAttackAction.Func = [&](const float DeltaTime){return MeleeAttack(DeltaTime);};
+	FAction MeleeAnimateAction{FString("Attack Part 1")};
+	MeleeAnimateAction.Func = [&](const float DeltaTime){ return MeleeAnimation(DeltaTime);};
+	
+	FAction MeleeHitAction{FString("Attack Part 2")};
+	MeleeHitAction.Func = [&](const float DeltaTime){ return CheckHit(DeltaTime);};
+	
+	FAction DelayAction{FString("Delay")};
+	DelayAction.Func = [&] (const float DeltaTime) { return Delay(DeltaTime);};
 	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(TargetAttackableAction);
 	MeleeAttackTask.Actions.Add(MoveToAction);
-	MeleeAttackTask.Actions.Add(MeleeAttackAction);
+	MeleeAttackTask.Actions.Add(MeleeAnimateAction);
+	MeleeAttackTask.Actions.Add(DelayAction);
+	MeleeAttackTask.Actions.Add(MeleeHitAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
 	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition();};
-	//MeleeAttackTask.OnStarted = [&] {bCanMove = false;};
+	MeleeAttackTask.OnStarted = [&] {Timer = 0; DelayTime = DamageDelay;};
 	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
@@ -109,7 +117,7 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 		return EActionState::InProgress;
 	}
 	
-	if (!TargetActor || !bCanMove)
+	if (!TargetActor)
 	{
 		return EActionState::Failed;
 	}
@@ -160,16 +168,15 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 	}
 	else if (!bIsWall)
 	{
-		if (DistanceSquared <= StartRaycastingDistanceSquared*4)
+		if (DistanceSquared <= StartRaycastingDistanceSquared*10)
 		{
 			const float TargetRadius = TargetActor->GetActorLocation().Size2D();
 			const float Dist = FMath::Abs( TargetRadius - MovementComp->Radius);
-			//UE_LOG(LogTemp, Warning, TEXT("Lerping"))
-			constexpr float Speed = 2;
+			constexpr float Speed = 3;
 			const float Alpha = Speed/Dist;
 			MovementComp->Radius = FMath::Lerp(MovementComp->Radius, TargetRadius, FMath::Clamp(Alpha, 0,1)); 
 		}
-		if (DistanceSquared <= FMath::Square(StopDistance*1.5f))
+		if (DistanceSquared <= FMath::Square(StopDistance))
 		{
 			return EActionState::Succeeded;
 		}
@@ -194,7 +201,7 @@ void ANpcHostile::MoveToReset()
 	//TargetActor = nullptr;
 }
 
-EActionState ANpcHostile::MeleeAttack(float DeltaTime)
+EActionState ANpcHostile::MeleeAnimation(float DeltaTime)
 {
 	bCanMove = false;
 	
@@ -203,7 +210,12 @@ EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 	{
 		return EActionState::Failed;
 	}
+	OnMeleeAttack();
+	return EActionState::Succeeded;
+}
 
+EActionState ANpcHostile::CheckHit(float DeltaTime)
+{
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (TargetStatComponent == nullptr)
@@ -211,7 +223,6 @@ EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 		return EActionState::Failed;
 	}
 	
-		OnMeleeAttack();
 	FDamagePatch DamagePatch = Stats->GetDamagePatch();
 
 	// 2. OVERRIDE specific fields
@@ -221,21 +232,21 @@ EActionState ANpcHostile::MeleeAttack(float DeltaTime)
 	// 3. APPLY to target by unpacking struct fields
 	TargetStatComponent->ApplyDamagePatch(
 		this,
-	    DamagePatch.NormalDamage,
-	    DamagePatch.SelfLifeStealPercent,
-	    DamagePatch.BaseCritChance,
-	    DamagePatch.CritMultiplier,
-	    DamagePatch.TotalDamageScale,
-	    DamagePatch.ProficiencyDamageType,
-	    DamagePatch.RangedDamageScale,
-	    DamagePatch.MeleeDamageScale,
-	    DamagePatch.FireDamageScale,
-	    DamagePatch.PoisonDamageScale,
-	    DamagePatch.MagicDamageScale,
-	    DamagePatch.FireDamage,
-	    DamagePatch.PoisonDamage,
-	    DamagePatch.MagicDamage,
-	    DamagePatch.DebuffDuration,
+		DamagePatch.NormalDamage,
+		DamagePatch.SelfLifeStealPercent,
+		DamagePatch.BaseCritChance,
+		DamagePatch.CritMultiplier,
+		DamagePatch.TotalDamageScale,
+		DamagePatch.ProficiencyDamageType,
+		DamagePatch.RangedDamageScale,
+		DamagePatch.MeleeDamageScale,
+		DamagePatch.FireDamageScale,
+		DamagePatch.PoisonDamageScale,
+		DamagePatch.MagicDamageScale,
+		DamagePatch.FireDamage,
+		DamagePatch.PoisonDamage,
+		DamagePatch.MagicDamage,
+		DamagePatch.DebuffDuration,
 		DamagePatch.BleedDamage
 	);
 	
@@ -262,4 +273,14 @@ EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 
 	if (TargetActor != nullptr) return EActionState::Succeeded;
 	return EActionState::Failed;
+}
+
+EActionState ANpcHostile::Delay(float DeltaTime)
+{
+	if ((Timer+=DeltaTime) >= DelayTime)
+	{
+		Timer = 0;
+		return EActionState::Succeeded;
+	}
+	return EActionState::InProgress;
 }

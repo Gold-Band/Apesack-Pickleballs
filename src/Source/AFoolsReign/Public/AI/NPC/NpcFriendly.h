@@ -9,6 +9,7 @@
 #include "NpcFriendly.generated.h"
 
 
+class AArrow;
 class AArcherTower;
 class UBuildingsManager;
 
@@ -189,9 +190,13 @@ protected:
 	float Cooldown_TargetBuilding = 1;
 	
 	//* Melee Attack *//
-	EActionState MeleeAttack(float DeltaTime);
+	EActionState MeleeAnimation(float DeltaTime);
+	EActionState CheckHit(float DeltaTime);
 	bool MeleeAttackCondition() const;
 	void SetMeleeParams();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="ApplyDamageDelay"))
+	float DamageDelay_MeleeAttack = 0.3f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Cooldown"))
 	float Cooldown_MeleeAttack = 0.75f;
@@ -203,9 +208,13 @@ protected:
 	float TargetingDistance_Melee = 200.0f;
 	
 	//* Ranged Attack *//
-	EActionState RangedAttack(float DeltaTime);
+	EActionState RangedAnimation(float DeltaTime);
+	EActionState ShootArrow(float DeltaTime);
 	bool RangedAttackCondition() const;
 	void SetRangedParams();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="LaunchArrowDelay"))
+	float LaunchArrowDelay = 0.5f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Cooldown"))
 	float Cooldown_RangedAttack = 0.75f;
@@ -215,6 +224,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="Targeting Distance"))
 	float TargetingDistance_Ranged = 1000.0f;
+	
+	UPROPERTY()
+	AArrow* Arrow;
 	
 	//* Occupy Tower Spot *//
 	EActionState OccupyTower(float DeltaTime);
@@ -243,6 +255,11 @@ protected:
 	//* Goto Safezone *//
 	EActionState GetSafeSpot(float DeltaTime);
 	bool GetSafeSpotCondition() const;
+	
+	//* Delay *//
+	EActionState Delay(float DeltaTime);
+	float DelayTime;
+	float Timer;
 	
 	
 	//**
