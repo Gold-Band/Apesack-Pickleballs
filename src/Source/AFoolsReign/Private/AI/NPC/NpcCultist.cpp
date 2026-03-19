@@ -148,7 +148,7 @@ bool ANpcCultist::SummonCondition()
 
 bool ANpcCultist::IsRitualTime()
 {
-	const bool bIsRitualTime = (WorldClockSubsystem? WorldClockSubsystem->GetHours() >= RitualStartHour : false);
+	const bool bIsRitualTime = WorldClockSubsystem->GetHours() == RitualStartHour;
 	if (!bRitualStarted && bIsRitualTime)
 	{
 		bRitualStarted = true;
