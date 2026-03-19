@@ -169,7 +169,7 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 			const float Alpha = Speed/Dist;
 			MovementComp->Radius = FMath::Lerp(MovementComp->Radius, TargetRadius, FMath::Clamp(Alpha, 0,1)); 
 		}
-		if (DistanceSquared <= FMath::Square(StopDistance))
+		if (DistanceSquared <= FMath::Square(StopDistance*1.5f))
 		{
 			return EActionState::Succeeded;
 		}
