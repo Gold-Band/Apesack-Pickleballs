@@ -43,14 +43,14 @@ class UBuildingsManager: public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
-	UBuildingsManager(){};
+	UBuildingsManager();
 	
 	FOnNewArcherTowerBuiltSignature OnNewArcherTowerBuiltDelegate;
 	FOnNewWallBuiltSignature OnNewWallBuiltDelegate;
 	FOnWallDestroyedSignature OnWallDestroyedDelegate;
 	
 	static UBuildingsManager* Get(const UObject* WorldContextObject);
-
+	
 	UFUNCTION(BlueprintCallable)
 	void AddBuilding(ABuilding* NewBuilding, EBuildingType BuildingType, EOriginSide Side);
 	UFUNCTION(BlueprintCallable)
@@ -61,6 +61,8 @@ public:
 	ARitualZone* GetGotoRitualZone(EOriginSide Side);
 	bool DoVacantTowersExist(EOriginSide Side) const;
 	bool WallsExist(EOriginSide Side) const;
+	
+	TSubclassOf<AActor> GetPlotClass() const {return PlotClass;}
 	
 private:
 	const TArray<ABuilding*>* GetArrayConst(EBuildingType Type, EOriginSide Side) const;
@@ -83,4 +85,7 @@ private:
 	
 	UPROPERTY()
 	TArray<ABuilding*> LeftRitualZones;
+	
+	UPROPERTY()
+	TSubclassOf<AActor> PlotClass;
 };

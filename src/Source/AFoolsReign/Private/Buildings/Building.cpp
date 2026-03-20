@@ -12,12 +12,6 @@ ABuilding::ABuilding()
 	Root = CreateDefaultSubobject<USceneComponent>(FName("RootComponent"));
 	SetRootComponent(Root);
 	RootComponent->Mobility = EComponentMobility::Static;
-	
-	static ConstructorHelpers::FClassFinder<AActor> PlotClassFinder{TEXT("/Game/Blueprints/Buildings/BP_Plot")};
-	if (PlotClassFinder.Succeeded())
-	{
-		PlotClass = PlotClassFinder.Class;
-	}
 }
 
 void ABuilding::OnClicked()
@@ -39,7 +33,7 @@ TArray<UListItemObject*> ABuilding::GetActions()
 		Destroy();
 		const FVector Location = GetActorLocation();
 		const FRotator Rotation = GetActorRotation();
-		GetWorld()->SpawnActor(PlotClass, &Location, &Rotation);
+		GetWorld()->SpawnActor(BuildingsManager->GetPlotClass(), &Location, &Rotation);
 	};
 	Action->OnActionCalledFunction = Func;
 	Action->Cost = 0;
@@ -73,7 +67,8 @@ void ABuilding::BeginPlay()
 	DistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
 	BuildingSide = DistanceFromOrigin < 0? EOriginSide::Left : EOriginSide::Right; 
 	
-	UBuildingsManager::Get(GetWorld())->AddBuilding(this, BuildingType, BuildingSide);
+	BuildingsManager = UBuildingsManager::Get(GetWorld());
+	BuildingsManager->AddBuilding(this, BuildingType, BuildingSide);
 	
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 }
