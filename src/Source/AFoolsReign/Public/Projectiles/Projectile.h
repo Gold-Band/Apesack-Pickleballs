@@ -60,6 +60,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bDrawPathDebug = false;
 
+	float FlightTime = 0;
+	FVector Start;
 
 	// Base / core
 	float Damage = 5.f;
