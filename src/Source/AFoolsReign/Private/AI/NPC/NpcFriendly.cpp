@@ -883,7 +883,7 @@ Arrow->ShooterActor = this;
 	
 	//* 3. Launch
 	const FVector End = TargetActor->GetActorLocation() + TargetActor->GetVelocity();
-	DrawDebugLine(GetWorld(), TargetActor->GetActorLocation(), End, FColor::Red, false, Cooldown_RangedAttack);
+	//DrawDebugLine(GetWorld(), TargetActor->GetActorLocation(), End, FColor::Red, false, Cooldown_RangedAttack);
 	if (Arrow->CanLaunchAt(GetProjectileSpawnLocation(),End))
 	{
 		
