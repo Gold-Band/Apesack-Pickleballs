@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{8d6f21aa-b557-4c66-a9f8-3f632991d033}">
+		<property name="name">
+			<value>DaytimeMusic2</value>
+		</property>
+		<relationship name="folder">
+			<destination>{fe5ba1b5-9170-47b5-aed7-f79ca05ac47c}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{e0cd56b0-b329-444c-ace6-3de5637b4855}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{e0cd56b0-b329-444c-ace6-3de5637b4855}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>
