@@ -125,7 +125,7 @@ void UNpcManager::AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side)
 	}
 }
 
-void UNpcManager::RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side)
+void UNpcManager::RemoveNpc(AActor* Npc, ENpcTag Tag)
 {
 	if (Tag == ENpcTag::Friendly)
 	{
@@ -280,7 +280,7 @@ AActor* UNpcManager::GetFarthestFriendlyNpc(EOriginSide Side)
 
 void UNpcManager::SortByOriginAngle(TArray<AActor*>* SortArray)
 {
-	const FVector FromLocation = FVector{0,19000.0f, 0}; 
+	const FVector FromLocation = FVector{0,ADefaultGameMode::GameplayRadius, 0}; 
 	SortArray->Sort([FromLocation](const AActor& A, const AActor& B)
 	{
 		const float AngleA = ADefaultGameMode::GetAngleBetweenVectors(FromLocation, A.GetActorLocation());

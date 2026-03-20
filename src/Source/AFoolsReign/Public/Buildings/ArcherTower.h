@@ -6,7 +6,8 @@
 #include "Buildings/Building.h"
 #include "ArcherTower.generated.h"
 
-class ANpc;
+class ANpcFriendly;
+//class ANpc;
 /**
  * 
  */
@@ -20,8 +21,8 @@ public:
 	
 	virtual bool HasRoom() const;
 	
-	virtual void AddOccupant(ANpc* NewOccupant);
-	virtual void RemoveOccupant(ANpc* OldOccupant);
+	virtual void AddOccupant(ANpcFriendly* NewOccupant);
+	virtual void RemoveOccupant(ANpcFriendly* OldOccupant);
 	
 	UFUNCTION(BlueprintCallable)
 	void AddSpot(USceneComponent* NewSpot);
@@ -31,8 +32,10 @@ public:
 	
 protected:
 	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 	UPROPERTY(VisibleAnywhere)
-	TArray<ANpc*> Occupants;
+	TArray<ANpcFriendly*> Occupants;
 	
 	UPROPERTY(VisibleAnywhere)
 	TArray<USceneComponent*> Spots;

@@ -67,7 +67,7 @@ public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 	void AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
-	void RemoveNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side);
+	void RemoveNpc(AActor* Npc, ENpcTag Tag);
 	AActor* FindNearestNpc(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float CheckRadiusSquared = UE_MAX_FLT);
 	AActor* FindNearestNpcOrPlayer(const FVector& FromLocation, const ENpcSearchOption SearchFilter, const EOriginSide Side = EOriginSide::Any, const float CheckRadiusSquared = UE_MAX_FLT);
 	
