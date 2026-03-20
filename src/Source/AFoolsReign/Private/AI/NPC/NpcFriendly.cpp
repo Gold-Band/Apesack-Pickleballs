@@ -189,17 +189,17 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// Wander
 	WanderTask.Actions.Add(MoveTimedAction);
-	WanderTask.Condition = [&]{return MoveTimedCondition();};
+	WanderTask.Condition = [&]{return MoveTimedCondition() && (RangedAttackTask.Failed() || MeleeAttackTask.Failed());};
 	WanderTask.OnStarted = [&]{SetMoveTime(); GotoSafeZoneTask.Reset();};
 	WanderTask.OnEnded = [&]{MoveTimedReset();};
 	WanderTask.Cooldown = Cooldown_Wander;
 	
 	// priority order
-	HtnDomain->AssignTask(&OccupyTowerTask);
-	HtnDomain->AssignTask(&DefendWallTask);
-	HtnDomain->AssignTask(&GotoTask);
 	HtnDomain->AssignTask(&RangedAttackTask);
 	HtnDomain->AssignTask(&MeleeAttackTask);
+	HtnDomain->AssignTask(&GotoTask);
+	HtnDomain->AssignTask(&OccupyTowerTask);
+	HtnDomain->AssignTask(&DefendWallTask);
 	HtnDomain->AssignTask(&BuildTask);
 	HtnDomain->AssignTask(&FollowTask);
 	HtnDomain->AssignTask(&GotoSafeZoneTask);
@@ -316,6 +316,7 @@ void ANpcFriendly::OnClicked()
 	bIsClicked = true;
 	
 	GotoTask.Reset(); // should it auto reset? for some reason it doesnt..
+	OccupyTowerTask.Reset();
 }
 
 void ANpcFriendly::OnClickedAway()
@@ -669,7 +670,7 @@ void ANpcFriendly::CopyPlayerMovement(float Direction, float Speed)
 
 EActionState ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 {
-	TargetActor = NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyHostile, MainSide, FMath::Square(TargetingDistance));
+	TargetActor = NpcManager->FindNearestNpc(GetActorLocation(), ENpcSearchOption::AnyHostile, EOriginSide::Any, FMath::Square(TargetingDistance));
 	
 #if WITH_EDITOR
 	if (bPrintDebug_TargetNearestEnemy)
@@ -679,7 +680,7 @@ EActionState ANpcFriendly::TargetNearestEnemy(float DeltaTime)
 	}
 #endif
 	
-	if (TargetActor != nullptr /*&& FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation()) < FMath::Square(TargetingDistance)*/) return EActionState::Succeeded;
+	if (TargetActor != nullptr) return EActionState::Succeeded;
 	return EActionState::Failed;
 }
 
@@ -931,6 +932,14 @@ void ANpcFriendly::SetRangedParams()
 	TargetingDistance = TargetingDistance_Ranged;
 }
 
+void ANpcFriendly::DismountTower()
+{
+	SetActorLocation(TargetLocation + FVector{0.f,0.f,60.f});
+	MovementComp->SetComponentTickEnabled(true);
+	bIsOccupyingTower = false;
+	NpcManager->AddNpc(this, NpcType, MainSide);
+}
+
 EActionState ANpcFriendly::OccupyTower(float DeltaTime)
 {
 	AArcherTower* TargetTower = Cast<AArcherTower>(TargetActor);
@@ -940,14 +949,12 @@ EActionState ANpcFriendly::OccupyTower(float DeltaTime)
 		return EActionState::Failed;
 	}
 	
-	if (bCanMove)
-	{
-		MovementComp->Velocity = FVector::ZeroVector;
-		MovementComp->SetComponentTickEnabled(false);
-		TargetTower->AddOccupant(this);
-		bIsOccupyingTower = true;
-		NpcManager->RemoveNpc(this, NpcType, MainSide); // causes freeze if an enemy targets this
-	}
+	MovementComp->Velocity = FVector::ZeroVector;
+	MovementComp->SetComponentTickEnabled(false);
+	TargetTower->AddOccupant(this);
+	bIsOccupyingTower = true;
+	NpcManager->RemoveNpc(this, NpcType); // causes freeze if an enemy targets this
+
 	RangedAttackTask.Reset();
 	
 	return EActionState::Succeeded;

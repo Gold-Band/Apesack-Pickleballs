@@ -85,7 +85,7 @@ void ANpc::BeginPlay()
 
 void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);
+	if (NpcManager) NpcManager->RemoveNpc(this, NpcType);
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -121,7 +121,7 @@ EActionState ANpc::Wait(float DeltaTime)
 
 void ANpc::OnDeath_Implementation()
 {
-	if (NpcManager) NpcManager->RemoveNpc(this, NpcType, MainSide);
+	if (NpcManager) NpcManager->RemoveNpc(this, NpcType);
 	HtnDomain->SetComponentTickEnabled(false);
 }
 
