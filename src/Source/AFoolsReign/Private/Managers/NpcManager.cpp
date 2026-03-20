@@ -12,13 +12,6 @@ AActor* UNpcManager::RightMostVulnerableAsset = nullptr;
 
 FOnRaidDetectedSignature UNpcManager::OnRaidDetectedDelegate;
 
-void UNpcManager::Deinitialize()
-{
-	
-	Super::Deinitialize();
-}
-
-
 UNpcManager::UNpcManager()
 {
 	// get enemy classes
@@ -348,11 +341,9 @@ AActor* UNpcManager::GetAttackable(const EOriginSide Side)
 	return RightVulnerables.IsEmpty()? RightMostVulnerableAsset: RightVulnerables[FMath::RandRange(0, RightVulnerables.Num()-1)];
 }
 
-bool UNpcManager::IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist,
-                                      const float CheckRadius) const
+bool UNpcManager::IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist, const float CheckRadius) const
 {
-	if (CheckDist <= CheckRadius && 
-				IsCorrectSide(CheckSide, CheckActor->GetActorLocation()))
+	if (CheckDist <= CheckRadius && IsCorrectSide(CheckSide, CheckActor->GetActorLocation()))
 	{
 		return true;
 	}

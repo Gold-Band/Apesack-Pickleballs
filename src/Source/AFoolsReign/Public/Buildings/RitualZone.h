@@ -52,4 +52,9 @@ protected:
 	int MaxOccupants = 1;
 	UPROPERTY(VisibleAnywhere)
 	int OccupantCount = 0;
+	
+	const int MaxSpots = 10;
+	
+	UPROPERTY(VisibleAnywhere)
+	TArray<USceneComponent*> Spots;
 };

@@ -35,7 +35,6 @@ private:
 	bool bIsFirstTick = true;
 	
 protected:
-	//TArray<AActor*> IgnoreActors;
 	
 	//**
 	//** My Tasks
