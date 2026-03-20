@@ -11,8 +11,8 @@ APlot::APlot()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	BoxCollider->SetupAttachment(RootComponent);
 
-	SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
-	SpriteComp->SetupAttachment(BoxCollider);
+	//SpriteComp = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
+	//SpriteComp->SetupAttachment(BoxCollider);
 }
 
 void APlot::SpawnBuilding(int IndexOfBuilding) 
@@ -22,7 +22,6 @@ void APlot::SpawnBuilding(int IndexOfBuilding)
 	const FVector Location = GetActorLocation();
 	const FRotator Rotation = GetActorRotation();
 	BuildingActor = GetWorld()->SpawnActor(CompatibleBuildings[IndexOfBuilding], &Location, &Rotation);
-
 }
 
 void APlot::OnClicked()
@@ -50,7 +49,7 @@ TArray<UListItemObject*> APlot::GetActions()
 
 		const TFunction<void()> Func = [&, i]()
 		{
-			SpriteComp->SetVisibility(false);
+			//SpriteComp->SetVisibility(false);
 			BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);			
 			SpawnBuilding(i);
 		};

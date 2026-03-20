@@ -1,6 +1,7 @@
 #include "Buildings/Building.h"
 
 #include "StatsComponent.h"
+#include "AI/HTN/ListItemObject.h"
 #include "GameModes/DefaultGameMode.h"
 #include "Managers/BuildingsManager.h"
 
@@ -11,11 +12,41 @@ ABuilding::ABuilding()
 	Root = CreateDefaultSubobject<USceneComponent>(FName("RootComponent"));
 	SetRootComponent(Root);
 	RootComponent->Mobility = EComponentMobility::Static;
+	
+	static ConstructorHelpers::FClassFinder<AActor> PlotClassFinder{TEXT("/Game/Blueprints/Buildings/BP_Plot")};
+	if (PlotClassFinder.Succeeded())
+	{
+		PlotClass = PlotClassFinder.Class;
+	}
 }
 
 void ABuilding::OnClicked()
 {
 	OnActorClicked();
+}
+
+TArray<UListItemObject*> ABuilding::GetActions()
+{
+	TArray<UListItemObject*> Actions;
+	
+	// undo action - destroy building
+	UListItemObject* Action = NewObject<UListItemObject>();
+	Action->DisplayText = FText::FromString(TEXT("Destroy"));
+	Action->ContextActor = this;
+	const TFunction<void()> Func = [&]()
+	{
+		// make this a plot again
+		Destroy();
+		const FVector Location = GetActorLocation();
+		const FRotator Rotation = GetActorRotation();
+		GetWorld()->SpawnActor(PlotClass, &Location, &Rotation);
+	};
+	Action->OnActionCalledFunction = Func;
+	Action->Cost = 0;
+	Action->bCloseOnClicked = true;
+	Actions.Add(Action);
+	
+	return Actions;
 }
 
 FString ABuilding::GetActorName() const

@@ -23,6 +23,7 @@ public:
 	float DistanceFromOrigin;
 	
 	virtual void OnClicked() override;
+	virtual TArray<UListItemObject*> GetActions() override;
 	virtual FString GetActorName() const override final;
 	int GetBuildCost() const;
 	
@@ -52,4 +53,7 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UStatsComponent> Stats;
+	
+	UPROPERTY()
+	TSubclassOf<AActor> PlotClass;
 };
