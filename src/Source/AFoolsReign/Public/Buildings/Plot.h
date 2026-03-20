@@ -67,6 +67,6 @@ private:
 	TObjectPtr<UBoxComponent> BoxCollider;
 	
 	// the plot sprite (star - temporary)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UPaperSpriteComponent> SpriteComp;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	//TObjectPtr<UPaperSpriteComponent> SpriteComp;
 };

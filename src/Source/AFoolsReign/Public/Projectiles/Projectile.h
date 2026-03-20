@@ -35,7 +35,7 @@ public:
 	void OnLanded();
 	
 	UFUNCTION(BlueprintCallable)
-	virtual bool LaunchAt(const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
+	virtual bool CanLaunchAt(const FVector& StartLocation, const FVector& TargetLocation, float Accuracy = 1);
 	
 	bool IsLineOfSightToTargetBlocked(const FVector& StartLocation, const FVector& TargetLocation) const;
 	
@@ -60,6 +60,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bDrawPathDebug = false;
 
+	float FlightTime = 0;
+	FVector Start;
 
 	// Base / core
 	float Damage = 5.f;

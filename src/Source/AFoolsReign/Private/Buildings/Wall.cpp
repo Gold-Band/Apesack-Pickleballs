@@ -16,7 +16,7 @@ AWall::AWall()
 
 TArray<UListItemObject*> AWall::GetActions()
 {
-	return TArray<UListItemObject*>{};
+	return Super::GetActions();
 }
 
 TArray<UListItemObject*> AWall::GetInfo() const

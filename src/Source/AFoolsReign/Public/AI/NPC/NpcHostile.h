@@ -30,14 +30,11 @@ protected:
 	
 private:
 	void OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side);
-	float GetAngleBetweenVectors(const FVector& A, const FVector& B);
 	
 	// patch for a mysterious bug
 	bool bIsFirstTick = true;
-
 	
 protected:
-	//TArray<AActor*> IgnoreActors;
 	
 	//**
 	//** My Tasks
@@ -69,14 +66,18 @@ protected:
 	float RaycastInterval = 0.2f;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool bCanMove = false;
+	bool bCanMove = true;
 	
 	float MoveToTimer = 0;
 	
 	
 	//* Melee Attack *//
-	EActionState MeleeAttack(float DeltaTime);
+	EActionState MeleeAnimation(float DeltaTime);
+	EActionState CheckHit(float DeltaTime);
 	bool MeleeAttackCondition() const;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="ApplyDamageDelay"))
+	float DamageDelay = 0.3f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack")
 	float Cooldown_MeleeAttack = 0.75f;
@@ -88,6 +89,11 @@ protected:
 	//* Target Attackable *//
 	EActionState TargetAttackable(float DeltaTime);
 	
+	
+	//* Delay *//
+	EActionState Delay(float DeltaTime);
+	float DelayTime;
+	float Timer;
 	
 	
 	

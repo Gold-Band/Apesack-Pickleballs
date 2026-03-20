@@ -22,10 +22,10 @@ void AProjectile::Tick(float DeltaTime)
 	
 	if (bPathSucceeded)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Traveling"))
-		// raycast and move
-		FVector NextPos = GetActorLocation() + Velocity * DeltaTime * FMath::RandRange(AppliedForce*0.5f, AppliedForce*2.f);
 		const FVector CurrentPos = GetActorLocation();
+		FlightTime += DeltaTime;
+		Velocity += FVector(0.f, 0.f, 0.5f * -9.8f * FMath::Square(FlightTime));
+		FVector NextPos = Start + Velocity * FlightTime ;
 		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes{EObjectTypeQuery::ObjectTypeQuery7}; // only collide with NpcHostile objects
 		FHitResult Hit;
 		if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),CurrentPos, NextPos, ObjectTypes, false, TArray<AActor*>{}, EDrawDebugTrace::None,Hit,true))
@@ -65,12 +65,6 @@ void AProjectile::Tick(float DeltaTime)
 			
 		const FRotator NextRot = UKismetMathLibrary::FindLookAtRotation(CurrentPos, CurrentPos + (NextPos-CurrentPos));
 		SetActorLocationAndRotation(NextPos, NextRot);
-		// todo - Apply radius functionality
-		
-		
-		// change velocity
-		Velocity += FVector::DownVector * 9.8f * 2;
-		
 		
 		if (bLanded)
 		{
@@ -80,26 +74,26 @@ void AProjectile::Tick(float DeltaTime)
 	}
 }
 
-bool AProjectile::LaunchAt(const FVector& StartLocation,
+bool AProjectile::CanLaunchAt(const FVector& StartLocation,
 	const FVector& TargetLocation, float Accuracy)
 {
 	bPathSucceeded = true;
 	
-	const float ProjectileSpeed = FMath::RandRange(Speed*0.8f, Speed*1.2f);
+	const bool bLineOfSightToTargetBlocked = IsLineOfSightToTargetBlocked(StartLocation, TargetLocation);
+	const float BaseSpeed = bLineOfSightToTargetBlocked? Speed/2 : Speed;
+	const float ProjectileSpeed = FMath::RandRange(BaseSpeed*0.8f, BaseSpeed*1.2f);
 	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, ProjectileSpeed};
 	Params.bDrawDebug = bDrawPathDebug;
 	Params.TraceOption = ESuggestProjVelocityTraceOption::DoNotTrace;
 	Params.CollisionRadius = 0;
 	Params.bAcceptClosestOnNoSolutions = false;
-	Params.bFavorHighArc = IsLineOfSightToTargetBlocked(StartLocation, TargetLocation);
+	Params.bFavorHighArc = bLineOfSightToTargetBlocked;
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
 		bPathSucceeded = false;
 		return false;
 	}
 	
-	SetActorLocation(StartLocation);
-	Enable();
 	return true;
 }
 
@@ -139,4 +133,7 @@ void AProjectile::Enable()
 	ToggleRibbon(true);
 	bIsEnabled = true;
 	bLanded = false;
+	FlightTime = 0;
+	Start = GetActorLocation();
+	//Velocity = Velocity.GetSafeNormal() * Speed;
 }

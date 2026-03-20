@@ -40,6 +40,6 @@ void ARitualZone::BeginPlay()
 
 void ARitualZone::OnDayTicked(uint8 Day)
 {
-	MaxOccupants += Day%2;
-	UE_LOG(LogTemp, Warning, TEXT("Max occupants = %i"), MaxOccupants);
+	MaxOccupants = FMath::Min(MaxOccupants + Day%2, MaxSpots); // cap it a 10
+	//UE_LOG(LogTemp, Warning, TEXT("Max occupants = %i"), MaxOccupants);
 }

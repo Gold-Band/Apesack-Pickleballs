@@ -48,6 +48,21 @@ void ANpcFriendly::BeginPlay()
 	BuildingsManager = UBuildingsManager::Get(GetWorld());
 	BuildingsManager->OnNewWallBuiltDelegate.AddUObject(this, &ThisClass::OnWallBuilt);
 	BuildingsManager->OnNewArcherTowerBuiltDelegate.AddUObject(this, &ThisClass::OnTowerBuilt);
+
+	switch (CharacterClass)
+	{
+	case ECharacterType::Peasant:
+		break;
+	case ECharacterType::Fighter:
+		SetInitialWeaponType(1);
+		break;
+	case ECharacterType::Archer:
+		SetInitialWeaponType(0);
+		break;
+	case ECharacterType::Builder:
+		break;
+	default: ;
+	}
 }
 
 void ANpcFriendly::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -85,11 +100,17 @@ void ANpcFriendly::CreateBehaviours()
 	FAction TargetNearestBuildingAction{FString("Target Building")};
 	TargetNearestBuildingAction.Func= [&](const float DeltaTime){ return TargetNearestBuilding(DeltaTime);};
 	
-	FAction MeleeAttackAction{FString("Attack")};
-	MeleeAttackAction.Func = [&](const float DeltaTime){ return MeleeAttack(DeltaTime);};
+	FAction MeleeAnimateAction{FString("Attack Part 1")};
+	MeleeAnimateAction.Func = [&](const float DeltaTime){ return MeleeAnimation(DeltaTime);};
 	
-	FAction RangedAttackAction{FString("Shoot")};
-	RangedAttackAction.Func = [&](const float DeltaTime){ return RangedAttack(DeltaTime);};
+	FAction MeleeHitAction{FString("Attack Part 2")};
+	MeleeHitAction.Func = [&](const float DeltaTime){ return CheckHit(DeltaTime);};
+	
+	FAction RangedAnimateAction{FString("Shoot Animation")};
+	RangedAnimateAction.Func = [&](const float DeltaTime){ return RangedAnimation(DeltaTime);};
+	
+	FAction ShootArrowAction{FString("Shoot")};
+	ShootArrowAction.Func = [&](const float DeltaTime){ return ShootArrow(DeltaTime);};
 	
 	FAction OccupyTowerAction{FString("Occupy Tower")};
 	OccupyTowerAction.Func = [&](const float DeltaTime){ return OccupyTower(DeltaTime);};
@@ -100,6 +121,8 @@ void ANpcFriendly::CreateBehaviours()
 	FAction GetSafeSpotAction{FString("Get Safe Spot")};
 	GetSafeSpotAction.Func = [&](const float DeltaTime) {return GetSafeSpot(DeltaTime);};
 	
+	FAction DelayAction{FString("Delay")};
+	DelayAction.Func = [&] (const float DeltaTime) { return Delay(DeltaTime);};
 	
 	// designing tasks //
 	
@@ -129,21 +152,25 @@ void ANpcFriendly::CreateBehaviours()
 	// Build
 	BuildTask.Actions.Add(TargetNearestBuildingAction);
 	BuildTask.Actions.Add(MoveToVectorAction);
-	BuildTask.Actions.Add(MeleeAttackAction);
+	BuildTask.Actions.Add(MeleeAnimateAction);
 	BuildTask.Condition = [&]{return MoveCondition() && TargetBuildingCondition() && MeleeAttackCondition();};
 	BuildTask.Cooldown = Cooldown_MeleeAttack;
 	//BuildTask.OnEnded = [&]{MoveToReset();};
 	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(TargetNearestEnemyAction);
-	MeleeAttackTask.Actions.Add(MeleeAttackAction);
+	MeleeAttackTask.Actions.Add(MeleeAnimateAction);
+	MeleeAttackTask.Actions.Add(DelayAction);
+	MeleeAttackTask.Actions.Add(MeleeHitAction);
 	MeleeAttackTask.OnStarted = [&]{SetMeleeParams();};
 	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition() && TargetNearestEnemyCondition();};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Ranged Attack
 	RangedAttackTask.Actions.Add(TargetNearestEnemyAction);
-	RangedAttackTask.Actions.Add(RangedAttackAction);
+	RangedAttackTask.Actions.Add(RangedAnimateAction);
+	RangedAttackTask.Actions.Add(DelayAction);
+	RangedAttackTask.Actions.Add(ShootArrowAction);
 	RangedAttackTask.OnStarted = [&]{SetRangedParams();};
 	RangedAttackTask.Condition = [&]{return RangedAttackCondition() && TargetNearestEnemyCondition();};
 	RangedAttackTask.bPrintDebug = bPrintDebug_RangedAttack;
@@ -241,74 +268,6 @@ TArray<UListItemObject*> ANpcFriendly::GetInfo() const
 TArray<UListItemObject*> ANpcFriendly::GetActions()
 {
 	TArray<UListItemObject*> Actions{};
-	
-	/*if (CharacterClass != ECharacterType::Peasant)
-	{ // set peasant
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-		{
-			
-			CharacterClass = ECharacterType::Peasant;
-			SetInitialWeaponType(0);
-		
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->Cost = 0;
-		Actions.Add(Action);
-		
-	}
-	if (CharacterClass != ECharacterType::Archer) 
-	{ // set archer
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Archer"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-		{
-			CharacterClass = ECharacterType::Archer;
-			SetInitialWeaponType(0);
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->Cost = 3;
-		Actions.Add(Action);
-	
-	}
-	if (CharacterClass != ECharacterType::Fighter)
-	{ // set fighter
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-		{
-			CharacterClass = ECharacterType::Fighter;
-			SetInitialWeaponType(1);
-			MainSide = NpcManager->SuggestOccupySide();
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->bDisable = false;
-		Action->Cost = 3;
-		Actions.Add(Action);
-			
-	}
-	if (CharacterClass != ECharacterType::Builder)
-	{ // set builder
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-
-		{
-			CharacterClass = ECharacterType::Builder; 
-			SetInitialWeaponType(2);
-		
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->bDisable = false;
-		Action->Cost = 2;
-		Actions.Add(Action);
-	
-	}*/
 	
 	if (!bIsPartyMember)
 	{ // join party
@@ -770,16 +729,20 @@ bool ANpcFriendly::TargetBuildingCondition() const
 	return bEnabled_TargetBuilding && !bIsNighttime && !IsCombatant();
 }
 
-EActionState ANpcFriendly::MeleeAttack(float DeltaTime)
+EActionState ANpcFriendly::MeleeAnimation(float DeltaTime)
 {
 	if (!TargetActor || !Stats)
 	{
 		return EActionState::Failed;
 	}
 
-	UStatsComponent* TargetStatComponent =
-		TargetActor->GetComponentByClass<UStatsComponent>();
-OnMeleeAttack();
+	OnMeleeAttack();
+	return EActionState::Succeeded;
+}
+
+EActionState ANpcFriendly::CheckHit(float DeltaTime)
+{
+	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (!TargetStatComponent)
 	{
 		return EActionState::Failed;
@@ -841,11 +804,13 @@ bool ANpcFriendly::MeleeAttackCondition() const
 
 void ANpcFriendly::SetMeleeParams()
 {
+	DelayTime = DamageDelay_MeleeAttack;
+	Timer = 0;
 	TargetActor = nullptr;
 	TargetingDistance = TargetingDistance_Melee;
 }
 
-EActionState ANpcFriendly::RangedAttack(float DeltaTime)
+EActionState ANpcFriendly::RangedAnimation(float DeltaTime)
 {
 	// get target
 	if (!TargetActor || !Stats)
@@ -855,9 +820,7 @@ EActionState ANpcFriendly::RangedAttack(float DeltaTime)
 	}
 	
 	//* 1. Get an arrow from the gamemode
-	AArrow* Arrow = Cast<AArrow>(
-		Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode())->GetArrow()
-	);
+	Arrow = Cast<AArrow>(Cast<ADefaultGameMode>(GetWorld()->GetAuthGameMode())->GetArrow());
 
 	if (!Arrow)
 	{
@@ -917,7 +880,9 @@ Arrow->ShooterActor = this;
 	Arrow->BleedDamage = DamagePatch.BleedDamage;
 	
 	//* 3. Launch
-	if (Arrow->LaunchAt(GetProjectileSpawnLocation(),TargetActor->GetActorLocation()))
+	const FVector End = TargetActor->GetActorLocation() + TargetActor->GetVelocity();
+	DrawDebugLine(GetWorld(), TargetActor->GetActorLocation(), End, FColor::Red, false, Cooldown_RangedAttack);
+	if (Arrow->CanLaunchAt(GetProjectileSpawnLocation(),End))
 	{
 		
 		FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
@@ -926,6 +891,7 @@ Arrow->ShooterActor = this;
 		const bool bIsFacingTarget = LocalToTarget.X > 0.f;
 		OnBowAttack(bIsFacingTarget);
 		
+		Arrow->SetActorLocation(GetProjectileSpawnLocation());
 		return EActionState::Succeeded;
 	}
 	
@@ -942,7 +908,14 @@ Arrow->ShooterActor = this;
 		);
 	}
 #endif
+	
 	return EActionState::Failed;
+}
+
+EActionState ANpcFriendly::ShootArrow(float DeltaTime)
+{
+	Arrow->Enable();
+	return EActionState::Succeeded;
 }
 
 bool ANpcFriendly::RangedAttackCondition() const
@@ -952,6 +925,8 @@ bool ANpcFriendly::RangedAttackCondition() const
 
 void ANpcFriendly::SetRangedParams()
 {
+	DelayTime = LaunchArrowDelay;
+	Timer = 0;
 	TargetActor = nullptr;
 	TargetingDistance = TargetingDistance_Ranged;
 }
@@ -1034,6 +1009,16 @@ bool ANpcFriendly::GetSafeSpotCondition() const
 	const float AbsAngle = FMath::Abs(ADefaultGameMode::GetAngleToOrigin(GetActorLocation()));
 	const bool bIsInSafeZone = AbsAngle < NpcManager->GetMaxSafeAngle(MainSide);
 	return !bIsInSafeZone && !bIsPartyMember && (bIsNighttime || bRaid) && !IsCombatant();
+}
+
+EActionState ANpcFriendly::Delay(float DeltaTime)
+{
+	if ((Timer+=DeltaTime) >= DelayTime)
+	{
+		Timer = 0;
+		return EActionState::Succeeded;
+	}
+	return EActionState::InProgress;
 }
 
 void ANpcFriendly::LogBool(const FString& Name, const bool Value, const bool Simple) const
