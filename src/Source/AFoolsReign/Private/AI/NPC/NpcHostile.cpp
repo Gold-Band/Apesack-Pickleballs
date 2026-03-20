@@ -78,7 +78,7 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
 	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition();};
 	MeleeAttackTask.OnStarted = [&] {Timer = 0; DelayTime = DamageDelay;};
-	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true;};
+	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true; MoveToTimer = RaycastInterval;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Walk

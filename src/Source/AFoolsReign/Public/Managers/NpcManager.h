@@ -55,8 +55,6 @@ public:
 	static AActor* RightMostVulnerableAsset;
 	static FOnRaidDetectedSignature OnRaidDetectedDelegate;
 
-	virtual void Deinitialize() override;
-	
 	virtual ETickableTickType GetTickableTickType() const override;
 	
 	virtual TStatId GetStatId() const override;
