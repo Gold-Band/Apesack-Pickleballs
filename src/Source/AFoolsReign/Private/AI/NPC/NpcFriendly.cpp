@@ -48,6 +48,21 @@ void ANpcFriendly::BeginPlay()
 	BuildingsManager = UBuildingsManager::Get(GetWorld());
 	BuildingsManager->OnNewWallBuiltDelegate.AddUObject(this, &ThisClass::OnWallBuilt);
 	BuildingsManager->OnNewArcherTowerBuiltDelegate.AddUObject(this, &ThisClass::OnTowerBuilt);
+
+	switch (CharacterClass)
+	{
+	case ECharacterType::Peasant:
+		break;
+	case ECharacterType::Fighter:
+		SetInitialWeaponType(1);
+		break;
+	case ECharacterType::Archer:
+		SetInitialWeaponType(0);
+		break;
+	case ECharacterType::Builder:
+		break;
+	default: ;
+	}
 }
 
 void ANpcFriendly::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -253,74 +268,6 @@ TArray<UListItemObject*> ANpcFriendly::GetInfo() const
 TArray<UListItemObject*> ANpcFriendly::GetActions()
 {
 	TArray<UListItemObject*> Actions{};
-	
-	/*if (CharacterClass != ECharacterType::Peasant)
-	{ // set peasant
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Peasant"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-		{
-			
-			CharacterClass = ECharacterType::Peasant;
-			SetInitialWeaponType(0);
-		
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->Cost = 0;
-		Actions.Add(Action);
-		
-	}
-	if (CharacterClass != ECharacterType::Archer) 
-	{ // set archer
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Archer"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-		{
-			CharacterClass = ECharacterType::Archer;
-			SetInitialWeaponType(0);
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->Cost = 3;
-		Actions.Add(Action);
-	
-	}
-	if (CharacterClass != ECharacterType::Fighter)
-	{ // set fighter
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Fighter"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-		{
-			CharacterClass = ECharacterType::Fighter;
-			SetInitialWeaponType(1);
-			MainSide = NpcManager->SuggestOccupySide();
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->bDisable = false;
-		Action->Cost = 3;
-		Actions.Add(Action);
-			
-	}
-	if (CharacterClass != ECharacterType::Builder)
-	{ // set builder
-		UListItemObject* Action = NewObject<UListItemObject>();
-		Action->DisplayText = FText::FromString(TEXT("Set Builder"));
-		Action->ContextActor = this;
-		const TFunction<void()> Func = [&]()
-
-		{
-			CharacterClass = ECharacterType::Builder; 
-			SetInitialWeaponType(2);
-		
-		};
-		Action->OnActionCalledFunction = Func;
-		Action->bDisable = false;
-		Action->Cost = 2;
-		Actions.Add(Action);
-	
-	}*/
 	
 	if (!bIsPartyMember)
 	{ // join party
@@ -933,7 +880,9 @@ Arrow->ShooterActor = this;
 	Arrow->BleedDamage = DamagePatch.BleedDamage;
 	
 	//* 3. Launch
-	if (Arrow->CanLaunchAt(GetProjectileSpawnLocation(),TargetActor->GetActorLocation()))
+	const FVector End = TargetActor->GetActorLocation() + TargetActor->GetVelocity();
+	DrawDebugLine(GetWorld(), TargetActor->GetActorLocation(), End, FColor::Red, false, Cooldown_RangedAttack);
+	if (Arrow->CanLaunchAt(GetProjectileSpawnLocation(),End))
 	{
 		
 		FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
