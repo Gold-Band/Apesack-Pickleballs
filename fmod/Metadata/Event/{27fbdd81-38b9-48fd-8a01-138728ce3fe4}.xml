@@ -5,7 +5,7 @@
 			<value>Coin Spend</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{20afb9fc-6bd8-4116-9604-d3ba63fae792}</destination>
@@ -205,6 +205,7 @@
 	<object class="MixerBusEffectChain" id="{cb7bebe7-a1c0-4a42-978c-0cdcab8b9005}">
 		<relationship name="effects">
 			<destination>{03780de6-e373-4efd-9f52-19fbab938484}</destination>
+			<destination>{ab12ffb5-1da2-4750-a584-a2210d47a97a}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{9de7eb58-fbf0-4345-a740-8f3ef2ac2b46}" />
@@ -249,6 +250,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{a1c9a863-59e4-4145-bf9d-c75bb992c746}" />
 	<object class="MixerBusFader" id="{03780de6-e373-4efd-9f52-19fbab938484}" />
+	<object class="SpatialiserEffect" id="{ab12ffb5-1da2-4750-a584-a2210d47a97a}" />
 	<object class="SingleSound" id="{24dd232e-a72e-48a8-a5d4-b9a0269a7a4c}">
 		<relationship name="audioFile">
 			<destination>{708cf121-8249-4bde-aed4-1ecf8b503b05}</destination>

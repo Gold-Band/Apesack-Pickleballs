@@ -5,7 +5,7 @@
 			<value>Bow Draw</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{c64788a4-cae9-47fd-b072-f0bf7cb262ea}</destination>
@@ -129,6 +129,7 @@
 	<object class="MixerBusEffectChain" id="{5a346a66-db41-4c26-b51a-8fd477fef62d}">
 		<relationship name="effects">
 			<destination>{7667ec13-f79c-4960-9ba7-4d7af886f329}</destination>
+			<destination>{a9b777ce-3867-4cea-ac17-e19a07540805}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{eff86541-cffb-450c-b80b-78da64611789}" />
@@ -149,6 +150,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{520ab422-631a-44f2-a19e-39b27fea86a0}" />
 	<object class="MixerBusFader" id="{7667ec13-f79c-4960-9ba7-4d7af886f329}" />
+	<object class="SpatialiserEffect" id="{a9b777ce-3867-4cea-ac17-e19a07540805}" />
 	<object class="ThreeEQEffect" id="{66e80720-e7e8-4eef-9dfd-de6fc0200680}">
 		<property name="lowGain">
 			<value>-16</value>

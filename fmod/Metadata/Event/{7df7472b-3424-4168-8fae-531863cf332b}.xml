@@ -5,7 +5,7 @@
 			<value>Coin Flick</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{20afb9fc-6bd8-4116-9604-d3ba63fae792}</destination>
@@ -106,6 +106,7 @@
 	<object class="MixerBusEffectChain" id="{c2a68f7d-29cc-4606-a87b-d918caba12d7}">
 		<relationship name="effects">
 			<destination>{6334ebcb-32b0-48bc-8810-9a6c0e801fa0}</destination>
+			<destination>{54ca3d49-0207-4fd4-bd52-d486b7bf5f79}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{5607e03e-d15d-4719-87b5-7ae4ccaa79ce}" />
@@ -116,4 +117,5 @@
 	</object>
 	<object class="MixerBusFader" id="{14d80f56-9fcd-42a3-8178-d38a7dffb413}" />
 	<object class="MixerBusFader" id="{6334ebcb-32b0-48bc-8810-9a6c0e801fa0}" />
+	<object class="SpatialiserEffect" id="{54ca3d49-0207-4fd4-bd52-d486b7bf5f79}" />
 </objects>

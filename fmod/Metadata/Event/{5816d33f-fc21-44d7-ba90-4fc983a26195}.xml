@@ -5,7 +5,7 @@
 			<value>Arrow Flying</value>
 		</property>
 		<property name="outputFormat">
-			<value>0</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{7c0c8fe7-3d4f-44b9-b94a-06bdea80d393}</destination>
@@ -87,9 +87,11 @@
 	<object class="MixerBusEffectChain" id="{dfc10a34-6d4c-49ce-8120-58d07413fdfb}">
 		<relationship name="effects">
 			<destination>{2b828908-b689-4049-aa66-88f2c8069f99}</destination>
+			<destination>{58890347-ddda-4ec1-8080-08bcc9de4914}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{25157f39-e4f4-4e54-b198-6e2bb006b78a}" />
 	<object class="MixerBusFader" id="{1bff560b-aaff-422a-9e2c-0470f986eb02}" />
 	<object class="MixerBusFader" id="{2b828908-b689-4049-aa66-88f2c8069f99}" />
+	<object class="SpatialiserEffect" id="{58890347-ddda-4ec1-8080-08bcc9de4914}" />
 </objects>

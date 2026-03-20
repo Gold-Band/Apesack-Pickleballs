@@ -5,7 +5,7 @@
 			<value>Footstep Jingle</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{1e150c27-c449-42cf-ae49-83c6eaaf3c47}</destination>
@@ -103,6 +103,7 @@
 	<object class="MixerBusEffectChain" id="{05f97055-552e-48ec-b27e-b50c79c67e0d}">
 		<relationship name="effects">
 			<destination>{2b6f780d-7e36-4a21-8047-1dfe7178850f}</destination>
+			<destination>{e0b230c4-2f38-4b47-827e-7340537ef55a}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{1d39ee60-09c4-4caf-bd98-3786f13f13df}" />
@@ -116,6 +117,7 @@
 	</object>
 	<object class="MixerBusFader" id="{57267d10-2195-4a3e-879b-fbed5b333ad8}" />
 	<object class="MixerBusFader" id="{2b6f780d-7e36-4a21-8047-1dfe7178850f}" />
+	<object class="SpatialiserEffect" id="{e0b230c4-2f38-4b47-827e-7340537ef55a}" />
 	<object class="SingleSound" id="{9cd49db9-65ed-4c65-8306-5982633fd72d}">
 		<relationship name="audioFile">
 			<destination>{245474c1-e4c3-49ef-a902-fd1a9d103a9e}</destination>

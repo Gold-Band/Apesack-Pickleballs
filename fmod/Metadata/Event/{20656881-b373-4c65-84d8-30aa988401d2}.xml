@@ -5,7 +5,7 @@
 			<value>Bag Open&amp;Close</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{b2ed70bd-2bcd-4fdb-8477-1329e2923120}</destination>
@@ -119,6 +119,7 @@
 	<object class="MixerBusEffectChain" id="{99590f6f-2363-4f4d-b8cd-937acd69cd40}">
 		<relationship name="effects">
 			<destination>{b2c82d57-3b5f-4569-88d0-51ad83f66222}</destination>
+			<destination>{bb6a8d6f-f468-4fb7-9b83-4fdd01e972a2}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{772a1978-db3d-43b2-a9f3-04f3a4e66dce}" />
@@ -138,5 +139,6 @@
 	</object>
 	<object class="MixerBusPanner" id="{c44ecac1-f692-40ed-b2a5-3ed597725b3f}" />
 	<object class="MixerBusFader" id="{b2c82d57-3b5f-4569-88d0-51ad83f66222}" />
+	<object class="SpatialiserEffect" id="{bb6a8d6f-f468-4fb7-9b83-4fdd01e972a2}" />
 	<object class="MixerBusFader" id="{bee80707-4983-4d1f-823a-9eb6e454fbd3}" />
 </objects>

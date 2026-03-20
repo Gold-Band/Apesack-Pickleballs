@@ -96,17 +96,61 @@
 	<object class="MixerBusEffectChain" id="{bad5c99c-2de3-4d24-ac6b-7c8178063b51}">
 		<relationship name="effects">
 			<destination>{087f7f32-af14-45cd-80f4-1588a2397fb6}</destination>
+			<destination>{6d238e2a-6f20-4360-a9cf-ff9ced978a3a}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{bd4c0a21-677c-449d-80d4-72e2295fc1e5}" />
 	<object class="SingleSound" id="{008e42fe-3c29-447e-8f82-bd1d7e770f99}">
 		<property name="startOffset">
-			<value>11.5</value>
+			<value>15</value>
 		</property>
+		<property name="volume">
+			<value>-6</value>
+		</property>
+		<property name="pitch">
+			<value>1.5</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{729874f3-72e5-435a-86f3-0b96e0375bf1}</destination>
+		</relationship>
 		<relationship name="audioFile">
 			<destination>{6ad1a27c-2a6c-4e61-9cd1-e7ad5372c3d0}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{93f1cb26-fb1b-4804-8c2b-64e41c8d01f1}" />
 	<object class="MixerBusFader" id="{087f7f32-af14-45cd-80f4-1588a2397fb6}" />
+	<object class="MultibandEqEffect" id="{6d238e2a-6f20-4360-a9cf-ff9ced978a3a}">
+		<property name="filterTypeA">
+			<value>9</value>
+		</property>
+		<property name="filterTypeB">
+			<value>9</value>
+		</property>
+		<property name="frequencyA">
+			<value>2073.13403</value>
+		</property>
+		<property name="frequencyB">
+			<value>5604.55469</value>
+		</property>
+		<property name="qualityA">
+			<value>4</value>
+		</property>
+		<property name="qualityB">
+			<value>1.4476335</value>
+		</property>
+		<property name="gainA">
+			<value>-10.0487595</value>
+		</property>
+		<property name="gainB">
+			<value>-6.9280777</value>
+		</property>
+	</object>
+	<object class="RandomizerModulator" id="{729874f3-72e5-435a-86f3-0b96e0375bf1}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>pitch</value>
+		</property>
+		<property name="amount">
+			<value>6.25</value>
+		</property>
+	</object>
 </objects>

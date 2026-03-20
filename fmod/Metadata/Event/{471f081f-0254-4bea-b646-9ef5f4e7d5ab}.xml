@@ -5,7 +5,7 @@
 			<value>NPC Hire</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{9979b283-3114-4ab1-a9ba-f20e721d629b}</destination>
@@ -106,6 +106,7 @@
 	<object class="MixerBusEffectChain" id="{9430df25-7aad-43d6-ba01-2265f542f7ea}">
 		<relationship name="effects">
 			<destination>{95a5f364-8963-4820-80ec-dfb2f40b66ca}</destination>
+			<destination>{ff400b55-d224-46cf-a1b9-884c7cc9d64d}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{4e90859a-c469-4278-b5a2-4d49bb7120a8}" />
@@ -119,6 +120,7 @@
 	</object>
 	<object class="MixerBusFader" id="{2dff13f9-4898-4afe-8cdc-92dfc7f0ec6b}" />
 	<object class="MixerBusFader" id="{95a5f364-8963-4820-80ec-dfb2f40b66ca}" />
+	<object class="SpatialiserEffect" id="{ff400b55-d224-46cf-a1b9-884c7cc9d64d}" />
 	<object class="RandomizerModulator" id="{45dd0014-4998-4713-9042-6c737992b792}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>pitch</value>

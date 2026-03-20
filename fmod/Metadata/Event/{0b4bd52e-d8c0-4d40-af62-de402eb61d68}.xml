@@ -5,7 +5,7 @@
 			<value>Blood Dripping</value>
 		</property>
 		<property name="outputFormat">
-			<value>0</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{148cf84c-6c17-4038-bdea-1ce62ee47837}</destination>
@@ -140,6 +140,7 @@
 	<object class="MixerBusEffectChain" id="{af6b3f86-9e62-4096-8a62-fbe4a85a0480}">
 		<relationship name="effects">
 			<destination>{149224cd-0c95-4018-a6e7-dad9343e719f}</destination>
+			<destination>{4596428a-9ad7-4f34-abd6-28b09494f5ef}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{cafd1af1-21ab-4a04-81c2-39329a4bbc5a}" />
@@ -152,6 +153,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{b14045c4-4453-41e6-9b49-04484a9f592d}" />
 	<object class="MixerBusFader" id="{149224cd-0c95-4018-a6e7-dad9343e719f}" />
+	<object class="SpatialiserEffect" id="{4596428a-9ad7-4f34-abd6-28b09494f5ef}" />
 	<object class="MixerBusFader" id="{a7a21805-c318-4245-bc8e-bf5b5122c7b2}" />
 	<object class="ThreeEQEffect" id="{5b49e2f2-9c0b-4d59-b1fa-c33160bd0de2}">
 		<property name="lowGain">
