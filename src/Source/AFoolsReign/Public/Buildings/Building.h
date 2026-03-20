@@ -28,7 +28,7 @@ public:
 	int GetBuildCost() const;
 	
 	bool IsDamaged() const;
-	
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="On Clicked"))
 	void OnActorClicked();
@@ -55,5 +55,5 @@ protected:
 	TObjectPtr<UStatsComponent> Stats;
 	
 	UPROPERTY()
-	TSubclassOf<AActor> PlotClass;
+	UBuildingsManager* BuildingsManager;
 };

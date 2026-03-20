@@ -5,6 +5,15 @@
 #include "Buildings/RitualZone.h"
 #include "Buildings/Wall.h"
 
+UBuildingsManager::UBuildingsManager()
+{
+	static ConstructorHelpers::FClassFinder<AActor> PlotClassFinder{TEXT("/Game/Blueprints/Buildings/BP_Plot")};
+	if (PlotClassFinder.Succeeded())
+	{
+		PlotClass = PlotClassFinder.Class;
+	}
+}
+
 UBuildingsManager* UBuildingsManager::Get(const UObject* WorldContextObject)
 {
 	if (GEngine)
