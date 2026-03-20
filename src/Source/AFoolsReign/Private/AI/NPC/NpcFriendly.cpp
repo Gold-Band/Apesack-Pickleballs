@@ -135,15 +135,12 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// defend wall
 	DefendWallTask.Actions.Add(GetDefensePositionAction);
-	DefendWallTask.Actions.Add(MoveToVectorAction);
-	DefendWallTask.OnEnded = [&]{OnGotoCompleted();};
 	DefendWallTask.Condition = [&]{return GetDefensePositionCondition() && MoveCondition();};
 	DefendWallTask.bPrintDebug = bPrintDebug_DefendWall;
 	DefendWallTask.Cooldown = 1.f;
 	
 	// Occupy Tower
 	OccupyTowerTask.Actions.Add(TargetFarthestTowerAction);
-	OccupyTowerTask.Actions.Add(MoveToVectorAction);
 	OccupyTowerTask.Actions.Add(OccupyTowerAction);
 	OccupyTowerTask.Condition = [&]{return OccupyTowerCondition() && MoveCondition();};
 	OccupyTowerTask.bPrintDebug = bPrintDebug_TargetFurthestTower;
@@ -316,7 +313,6 @@ void ANpcFriendly::OnClicked()
 	bIsClicked = true;
 	
 	GotoTask.Reset(); // should it auto reset? for some reason it doesnt..
-	OccupyTowerTask.Reset();
 }
 
 void ANpcFriendly::OnClickedAway()
@@ -331,6 +327,8 @@ void ANpcFriendly::OnClickedAway()
 	bGotoLocation = false;
 	bIsClicked = false;
 	bAssumedPosition = false;
+	
+	if (CharacterClass == ECharacterType::Archer) OccupyTowerTask.Reset(); 
 }
 
 void ANpcFriendly::OnWallBuilt(AWall* Wall, EOriginSide OriginSide)
@@ -691,6 +689,8 @@ bool ANpcFriendly::TargetNearestEnemyCondition() const
 
 EActionState ANpcFriendly::TargetFarthestTower(float DeltaTime)
 {
+	if (!BuildingsManager->DoVacantTowersExist(MainSide)) return EActionState::Failed;
+	
 	TargetActor = BuildingsManager->GetFarthestBuilding(EBuildingType::Tower, MainSide);
 	
 #if WITH_EDITOR
@@ -700,6 +700,7 @@ EActionState ANpcFriendly::TargetFarthestTower(float DeltaTime)
 	if (TargetActor != nullptr)
 	{
 		TargetLocation = TargetActor->GetActorLocation().GetClampedToSize2D(MovementComp->Radius, MovementComp->Radius);
+		bGotoLocation = true;
 		return EActionState::Succeeded;
 	}
 	return EActionState::Failed;
