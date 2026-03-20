@@ -5,7 +5,7 @@
 			<value>Default Enemy Attack</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{e2d5c676-e668-4495-b224-cf1cf63aba8d}</destination>
@@ -129,6 +129,7 @@
 	<object class="MixerBusEffectChain" id="{d4c8bf63-04c6-4658-bf19-2979da039562}">
 		<relationship name="effects">
 			<destination>{a55b9c98-433f-4449-b1d6-c299fd9865ac}</destination>
+			<destination>{abbc0ff5-3210-4f77-8905-626ce7389a82}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{b91f62b1-2bba-499e-ab73-910d032b1dea}" />
@@ -149,6 +150,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{5321be0f-1bc4-4536-b525-b951bd2c9806}" />
 	<object class="MixerBusFader" id="{a55b9c98-433f-4449-b1d6-c299fd9865ac}" />
+	<object class="SpatialiserEffect" id="{abbc0ff5-3210-4f77-8905-626ce7389a82}" />
 	<object class="ThreeEQEffect" id="{4e14b5dd-7321-4a86-a8da-da4ddcc3011c}">
 		<property name="highGain">
 			<value>-3.5</value>

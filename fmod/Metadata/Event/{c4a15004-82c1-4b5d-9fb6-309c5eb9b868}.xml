@@ -5,7 +5,7 @@
 			<value>Default Enemy Death</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{e2d5c676-e668-4495-b224-cf1cf63aba8d}</destination>
@@ -290,6 +290,7 @@
 	<object class="MixerBusEffectChain" id="{afba3e24-9046-4208-b64e-686cd33aeb40}">
 		<relationship name="effects">
 			<destination>{5ca3ba1c-971e-4a5e-bf6d-9eb526005a26}</destination>
+			<destination>{789e6389-6af1-4d5a-9fb0-f9f76b64c5eb}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{c702fc23-2bf4-45c1-962b-3b97c4429985}" />
@@ -342,6 +343,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{33998fc0-cbaa-46af-a6a5-70cd29d7e813}" />
 	<object class="MixerBusFader" id="{5ca3ba1c-971e-4a5e-bf6d-9eb526005a26}" />
+	<object class="SpatialiserEffect" id="{789e6389-6af1-4d5a-9fb0-f9f76b64c5eb}" />
 	<object class="SingleSound" id="{6c3d6364-f10f-41c5-8171-9c27f2b17b99}">
 		<relationship name="audioFile">
 			<destination>{dfebcf3e-a5ce-4a5c-915a-13a2209b3d1d}</destination>

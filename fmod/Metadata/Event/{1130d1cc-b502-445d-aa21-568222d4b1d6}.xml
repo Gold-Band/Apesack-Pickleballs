@@ -5,7 +5,7 @@
 			<value>Item Pickup</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{42a5b07c-1651-4ee9-a061-93578329fc1c}</destination>
@@ -129,6 +129,7 @@
 	<object class="MixerBusEffectChain" id="{d87728c9-48d6-42f7-9028-0c58d19de997}">
 		<relationship name="effects">
 			<destination>{2eb069e1-f5fc-418c-8543-1e887a63cb7a}</destination>
+			<destination>{5cc7e3dc-465f-4a17-8d0b-8d2e6bc197ca}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{be4c3522-1485-450c-942f-7991c994b395}" />
@@ -149,6 +150,7 @@
 	</object>
 	<object class="MixerBusPanner" id="{02e14030-024b-4f55-98a8-c2cd893c853f}" />
 	<object class="MixerBusFader" id="{2eb069e1-f5fc-418c-8543-1e887a63cb7a}" />
+	<object class="SpatialiserEffect" id="{5cc7e3dc-465f-4a17-8d0b-8d2e6bc197ca}" />
 	<object class="ThreeEQEffect" id="{7cf8c8a8-7e2f-4641-895b-4bd5f443a404}">
 		<property name="highGain">
 			<value>-4</value>

@@ -5,7 +5,7 @@
 			<value>Footsteps Heavy</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{1e150c27-c449-42cf-ae49-83c6eaaf3c47}</destination>
@@ -103,6 +103,7 @@
 	<object class="MixerBusEffectChain" id="{a27661b9-3243-46e5-86b6-a8afd106677b}">
 		<relationship name="effects">
 			<destination>{0061d450-3ec4-4454-8fef-1e0444b106c7}</destination>
+			<destination>{a2fbf851-63a1-4b39-b80a-22c6891e5c3f}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{db41f893-c22d-45fd-a050-38901bc3e7f1}" />
@@ -118,6 +119,7 @@
 	</object>
 	<object class="MixerBusFader" id="{f2eddce9-714e-4e9b-8217-a0598eeb20c4}" />
 	<object class="MixerBusFader" id="{0061d450-3ec4-4454-8fef-1e0444b106c7}" />
+	<object class="SpatialiserEffect" id="{a2fbf851-63a1-4b39-b80a-22c6891e5c3f}" />
 	<object class="SingleSound" id="{a2006255-b8b9-4854-b514-355b56d00c87}">
 		<property name="pitch">
 			<value>-5</value>
