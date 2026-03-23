@@ -186,7 +186,7 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// Wander
 	WanderTask.Actions.Add(MoveTimedAction);
-	WanderTask.Condition = [&]{return MoveTimedCondition() && (RangedAttackTask.Failed() || MeleeAttackTask.Failed());};
+	WanderTask.Condition = [&]{return MoveTimedCondition() && ((IsCombatant() && (RangedAttackTask.Failed() || MeleeAttackTask.Failed())) || !IsCombatant());};
 	WanderTask.OnStarted = [&]{SetMoveTime(); GotoSafeZoneTask.Reset();};
 	WanderTask.OnEnded = [&]{MoveTimedReset();};
 	WanderTask.Cooldown = Cooldown_Wander;
