@@ -84,10 +84,10 @@ void UWorldClockSubsystem::TryBroadcast(EWorldClockBroadcastTiming TimingType)
 {
 	if (TimingType == BroadcastTiming)
 	{
-		CurrentTime.Day = Day;
-		CurrentTime.Hour = Hour%24;
-		CurrentTime.Minute = Minute%60;
-		CurrentTime.Second = Second%60;
+		CurrentTime.Day = static_cast<uint8>(Day);
+		CurrentTime.Hour = static_cast<uint8>(Hour%24);
+		CurrentTime.Minute = static_cast<uint8>(Minute%60);
+		CurrentTime.Second = static_cast<uint8>(Second%60);
 		if (OnTimeTickedDelegate.IsBound()) OnTimeTickedDelegate.Broadcast(CurrentTime);
 	}
 }
