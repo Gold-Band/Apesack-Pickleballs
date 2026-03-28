@@ -141,22 +141,22 @@ FTimestamp UWorldClockSubsystem::GetTime() const
 
 uint8 UWorldClockSubsystem::GetDays() const 
 {
-    return Day;
+    return static_cast<uint8>(Day);
 }
 
 uint8 UWorldClockSubsystem::GetHours() const 
 {
-    return Hour;
+    return static_cast<uint8>(Hour);
 }
 
 uint8 UWorldClockSubsystem::GetMinutes() const
 {
-    return Minute;
+    return static_cast<uint8>(Minute);
 }
 
 uint8 UWorldClockSubsystem::GetSeconds() const
 {
-    return Second;
+    return static_cast<uint8>(Second);
 }
 
 uint8 UWorldClockSubsystem::GetNightStartHour() const
