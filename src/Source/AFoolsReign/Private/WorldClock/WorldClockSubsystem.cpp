@@ -12,7 +12,7 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 	if (bAllowClockTicking)
 	{
 		const double TimeSeconds = GetWorld()->TimeSeconds;
-		
+		//UE_LOG(LogTemp, Warning, TEXT("seconds=%f"), TimeSeconds)
 		const float Delta = GetWorld()->TimeSince(TotalSeconds);
 		TotalSeconds = TimeSeconds;
 		
@@ -136,7 +136,7 @@ float UWorldClockSubsystem::GetNormalizedTime() const
 
 FTimestamp UWorldClockSubsystem::GetTime() const
 {
-    return FTimestamp{Day,Hour,Minute,Second};
+    return FTimestamp{static_cast<uint8>(Day),static_cast<uint8>(Hour),static_cast<uint8>(Minute),static_cast<uint8>(Second)};
 }
 
 uint8 UWorldClockSubsystem::GetDays() const 
