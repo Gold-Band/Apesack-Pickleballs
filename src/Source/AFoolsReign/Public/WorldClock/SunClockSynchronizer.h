@@ -19,12 +19,10 @@ public:
 	USunClockSynchronizer();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	//virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void InitializeComponent() override;
 	
 private:
@@ -43,7 +41,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bSyncToWorldClock = true;
 	
+	UPROPERTY()
+	UWorldClockSubsystem* WorldClock;
+	
+	double LastTime = 0;
+	
 private:
 	UFUNCTION()
-	void SyncRotationToTime(const FTimestamp& Time);
+	void SyncRotationToTime();
 };

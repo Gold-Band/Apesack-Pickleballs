@@ -13,28 +13,23 @@ USunClockSynchronizer::USunClockSynchronizer()
 	// ...
 }
 
-
-// Called when the game starts
-void USunClockSynchronizer::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-}
-
-
-// Called every frame
-void USunClockSynchronizer::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void USunClockSynchronizer::TickComponent(float DeltaTime, enum ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
+	SyncRotationToTime();
 }
+
 
 void USunClockSynchronizer::InitializeComponent()
 {
 	Super::InitializeComponent();
-	UWorldClockSubsystem::Get(this)->OnTimeTickedDelegate.AddUniqueDynamic(this, &ThisClass::SyncRotationToTime);
+	
+	WorldClock = UWorldClockSubsystem::Get(this);
+	//WorldClock->OnTimeTickedDelegate.AddUniqueDynamic(this, &ThisClass::SyncRotationToTime);
 }
+
 
 static int GetTimeDifferenceSeconds(const FTimestamp& FromTime, const FTimestamp& ToTime)
 {
@@ -42,7 +37,7 @@ static int GetTimeDifferenceSeconds(const FTimestamp& FromTime, const FTimestamp
 	const int ToSeconds = ToTime.Second + ToTime.Minute*60 + ToTime.Hour*3600 + ToTime.Day*86400;
 	return ToSeconds - FromSeconds;
 }
-void USunClockSynchronizer::SyncRotationToTime(const FTimestamp& Time)
+void USunClockSynchronizer::SyncRotationToTime()
 {
 	if (!bSyncToWorldClock)
 		return;
@@ -51,6 +46,7 @@ void USunClockSynchronizer::SyncRotationToTime(const FTimestamp& Time)
 	if (!Owner || RotationCurve.IsNull())
 		return;
 
+	const FTimestamp Time = WorldClock->GetTime();
 	// --- Compute absolute normalized time (no accumulation drift) ---
 	const int DeltaTime = GetTimeDifferenceSeconds(PreviousTime, Time);
 
@@ -62,8 +58,13 @@ void USunClockSynchronizer::SyncRotationToTime(const FTimestamp& Time)
 	else if (TotalSecondsToday < 0)
 		TotalSecondsToday += 86400;
 
-	const float NormalizedTime = static_cast<float>(TotalSecondsToday) / 86400.0f;
-
+	//const float NormalizedTime = static_cast<float>(TotalSecondsToday) / 86400.0f;
+	
+	
+	// * * //
+	const double TimeSince = GetWorld()->TimeSince(LastTime);
+	LastTime = TimeSince >= 86400? TimeSince : LastTime;
+	const float NormalizedTime = GetWorld()->TimeSince(LastTime) / 86400;
 
 	const float SetAngle = RotationCurve.LoadSynchronous()->GetFloatValue(NormalizedTime) * 360.0f - 90.f;
 
