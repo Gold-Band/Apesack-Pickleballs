@@ -122,15 +122,15 @@ bool UWorldClockSubsystem::IsTickingEnabled() const
 
 void UWorldClockSubsystem::SetTime(const uint8 NewDay, const uint8 NewHour, const uint8 NewMinute, const uint8 NewSecond)
 {
-    Day = NewDay;
-	Hour = NewHour;
-	Minute = NewMinute;
-	Second = NewSecond;
+    Day = static_cast<uint32>(NewDay);
+	Hour = static_cast<uint32>(NewHour);
+	Minute = static_cast<uint32>(NewMinute);
+	Second = static_cast<uint32>(NewSecond);
 }
 
 float UWorldClockSubsystem::GetNormalizedTime() const
 {
-	const float CurrentTimeSeconds = Second + Minute*60 + Hour*3600;
+	const float CurrentTimeSeconds = static_cast<float>(Second + Minute*60 + Hour*3600);
 	return CurrentTimeSeconds / 86400.0f;
 }
 
