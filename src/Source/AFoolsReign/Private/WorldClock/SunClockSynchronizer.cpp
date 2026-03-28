@@ -44,7 +44,7 @@ void USunClockSynchronizer::SyncRotationToTime()
 	const float NormalizedTime = WorldClock->GetNormalizedTime();
 	
 	
-	UE_LOG(LogTemp, Warning, TEXT("Normal=%f"), NormalizedTime)
+	//UE_LOG(LogTemp, Warning, TEXT("Normal=%f"), NormalizedTime)
 	const float SetAngle = RotationCurve.LoadSynchronous()->GetFloatValue(NormalizedTime) * 360.0f - 90.f;
 
 	
