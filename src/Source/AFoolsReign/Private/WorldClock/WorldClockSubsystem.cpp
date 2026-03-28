@@ -11,10 +11,12 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 
 	if (bAllowClockTicking)
 	{
-		Milliseconds += DeltaTime * TimeScale;
+		const double TimeSeconds = GetWorld()->TimeSeconds;
 		
-		TotalSeconds += Milliseconds;
-		TotalSeconds = TotalSeconds >= 86400 ? 0: TotalSeconds;
+		const float Delta = GetWorld()->TimeSince(TotalSeconds);
+		TotalSeconds = TimeSeconds;
+		
+		Milliseconds += Delta * TimeScale;
 		
 		if (Milliseconds >= 1)
 		{
@@ -86,7 +88,7 @@ void UWorldClockSubsystem::TryBroadcast(EWorldClockBroadcastTiming TimingType)
 		CurrentTime.Hour = Hour%24;
 		CurrentTime.Minute = Minute%60;
 		CurrentTime.Second = Second%60;
-		OnTimeTickedDelegate.Broadcast(CurrentTime);
+		if (OnTimeTickedDelegate.IsBound()) OnTimeTickedDelegate.Broadcast(CurrentTime);
 	}
 }
 
@@ -128,12 +130,13 @@ void UWorldClockSubsystem::SetTime(const uint8 NewDay, const uint8 NewHour, cons
 
 float UWorldClockSubsystem::GetNormalizedTime() const
 {
-	return TotalSeconds / 86400.0f;
+	const float CurrentTimeSeconds = Second + Minute*60 + Hour*3600;
+	return CurrentTimeSeconds / 86400.0f;
 }
 
 FTimestamp UWorldClockSubsystem::GetTime() const
 {
-    return CurrentTime;
+    return FTimestamp{Day,Hour,Minute,Second};
 }
 
 uint8 UWorldClockSubsystem::GetDays() const 

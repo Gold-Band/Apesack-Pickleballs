@@ -18,14 +18,15 @@ class AFOOLSREIGN_API UClockWidget : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
-
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TimeTxt;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> DayTxt;
-
-	UFUNCTION()
-	void OnWorldClockTicked(const FTimestamp& NewTime);
+	
+	UPROPERTY()
+	class UWorldClockSubsystem* WorldClock;
 };

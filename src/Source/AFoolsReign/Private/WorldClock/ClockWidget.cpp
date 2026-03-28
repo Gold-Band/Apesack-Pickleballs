@@ -14,15 +14,17 @@ void UClockWidget::NativeConstruct()
 	
 	TimeTxt->SetText(FText::FromString(FString("00:00:00")));
 
+	WorldClock = UWorldClockSubsystem::Get(this);
 	
-	if (UWorldClockSubsystem* WorldClockSub = UWorldClockSubsystem::Get(this))
-	{
-		WorldClockSub->OnTimeTickedDelegate.AddUniqueDynamic(this, &ThisClass::OnWorldClockTicked);
-	}
+	
 }
 
-void UClockWidget::OnWorldClockTicked(const FTimestamp& NewTime)
+void UClockWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+	Super::NativeTick(MyGeometry, InDeltaTime);
+	
+	const FTimestamp NewTime = WorldClock->GetTime();
+	
 	if (TimeTxt)
 	{
 		TimeTxt->SetText(FText::FromString(FString::Printf(TEXT("%02hu:%02hu:%02hu"), NewTime.Hour, NewTime.Minute, NewTime.Second)));
@@ -32,4 +34,5 @@ void UClockWidget::OnWorldClockTicked(const FTimestamp& NewTime)
 	{
 		DayTxt->SetText(FText::FromString(FString::Printf(TEXT("Day: %hu"), NewTime.Day)));
 	}
+	//UE_LOG(LogTemp, Warning, TEXT("Second=%i"), NewTime.Second)
 }

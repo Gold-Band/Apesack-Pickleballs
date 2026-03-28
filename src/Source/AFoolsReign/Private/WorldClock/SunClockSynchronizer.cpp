@@ -8,7 +8,7 @@ USunClockSynchronizer::USunClockSynchronizer()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	bWantsInitializeComponent = true;
 	// ...
 }
@@ -31,12 +31,6 @@ void USunClockSynchronizer::InitializeComponent()
 }
 
 
-static int GetTimeDifferenceSeconds(const FTimestamp& FromTime, const FTimestamp& ToTime)
-{
-	const int FromSeconds = FromTime.Second + FromTime.Minute*60 + FromTime.Hour*3600 + FromTime.Day*86400;
-	const int ToSeconds = ToTime.Second + ToTime.Minute*60 + ToTime.Hour*3600 + ToTime.Day*86400;
-	return ToSeconds - FromSeconds;
-}
 void USunClockSynchronizer::SyncRotationToTime()
 {
 	if (!bSyncToWorldClock)
@@ -45,27 +39,12 @@ void USunClockSynchronizer::SyncRotationToTime()
 	AActor* Owner = GetOwner();
 	if (!Owner || RotationCurve.IsNull())
 		return;
+	
 
-	const FTimestamp Time = WorldClock->GetTime();
-	// --- Compute absolute normalized time (no accumulation drift) ---
-	const int DeltaTime = GetTimeDifferenceSeconds(PreviousTime, Time);
-
-	TotalSecondsToday += DeltaTime;
-
-	// Prevent wrap snapping
-	if (TotalSecondsToday >= 86400)
-		TotalSecondsToday -= 86400;
-	else if (TotalSecondsToday < 0)
-		TotalSecondsToday += 86400;
-
-	//const float NormalizedTime = static_cast<float>(TotalSecondsToday) / 86400.0f;
+	const float NormalizedTime = WorldClock->GetNormalizedTime();
 	
 	
-	// * * //
-	const double TimeSince = GetWorld()->TimeSince(LastTime);
-	LastTime = TimeSince >= 86400? TimeSince : LastTime;
-	const float NormalizedTime = GetWorld()->TimeSince(LastTime) / 86400;
-
+	UE_LOG(LogTemp, Warning, TEXT("Normal=%f"), NormalizedTime)
 	const float SetAngle = RotationCurve.LoadSynchronous()->GetFloatValue(NormalizedTime) * 360.0f - 90.f;
 
 	
@@ -83,6 +62,6 @@ void USunClockSynchronizer::SyncRotationToTime()
 
 	Owner->SetActorRotation(SmoothedQuat);
 
-	PreviousTime = Time;
+	//PreviousTime = Time;
 }
 
