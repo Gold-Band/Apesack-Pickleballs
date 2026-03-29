@@ -79,7 +79,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	UFUNCTION(BlueprintCallable)
+ 	UFUNCTION(BlueprintCallable)
 	void Pause();
 	
 	UFUNCTION(BlueprintCallable)
@@ -146,8 +146,6 @@ private:
 	uint32 Second = 0;
 	FTimestamp CurrentTime;
 	
-	float TotalSeconds = 0;
-	
 	uint8 DayHourStart = 6;
 	uint8 NightHourStart = 20;
 	
@@ -161,7 +159,10 @@ private:
 
 	EWorldClockBroadcastTiming BroadcastTiming = EWorldClockBroadcastTiming::EverySecond;
 
-private:
 	void TryBroadcast(EWorldClockBroadcastTiming TimingType);
 	virtual void Deinitialize() override;
+	
+	double TotalSeconds = 0;
+	double LastLoopTime;
+	
 };

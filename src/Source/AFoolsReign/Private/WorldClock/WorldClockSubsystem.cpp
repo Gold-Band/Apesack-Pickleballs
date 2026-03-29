@@ -11,10 +11,12 @@ void UWorldClockSubsystem::Tick(float DeltaTime)
 
 	if (bAllowClockTicking)
 	{
-		Milliseconds += DeltaTime * TimeScale;
+		const double TimeSeconds = GetWorld()->TimeSeconds;
+		//UE_LOG(LogTemp, Warning, TEXT("seconds=%f"), TimeSeconds)
+		const float Delta = GetWorld()->TimeSince(TotalSeconds);
+		TotalSeconds = TimeSeconds;
 		
-		TotalSeconds += Milliseconds;
-		TotalSeconds = TotalSeconds >= 86400 ? 0: TotalSeconds;
+		Milliseconds += Delta * TimeScale;
 		
 		if (Milliseconds >= 1)
 		{
@@ -82,11 +84,11 @@ void UWorldClockSubsystem::TryBroadcast(EWorldClockBroadcastTiming TimingType)
 {
 	if (TimingType == BroadcastTiming)
 	{
-		CurrentTime.Day = Day;
-		CurrentTime.Hour = Hour%24;
-		CurrentTime.Minute = Minute%60;
-		CurrentTime.Second = Second%60;
-		OnTimeTickedDelegate.Broadcast(CurrentTime);
+		CurrentTime.Day = static_cast<uint8>(Day);
+		CurrentTime.Hour = static_cast<uint8>(Hour%24);
+		CurrentTime.Minute = static_cast<uint8>(Minute%60);
+		CurrentTime.Second = static_cast<uint8>(Second%60);
+		if (OnTimeTickedDelegate.IsBound()) OnTimeTickedDelegate.Broadcast(CurrentTime);
 	}
 }
 
@@ -120,40 +122,41 @@ bool UWorldClockSubsystem::IsTickingEnabled() const
 
 void UWorldClockSubsystem::SetTime(const uint8 NewDay, const uint8 NewHour, const uint8 NewMinute, const uint8 NewSecond)
 {
-    Day = NewDay;
-	Hour = NewHour;
-	Minute = NewMinute;
-	Second = NewSecond;
+    Day = static_cast<uint32>(NewDay);
+	Hour = static_cast<uint32>(NewHour);
+	Minute = static_cast<uint32>(NewMinute);
+	Second = static_cast<uint32>(NewSecond);
 }
 
 float UWorldClockSubsystem::GetNormalizedTime() const
 {
-	return TotalSeconds / 86400.0f;
+	const float CurrentTimeSeconds = static_cast<float>(Second + Minute*60 + Hour*3600);
+	return CurrentTimeSeconds / 86400.0f;
 }
 
 FTimestamp UWorldClockSubsystem::GetTime() const
 {
-    return CurrentTime;
+    return FTimestamp{static_cast<uint8>(Day),static_cast<uint8>(Hour),static_cast<uint8>(Minute),static_cast<uint8>(Second)};
 }
 
 uint8 UWorldClockSubsystem::GetDays() const 
 {
-    return Day;
+    return static_cast<uint8>(Day);
 }
 
 uint8 UWorldClockSubsystem::GetHours() const 
 {
-    return Hour;
+    return static_cast<uint8>(Hour);
 }
 
 uint8 UWorldClockSubsystem::GetMinutes() const
 {
-    return Minute;
+    return static_cast<uint8>(Minute);
 }
 
 uint8 UWorldClockSubsystem::GetSeconds() const
 {
-    return Second;
+    return static_cast<uint8>(Second);
 }
 
 uint8 UWorldClockSubsystem::GetNightStartHour() const
