@@ -893,7 +893,6 @@ Arrow->ShooterActor = this;
 		const bool bIsFacingTarget = LocalToTarget.X > 0.f;
 		OnBowAttack(bIsFacingTarget);
 		
-		Arrow->SetActorLocation(GetProjectileSpawnLocation());
 		return EActionState::Succeeded;
 	}
 	
@@ -916,6 +915,7 @@ Arrow->ShooterActor = this;
 
 EActionState ANpcFriendly::ShootArrow(float DeltaTime)
 {
+	Arrow->SetActorLocation(GetProjectileSpawnLocation());
 	Arrow->Enable();
 	return EActionState::Succeeded;
 }
