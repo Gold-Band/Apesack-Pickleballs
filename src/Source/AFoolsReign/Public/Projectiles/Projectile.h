@@ -39,6 +39,8 @@ public:
 	
 	bool IsLineOfSightToTargetBlocked(const FVector& StartLocation, const FVector& TargetLocation) const;
 	
+	bool IsHighArc() const {return bIsHighArc;}
+	
 	UPROPERTY(EditAnywhere)
 	float Speed = 1000.0f;
 	
@@ -100,6 +102,7 @@ private:
 	bool bIsEnabled = true;
 	bool bPathSucceeded = false;
 	bool bLanded = false;
+	bool bIsHighArc = false;
 	
 	UPROPERTY()
 	TArray<AActor*> ProjectileIgnoredActors;

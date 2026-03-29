@@ -933,6 +933,12 @@ void ANpcFriendly::SetRangedParams()
 	TargetingDistance = TargetingDistance_Ranged;
 }
 
+bool ANpcFriendly::IsShootingUp() const
+{
+	if (!Arrow) return false;
+	return Arrow->IsHighArc();
+}
+
 void ANpcFriendly::DismountTower()
 {
 	SetActorLocation(TargetLocation + FVector{0.f,0.f,60.f});

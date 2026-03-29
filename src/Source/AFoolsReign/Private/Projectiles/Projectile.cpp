@@ -79,15 +79,15 @@ bool AProjectile::CanLaunchAt(const FVector& StartLocation,
 {
 	bPathSucceeded = true;
 	
-	const bool bLineOfSightToTargetBlocked = IsLineOfSightToTargetBlocked(StartLocation, TargetLocation);
-	const float BaseSpeed = bLineOfSightToTargetBlocked? Speed/2 : Speed;
+	bIsHighArc = IsLineOfSightToTargetBlocked(StartLocation, TargetLocation);
+	const float BaseSpeed = bIsHighArc? Speed/2 : Speed;
 	const float ProjectileSpeed = FMath::RandRange(BaseSpeed*0.8f, BaseSpeed*1.2f);
 	UGameplayStatics::FSuggestProjectileVelocityParameters Params{GetWorld(), StartLocation, TargetLocation, ProjectileSpeed};
 	Params.bDrawDebug = bDrawPathDebug;
 	Params.TraceOption = ESuggestProjVelocityTraceOption::DoNotTrace;
 	Params.CollisionRadius = 0;
 	Params.bAcceptClosestOnNoSolutions = false;
-	Params.bFavorHighArc = bLineOfSightToTargetBlocked;
+	Params.bFavorHighArc = bIsHighArc;
 	if (!UGameplayStatics::SuggestProjectileVelocity(Params,Velocity))
 	{
 		bPathSucceeded = false;
@@ -124,6 +124,7 @@ void AProjectile::Disable()
 	Velocity = FVector::ZeroVector;
 	ToggleRibbon(false);
 	if (OnActorDisabled.IsBound()) OnActorDisabled.Broadcast(this);
+	bIsHighArc = false;
 }
 
 void AProjectile::Enable()

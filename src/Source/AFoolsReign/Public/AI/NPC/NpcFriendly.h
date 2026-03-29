@@ -6,6 +6,7 @@
 #include "Npc.h"
 #include "AI/HTN/Task.h"
 #include "Buildings/Wall.h"
+#include "Projectiles/Arrow.h"
 #include "NpcFriendly.generated.h"
 
 
@@ -214,6 +215,9 @@ protected:
 	EActionState ShootArrow(float DeltaTime);
 	bool RangedAttackCondition() const;
 	void SetRangedParams();
+	
+	UFUNCTION(BlueprintPure)
+	bool IsShootingUp() const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Ranged Attack", meta=(DisplayName="LaunchArrowDelay"))
 	float LaunchArrowDelay = 0.5f;
