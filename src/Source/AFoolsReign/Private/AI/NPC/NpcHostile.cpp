@@ -261,7 +261,7 @@ bool ANpcHostile::MeleeAttackCondition() const
 
 EActionState ANpcHostile::TargetAttackable(float DeltaTime)
 {
-	TargetActor = NpcManager->GetAttackable(MainSide);
+	TargetActor = NpcManager->GetAttackable(EOriginSide::Any, GetActorLocation());
 	
 #if WITH_EDITOR
 	if (bPrintDebug_TargetNearestAny)

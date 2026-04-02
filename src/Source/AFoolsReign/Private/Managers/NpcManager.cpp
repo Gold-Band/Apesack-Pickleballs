@@ -55,9 +55,6 @@ void UNpcManager::Tick(float DeltaTime)
 	if (PlayerDist < Dist) LeftMostVulnerableAsset = PlayerRef;
 	if (LeftMostVulnerableAsset != PreviousLeftMostVulnerableAsset)
 	{
-#if WITH_EDITOR
-		UE_LOG(LogTemp, Warning, TEXT("On LEFT changed -> %s"), LeftMostVulnerableAsset? *LeftMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
-#endif
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(LeftMostVulnerableAsset, EOriginSide::Left);
 	}
 	RefreshNearbyVulnerables(EOriginSide::Left);
@@ -74,9 +71,6 @@ void UNpcManager::Tick(float DeltaTime)
 	if (PlayerDist > Dist) RightMostVulnerableAsset = PlayerRef;
 	if (RightMostVulnerableAsset != PreviousRightMostVulnerableAsset)
 	{
-#if WITH_EDITOR
-		UE_LOG(LogTemp, Warning, TEXT("On RIGHT changed -> %s"), RightMostVulnerableAsset? *RightMostVulnerableAsset->GetActorNameOrLabel() : TEXT("Nothing"));
-#endif
 		if (OnMostVulnerableAssetChangedDelegate.IsBound()) OnMostVulnerableAssetChangedDelegate.Broadcast(RightMostVulnerableAsset, EOriginSide::Right);
 	}
 	
@@ -335,10 +329,18 @@ void UNpcManager::OnCultistDied(const EOriginSide Side)
 	GetWorld()->SpawnActor(CultistClass.Get(), &SpawnLocation);
 }
 
-AActor* UNpcManager::GetAttackable(const EOriginSide Side)
+AActor* UNpcManager::GetAttackable(const EOriginSide Side, const FVector& RefLocation)
 {
-	if (Side == EOriginSide::Left) return LeftVulnerables.IsEmpty()? LeftMostVulnerableAsset: LeftVulnerables[FMath::RandRange(0, LeftVulnerables.Num()-1)];
-	return RightVulnerables.IsEmpty()? RightMostVulnerableAsset: RightVulnerables[FMath::RandRange(0, RightVulnerables.Num()-1)];
+	auto GetSpecificAttackable = [](const TArray<AActor*>& Vulnerables, AActor* MostVulnerable){ return Vulnerables.IsEmpty()? MostVulnerable: Vulnerables[FMath::RandRange(0, Vulnerables.Num()-1)]; };
+	
+	if (Side == EOriginSide::Left) return GetSpecificAttackable(LeftVulnerables, LeftMostVulnerableAsset);
+	if (Side == EOriginSide::Right) return GetSpecificAttackable(RightVulnerables, RightMostVulnerableAsset);
+	
+	// if any, return which ever is closer
+	const float FastDistLeft = LeftMostVulnerableAsset? FVector::DistSquared2D(RefLocation, LeftMostVulnerableAsset->GetActorLocation()) : UE_MAX_FLT;
+	const float FastDistRight = RightMostVulnerableAsset? FVector::DistSquared2D(RefLocation, RightMostVulnerableAsset->GetActorLocation()) : UE_MAX_FLT;
+	if (FastDistLeft < FastDistRight) return GetSpecificAttackable(LeftVulnerables, LeftMostVulnerableAsset);
+	return GetSpecificAttackable(RightVulnerables, RightMostVulnerableAsset);
 }
 
 bool UNpcManager::IsActorValidNearest(const AActor* CheckActor, const EOriginSide CheckSide, const float CheckDist, const float CheckRadius) const
@@ -381,7 +383,8 @@ float UNpcManager::GetMostVulnerableAssetAndDistance(const EOriginSide Side, AAc
 {
 	// Get farthest Npc	
 	AActor* Npc = GetFarthestFriendlyNpc(Side);
-
+	if (!Npc) Npc = FindNearestNpc(FVector{0,ADefaultGameMode::GameplayRadius,0}, ENpcSearchOption::AnyFriendly);
+	
 	// Get farthest wall
 	ABuilding* Building = Cast<ABuilding>(BuildingsManager->GetFarthestBuilding(EBuildingType::Wall, Side)); 
 	

@@ -88,7 +88,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnCultistDied(const EOriginSide Side);
 	
-	AActor* GetAttackable(const EOriginSide Side);
+	AActor* GetAttackable(const EOriginSide Side, const FVector& RefLocation);
 
 	bool IsMostVulnerableAWall() const {return bMostVulnerableIsAWall;};
 	
