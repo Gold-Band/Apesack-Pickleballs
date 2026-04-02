@@ -11,7 +11,6 @@
 
 // Sets default values
 APlayerCharacter::APlayerCharacter() {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
@@ -20,6 +19,7 @@ APlayerCharacter::APlayerCharacter() {
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay() {
 	Super::BeginPlay();
+
 	if(const APlayerController* PC = Cast<APlayerController>(GetController())) {
 		if(const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PC->GetLocalPlayer())) {
 			if(UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()) {
@@ -31,7 +31,7 @@ void APlayerCharacter::BeginPlay() {
 	}
 	
 	Radius = GetActorLocation().Size2D();
-	DefaultSpeed = MovementComp->MaxSpeed; // Capture initial speed
+	DefaultSpeed = MovementComp->MaxSpeed;
 	
 	Stats = Cast<UStatsComponent>(GetComponentByClass<UStatsComponent>());
 	if (Stats)
@@ -39,7 +39,6 @@ void APlayerCharacter::BeginPlay() {
 		Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
 		Stats->OnDamagedDelegate.AddUniqueDynamic(this, &ThisClass::OnDamaged);
 	}
-	
 }
 
 void APlayerCharacter::BeginDestroy() {
@@ -58,6 +57,7 @@ EOriginSide APlayerCharacter::GetActorSide(AActor* Actor) const
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 	if(UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		if(!MoveAction.IsNull())
@@ -65,6 +65,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);
 			Input->BindAction(MoveAction.LoadSynchronous(), ETriggerEvent::Completed, this, &APlayerCharacter::OnStoppedMoving);
 		}
+
 		if (!SprintAction.IsNull())
 		{
 			UInputAction* Sprint = SprintAction.LoadSynchronous();
@@ -72,6 +73,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			Input->BindAction(Sprint, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprinting);
 			Input->BindAction(Sprint, ETriggerEvent::Canceled, this, &APlayerCharacter::StopSprinting);
 		}
+
 		if (!LazyMoveAction.IsNull())
 		{
 			Input->BindAction(LazyMoveAction.LoadSynchronous(), ETriggerEvent::Triggered, this, &APlayerCharacter::LazyMove);
@@ -93,6 +95,7 @@ void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
 	{
 		FVector2D Size;
 		GetWorld()->GetGameViewport()->GetViewportSize(Size);
+
 		if (x > Size.X*0.95 || x < Size.X*0.05) StartSprinting(Instance);
 		else StopSprinting(Instance);
 
@@ -106,18 +109,31 @@ void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
 void APlayerCharacter::OnStoppedMoving(const FInputActionInstance& Instance)
 {
 	MoveDirection = 0;
-	if (ExitBattleFormationDelegate.IsBound() && !bSensesHostiles) ExitBattleFormationDelegate.Broadcast();
+
+	if (ExitBattleFormationDelegate.IsBound() && !bSensesHostiles)
+		ExitBattleFormationDelegate.Broadcast();
 }
 
 void APlayerCharacter::Move(const FVector& Direction)
 {
 	if (!MovementComp) return;
 	
+	
 	if (bIsSprinting) MovementComp->MaxSpeed = DefaultSpeed * SprintMultiplier;
 	else MovementComp->MaxSpeed = DefaultSpeed;
-	
-	
-	// did we detect an invisible wall?
+
+	if (Direction.X != 0)
+	{
+		const bool bMovingLeft = Direction.X < 0;
+
+		if (bMovingLeft != bLastDirection)
+		{
+			bLastDirection = bMovingLeft;
+			FlipDirection(bMovingLeft);
+		}
+	}
+
+	// Boundary check
 	if (bInWorldBoundary)
 	{
 		if (bRecalculateSide)
@@ -141,21 +157,22 @@ void APlayerCharacter::Move(const FVector& Direction)
 	MoveDirection = Direction.X;
 	
 	AddMovementInput(Direction.X * GetActorForwardVector());
-	if (OnMovedDelegate.IsBound()) OnMovedDelegate.Broadcast(Direction.X, MovementComp->MaxSpeed);
+
+	if (OnMovedDelegate.IsBound())
+		OnMovedDelegate.Broadcast(Direction.X, MovementComp->MaxSpeed);
 }
 
 void APlayerCharacter::OnDeath()
 {
-	//FCTween::ClearActiveTweens();
-	//FCTween::Deinitialize();
 }
 
 void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor)
 {
-	if (bWasHit) return; // once at a time
+	if (bWasHit) return;
 	bWasHit = true;
 	
 	int InstigatorDirection = 1;
+
 	if (InstigatorActor)
 	{
 		float Angle = ADefaultGameMode::GetAngleBetweenVectors(GetActorLocation(), InstigatorActor->GetActorLocation());
@@ -166,9 +183,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	const FVector End = Start - GetActorForwardVector() * KnockbackDistance * InstigatorDirection;
 	const float Duration = 0.3f; 
 	
-	// move back
-	
-	FCTweenInstance* TweenInstanceVector = FCTween::Play(
+	FCTween::Play(
 	Start,
 	End,
 	[&](const FVector& t)
@@ -182,7 +197,6 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 		bWasHit = false;
 	})->SetAutoDestroy(true);
 	
-	// jump
 	FCTween::Play(
 	Start,
 	Start + FVector::UpVector * KnockbackHeight,
@@ -196,7 +210,6 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	EFCEase::OutQuad)->SetYoyo(true)->SetAutoDestroy(true);
 }
 
-
 void APlayerCharacter::StartSprinting(const FInputActionInstance& Instance) {
 	bIsSprinting = true;
 }
@@ -204,5 +217,3 @@ void APlayerCharacter::StartSprinting(const FInputActionInstance& Instance) {
 void APlayerCharacter::StopSprinting(const FInputActionInstance& Instance) {
 	bIsSprinting = false;
 }
-
-

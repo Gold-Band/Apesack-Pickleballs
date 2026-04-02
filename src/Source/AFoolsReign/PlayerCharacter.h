@@ -41,8 +41,10 @@ public:
 	FOnMovedSignature OnMovedDelegate;
 	TArray<bool> PartyOrder{false, false, false, false};
 	int PartySize = 0;
-	
-	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+void FlipDirection(bool Direction);
+UPROPERTY()
+bool bLastDirection = false;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
 	bool bInWorldBoundary = false;
 
