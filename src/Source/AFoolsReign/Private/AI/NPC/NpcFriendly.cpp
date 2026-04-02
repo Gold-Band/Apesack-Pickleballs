@@ -100,6 +100,9 @@ void ANpcFriendly::CreateBehaviours()
 	FAction TargetNearestBuildingAction{FString("Target Building")};
 	TargetNearestBuildingAction.Func= [&](const float DeltaTime){ return TargetNearestBuilding(DeltaTime);};
 	
+	FAction FaceTargetAction{FString("Face Target")};
+	FaceTargetAction.Func = [&](const float DeltaTime) { return FaceTarget(DeltaTime); };
+	
 	FAction MeleeAnimateAction{FString("Attack Part 1")};
 	MeleeAnimateAction.Func = [&](const float DeltaTime){ return MeleeAnimation(DeltaTime);};
 	
@@ -156,6 +159,7 @@ void ANpcFriendly::CreateBehaviours()
 	
 	// Melee Attack
 	MeleeAttackTask.Actions.Add(TargetNearestEnemyAction);
+	MeleeAttackTask.Actions.Add(FaceTargetAction);
 	MeleeAttackTask.Actions.Add(MeleeAnimateAction);
 	MeleeAttackTask.Actions.Add(DelayAction);
 	MeleeAttackTask.Actions.Add(MeleeHitAction);
@@ -731,13 +735,25 @@ bool ANpcFriendly::TargetBuildingCondition() const
 	return bEnabled_TargetBuilding && !bIsNighttime && !IsCombatant();
 }
 
+EActionState ANpcFriendly::FaceTarget(float DeltaTime)
+{
+	if (!TargetActor) return EActionState::Failed;
+	
+	const EOriginSide TargetSide = ADefaultGameMode::GetActorSideFrom(this, TargetActor);
+	SetMeshFaceSide(TargetSide == EOriginSide::Left);
+	
+	return EActionState::Succeeded;
+}
+
 EActionState ANpcFriendly::MeleeAnimation(float DeltaTime)
 {
-	if (!TargetActor || !Stats)
-	{
-		return EActionState::Failed;
-	}
-
+	if (!TargetActor) return EActionState::Failed;
+	
+	//DrawDebugLine(GetWorld(), GetActorLocation() - FVector::DownVector * 60, TargetActor->GetActorLocation(), FColor::Green, false, DeltaTime);
+	
+	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
+	if (FastDist > FMath::Square(MeleeReach)) return EActionState::InProgress;
+	
 	OnMeleeAttack();
 	return EActionState::Succeeded;
 }
