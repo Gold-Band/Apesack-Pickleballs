@@ -9,14 +9,11 @@
 #include "Managers/BuildingsManager.h"
 #include "Movement/CircularPawnMovementComponent.h"
 
-// Sets default values
 APlayerCharacter::APlayerCharacter() {
 	PrimaryActorTick.bCanEverTick = true;
-
 	MovementComp = CreateDefaultSubobject<UCircularPawnMovementComponent>(TEXT("Movement"));
 }
 
-// Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay() {
 	Super::BeginPlay();
 
@@ -53,7 +50,6 @@ EOriginSide APlayerCharacter::GetActorSide(AActor* Actor) const
 	return Angle > 0? EOriginSide::Left : EOriginSide::Right;
 }
 
-// Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -82,13 +78,32 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
-void APlayerCharacter::HandleMove(const FInputActionInstance& Instance){
+void APlayerCharacter::HandleMove(const FInputActionInstance& Instance)
+{
+	if (!bCanMove)
+	{
+		if (MovementComp)
+		{
+			MovementComp->StopMovementImmediately();
+		}
+		return;
+	}
+
 	FVector Value = Instance.GetValue().Get<FVector>();
 	Move(Value);
 }
 
 void APlayerCharacter::LazyMove(const FInputActionInstance& Instance)
 {
+	if (!bCanMove)
+	{
+		if (MovementComp)
+		{
+			MovementComp->StopMovementImmediately();
+		}
+		return;
+	}
+
 	float x, y;
 	
 	if (Cast<APlayerController>(GetController())->GetMousePosition(x,y))
@@ -117,7 +132,12 @@ void APlayerCharacter::OnStoppedMoving(const FInputActionInstance& Instance)
 void APlayerCharacter::Move(const FVector& Direction)
 {
 	if (!MovementComp) return;
-	
+
+	if (!bCanMove)
+	{
+		MovementComp->StopMovementImmediately();
+		return;
+	}
 	
 	if (bIsSprinting) MovementComp->MaxSpeed = DefaultSpeed * SprintMultiplier;
 	else MovementComp->MaxSpeed = DefaultSpeed;
@@ -133,7 +153,6 @@ void APlayerCharacter::Move(const FVector& Direction)
 		}
 	}
 
-	// Boundary check
 	if (bInWorldBoundary)
 	{
 		if (bRecalculateSide)
@@ -144,12 +163,12 @@ void APlayerCharacter::Move(const FVector& Direction)
 		
 		if (Direction.X > 0 && MainSide == EOriginSide::Right)
 		{
-			MovementComp->Velocity = FVector::Zero();
+			MovementComp->Velocity = FVector::ZeroVector;
 			return;
 		}
 		if (Direction.X < 0 && MainSide == EOriginSide::Left)
 		{
-			MovementComp->Velocity = FVector::Zero();
+			MovementComp->Velocity = FVector::ZeroVector;
 			return;
 		}
 	}
@@ -211,6 +230,7 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 }
 
 void APlayerCharacter::StartSprinting(const FInputActionInstance& Instance) {
+	if (!bCanMove) return;
 	bIsSprinting = true;
 }
 

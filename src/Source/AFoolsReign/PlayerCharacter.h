@@ -23,14 +23,13 @@ class AFOOLSREIGN_API APlayerCharacter : public APawn {
 public:
 	APlayerCharacter();
 	
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintPure)
-	int GetMoveDirection() const {return MoveDirection; }
+	int GetMoveDirection() const { return MoveDirection; }
 	
 	UFUNCTION(BlueprintPure)
-	bool GetIsSprinting() const {return bIsSprinting; }
+	bool GetIsSprinting() const { return bIsSprinting; }
 	
 	UPROPERTY(BlueprintCallable)
 	FEnterBattleFormationSignature EnterBattleFormationDelegate;
@@ -39,18 +38,22 @@ public:
 	FExitBattleFormationSignature ExitBattleFormationDelegate;
 	
 	FOnMovedSignature OnMovedDelegate;
+
 	TArray<bool> PartyOrder{false, false, false, false};
 	int PartySize = 0;
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-void FlipDirection(bool Direction);
-UPROPERTY()
-bool bLastDirection = false;
+	void FlipDirection(bool Direction);
+
+	UPROPERTY()
+	bool bLastDirection = false;
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
 	bool bInWorldBoundary = false;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Character Properties")
 	bool bRecalculateSide = false;
-	
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool LoggingEnabled;
@@ -60,6 +63,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float KnockbackDistance = 150;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float KnockbackHeight = 30;
 	
@@ -75,6 +79,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bSensesHostiles = false;
 	
+	UPROPERTY(BlueprintReadWrite)
+	bool bCanMove = true;
+
 private:
 	
 	FVector CharacterLastPosition;
@@ -94,18 +101,17 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputAction> SprintAction;
 	
-	UPROPERTY(VisibleAnywhere, meta=(AllowPrivateAccess=true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCircularPawnMovementComponent> MovementComp;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-    float SprintMultiplier = 0.5f;
+	float SprintMultiplier = 0.5f;
     
-// Sprint handlers
 	void StartSprinting(const struct FInputActionInstance& Instance);
 	void StopSprinting(const struct FInputActionInstance& Instance);
 
 	float DefaultSpeed = 0.1f;
-    bool bIsSprinting = false;
+	bool bIsSprinting = false;
 	int MoveDirection = 0;
 
 	UFUNCTION()
@@ -125,7 +131,6 @@ private:
 	UFUNCTION()
 	void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor);
 	
-	// for on death crash
 	FCTweenInstanceVector* KnockbackTween;
 	FCTweenInstanceVector* JumpTween;
 	
