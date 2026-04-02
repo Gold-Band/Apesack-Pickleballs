@@ -88,6 +88,9 @@ protected:
 	
 	bool IsCombatant() const;
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetMeshFaceSide(bool bFaceRight);
+	
 	//**
 	//** General Properties
 	//**
@@ -193,6 +196,7 @@ protected:
 	float Cooldown_TargetBuilding = 1;
 	
 	//* Melee Attack *//
+	EActionState FaceTarget(float DeltaTime);
 	EActionState MeleeAnimation(float DeltaTime);
 	EActionState CheckHit(float DeltaTime);
 	bool MeleeAttackCondition() const;
@@ -207,8 +211,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_MeleeAttack = 1;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Range"))
-	float TargetingDistance_Melee = 200.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Sight Range"))
+	float TargetingDistance_Melee = 1000.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Reach"))
+	float MeleeReach = 300.0f;
 	
 	//* Ranged Attack *//
 	EActionState RangedAnimation(float DeltaTime);
