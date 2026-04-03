@@ -898,7 +898,7 @@ Arrow->ShooterActor = this;
 	Arrow->BleedDamage = DamagePatch.BleedDamage;
 	
 	//* 3. Launch
-	const FVector End = TargetActor->GetActorLocation() + TargetActor->GetVelocity();
+	const FVector End = TargetActor->GetActorLocation() + (Arrow->IsHighArc()? TargetActor->GetVelocity() : FVector::Zero());
 	//DrawDebugLine(GetWorld(), TargetActor->GetActorLocation(), End, FColor::Red, false, Cooldown_RangedAttack);
 	if (Arrow->CanLaunchAt(GetProjectileSpawnLocation(),End))
 	{
@@ -931,6 +931,8 @@ Arrow->ShooterActor = this;
 
 EActionState ANpcFriendly::ShootArrow(float DeltaTime)
 {
+	const FVector End = TargetActor->GetActorLocation() + (Arrow->IsHighArc()? TargetActor->GetVelocity() : FVector::Zero());
+	Arrow->CanLaunchAt(GetProjectileSpawnLocation(),End);
 	Arrow->SetActorLocation(GetProjectileSpawnLocation());
 	Arrow->Enable();
 	return EActionState::Succeeded;
