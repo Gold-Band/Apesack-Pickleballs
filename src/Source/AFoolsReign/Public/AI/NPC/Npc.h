@@ -154,5 +154,5 @@ protected:
 	TObjectPtr<UHTNComponent> HtnDomain = nullptr;
 	
 	UPROPERTY()
-	TObjectPtr<USkeletalMeshComponent> SkeletalMesh = nullptr;
+	TObjectPtr<USkeletalMeshComponent> SkMesh = nullptr;
 };

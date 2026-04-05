@@ -83,7 +83,7 @@ void ANpc::BeginPlay()
 		Stats->OnDamagedDelegate.AddUniqueDynamic(this, &ThisClass::OnDamaged);
 	}
 	
-	SkeletalMesh = GetComponentByClass<USkeletalMeshComponent>();
+	SkMesh = GetComponentByClass<USkeletalMeshComponent>();
 }
 
 void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)
