@@ -40,7 +40,7 @@ void ANpcHostile::BeginPlay()
 	
 	Super::BeginPlay();
 	
-	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
+	//UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
