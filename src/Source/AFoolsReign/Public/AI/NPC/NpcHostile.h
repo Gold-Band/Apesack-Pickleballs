@@ -89,7 +89,7 @@ protected:
 	float BaseDamage_MeleeAttack = 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Reach"))
-	float Reach = 50;
+	float Reach = 150;
 	
 	//* Target Attackable *//
 	EActionState TargetAttackable(float DeltaTime);
