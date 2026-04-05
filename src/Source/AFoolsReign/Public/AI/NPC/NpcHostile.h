@@ -22,6 +22,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void OnMeleeAttack();
 	
+	virtual bool IsAttacking() const override {return bIsAttacking;}
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -33,6 +35,7 @@ private:
 	
 	// patch for a mysterious bug
 	bool bIsFirstTick = true;
+	bool bIsAttacking = false;
 	
 protected:
 	
@@ -85,6 +88,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Base Damage"))
 	float BaseDamage_MeleeAttack = 1;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="Reach"))
+	float Reach = 50;
 	
 	//* Target Attackable *//
 	EActionState TargetAttackable(float DeltaTime);

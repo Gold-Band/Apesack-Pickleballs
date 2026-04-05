@@ -16,26 +16,17 @@ bool FTask::CanPerform() const
 {
 	const bool bIsOnCooldown = IsOnCooldown();
 	
-	/*#if WITH_EDITOR
-	if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Cooldown(%s):%s"), *Name, CooldownTimer<Cooldown?TEXT("True"):TEXT("False"))
-#endif*/
-	
 	if (!Condition) return !bIsOnCooldown;
 	return Condition() && !bIsOnCooldown;
 }
 
 void FTask::Reset()
 {
-	SoftReset();
-	Progress=0;
-}
-
-void FTask::SoftReset()
-{
 	bFailed=false;
 	bSuccess=false;
 	bTaskFirst = true;
 	CooldownTimer = 0.0f;
+	Progress=0;
 }
 
 void FTask::DoCooldown(float DeltaTime)
@@ -77,6 +68,7 @@ void FTask::Run(float DeltaTime)
 #if WITH_EDITOR
 		if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\" (invalid func)!"), *Name, *CurrentAction->GetName());
 #endif
+		if (OnFailed) OnFailed();
 		bFailed = true;
 		return;
 	}
@@ -87,6 +79,7 @@ void FTask::Run(float DeltaTime)
 #if WITH_EDITOR
 		if (bPrintDebug) UE_LOG(LogTemp, Log, TEXT("Task \"%s\" Failed at \"%s\"!"), *Name, *CurrentAction->GetName());
 #endif
+		if (OnFailed) OnFailed();
 		bFailed = true;
 		break;
 	case EActionState::Succeeded:

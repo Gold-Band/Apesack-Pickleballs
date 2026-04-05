@@ -22,8 +22,6 @@ bool UHTNComponent::UpdatePlan()
 		if (!Task->CanPerform()) continue;
 		if (Task->Failed())
 		{
-			//if (Task->bResetOnFail) Task->Reset();
-			//Task->SoftReset();
 			continue;
 		}
 		

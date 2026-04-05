@@ -77,8 +77,9 @@ void ANpcHostile::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(MeleeHitAction);
 	MeleeAttackTask.bPrintDebug = bPrintDebug_MeleeAttack;
 	MeleeAttackTask.Condition = [&]{ const bool cond = MeleeAttackCondition(); bCanMove = !cond; return cond;};
-	MeleeAttackTask.OnStarted = [&] {Timer = 0; DelayTime = DamageDelay;};
-	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true; MoveToTimer = RaycastInterval;};
+	MeleeAttackTask.OnStarted = [&] {Timer = 0; DelayTime = DamageDelay; bIsAttacking = true;};
+	MeleeAttackTask.OnEnded = [&] { if (MeleeAttackTask.Failed()) bCanMove = true; MoveToTimer = RaycastInterval; bIsAttacking = false;};
+	MeleeAttackTask.OnFailed = [&] {bIsAttacking = false;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Walk
@@ -172,7 +173,7 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 		{
 			const float TargetRadius = TargetActor->GetActorLocation().Size2D();
 			const float Dist = FMath::Abs( TargetRadius - MovementComp->Radius);
-			constexpr float Speed = 3;
+			constexpr float Speed = 5;
 			const float Alpha = Speed/Dist;
 			MovementComp->Radius = FMath::Lerp(MovementComp->Radius, TargetRadius, FMath::Clamp(Alpha, 0,1)); 
 		}
@@ -216,6 +217,10 @@ EActionState ANpcHostile::MeleeAnimation(float DeltaTime)
 
 EActionState ANpcHostile::CheckHit(float DeltaTime)
 {
+	const bool bIsInFront = GetDirectionTo(TargetActor->GetActorLocation()) == 1;
+	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
+	if (FastDist > FMath::Square(Reach) || !bIsInFront) return EActionState::Succeeded;
+	
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (TargetStatComponent == nullptr)
