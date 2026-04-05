@@ -23,6 +23,7 @@ ANpc::ANpc()
 	MovementComp->MaxSpeed = 200;
 	
 	HtnDomain = CreateDefaultSubobject<UHTNComponent>(TEXT("HTN"));
+	
 }
 
 void ANpc::Tick(float DeltaSeconds)
@@ -81,6 +82,8 @@ void ANpc::BeginPlay()
 		Stats->OnDeathDelegate.AddUniqueDynamic(this, &ThisClass::OnDeath);
 		Stats->OnDamagedDelegate.AddUniqueDynamic(this, &ThisClass::OnDamaged);
 	}
+	
+	SkeletalMesh = GetComponentByClass<USkeletalMeshComponent>();
 }
 
 void ANpc::EndPlay(const EEndPlayReason::Type EndPlayReason)

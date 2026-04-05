@@ -761,8 +761,11 @@ EActionState ANpcFriendly::MeleeAnimation(float DeltaTime)
 
 EActionState ANpcFriendly::CheckHit(float DeltaTime)
 {
+	const int MeshDirection = SkeletalMesh? SkeletalMesh->GetComponentScale().X >0? -1 : 1 : 0;
+	const int ActorDirection = GetDirectionTo(TargetActor->GetActorLocation());
+	const bool bIsInFront = ActorDirection == MeshDirection; 
 	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
-	if (FastDist > FMath::Square(MeleeReach)) return EActionState::Succeeded;
+	if (FastDist > FMath::Square(MeleeReach) || !bIsInFront) return EActionState::Succeeded;
 	
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (!TargetStatComponent)

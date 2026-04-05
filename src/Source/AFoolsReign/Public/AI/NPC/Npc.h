@@ -152,4 +152,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHTNComponent> HtnDomain = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh = nullptr;
 };

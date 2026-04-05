@@ -217,7 +217,9 @@ EActionState ANpcHostile::MeleeAnimation(float DeltaTime)
 
 EActionState ANpcHostile::CheckHit(float DeltaTime)
 {
-	const bool bIsInFront = GetDirectionTo(TargetActor->GetActorLocation()) == 1;
+	const int MeshDirection = SkeletalMesh? SkeletalMesh->GetComponentScale().X >0? -1 : 1 : 0;
+	const int ActorDirection = GetDirectionTo(TargetActor->GetActorLocation());
+	const bool bIsInFront = ActorDirection == MeshDirection; 
 	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
 	if (FastDist > FMath::Square(Reach) || !bIsInFront) return EActionState::Succeeded;
 	
