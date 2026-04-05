@@ -48,7 +48,7 @@ protected:
 	virtual void CreateBehaviours() override;
 	
 	virtual void OnDamaged(float DamageRecieved, float UpdatedHealth, int DamageType, AActor* InstigatorActor) override;
-	
+	virtual bool IsAttacking() const override {return bIsAttacking;}
 public:
 	virtual TArray<UListItemObject*> GetInfo() const override;
 	virtual TArray<UListItemObject*> GetActions() override;
@@ -201,6 +201,8 @@ protected:
 	EActionState CheckHit(float DeltaTime);
 	bool MeleeAttackCondition() const;
 	void SetMeleeParams();
+	
+	bool bIsAttacking = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Properties|Melee Attack", meta=(DisplayName="ApplyDamageDelay"))
 	float DamageDelay_MeleeAttack = 0.3f;

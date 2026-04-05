@@ -31,7 +31,6 @@ public:
 	bool Succeeded() const {return bSuccess;}
 	
 	void Reset();
-	void SoftReset();
 	
 	void DoCooldown(float DeltaTime);
 	bool IsOnCooldown() const;
@@ -47,6 +46,7 @@ public:
 	TFunction<bool()> Condition;
 	TFunction<void()> OnStarted;
 	TFunction<void()> OnEnded;
+	TFunction<void()> OnFailed;
 	
 	void OnTaskStarted();
 	

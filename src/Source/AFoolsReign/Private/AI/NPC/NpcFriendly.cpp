@@ -163,8 +163,10 @@ void ANpcFriendly::CreateBehaviours()
 	MeleeAttackTask.Actions.Add(MeleeAnimateAction);
 	MeleeAttackTask.Actions.Add(DelayAction);
 	MeleeAttackTask.Actions.Add(MeleeHitAction);
-	MeleeAttackTask.OnStarted = [&]{SetMeleeParams();};
+	MeleeAttackTask.OnStarted = [&]{SetMeleeParams(); bIsAttacking = true;};
 	MeleeAttackTask.Condition = [&]{return MeleeAttackCondition() && TargetNearestEnemyCondition();};
+	MeleeAttackTask.OnEnded = [&] {bIsAttacking = false;};
+	MeleeAttackTask.OnFailed = [&] {bIsAttacking = false;};
 	MeleeAttackTask.Cooldown = Cooldown_MeleeAttack;
 	
 	// Ranged Attack
@@ -750,7 +752,6 @@ EActionState ANpcFriendly::MeleeAnimation(float DeltaTime)
 	if (!TargetActor) return EActionState::Failed;
 	
 	//DrawDebugLine(GetWorld(), GetActorLocation() - FVector::DownVector * 60, TargetActor->GetActorLocation(), FColor::Green, false, DeltaTime);
-	
 	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
 	if (FastDist > FMath::Square(MeleeReach)) return EActionState::InProgress;
 	
@@ -760,6 +761,9 @@ EActionState ANpcFriendly::MeleeAnimation(float DeltaTime)
 
 EActionState ANpcFriendly::CheckHit(float DeltaTime)
 {
+	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
+	if (FastDist > FMath::Square(MeleeReach)) return EActionState::Succeeded;
+	
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
 	if (!TargetStatComponent)
 	{

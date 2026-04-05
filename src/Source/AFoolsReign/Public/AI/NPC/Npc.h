@@ -66,6 +66,9 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FVector GetProjectileSpawnLocation() const;
+	
+	UFUNCTION(BlueprintPure)
+	virtual bool IsAttacking() const {return false;}
 private:
 	FVector GetProjectileSpawnLocation_Implementation() const;
 	
