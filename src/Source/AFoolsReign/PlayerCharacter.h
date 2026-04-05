@@ -45,6 +45,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void FlipDirection(bool Direction);
 
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void EnableDisableSprintAnim(bool Toggle);
+
 	UPROPERTY()
 	bool bLastDirection = false;
 

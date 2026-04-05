@@ -232,8 +232,10 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 void APlayerCharacter::StartSprinting(const FInputActionInstance& Instance) {
 	if (!bCanMove) return;
 	bIsSprinting = true;
+	EnableDisableSprintAnim(true);
 }
 
 void APlayerCharacter::StopSprinting(const FInputActionInstance& Instance) {
 	bIsSprinting = false;
+	EnableDisableSprintAnim(false);
 }
