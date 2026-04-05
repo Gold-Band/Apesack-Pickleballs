@@ -96,9 +96,9 @@ void ANpcHostile::CreateBehaviours()
 
 void ANpcHostile::OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side)
 {
-	if (Side != MainSide) return;
+	if (!IsAttacking()) return;
 	
-	MeleeAttackTask.Reset();
+	TargetAttackable(0);
 }
 
 EActionState ANpcHostile::Walk(float DeltaTime)
