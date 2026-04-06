@@ -171,7 +171,7 @@ void ANpcCultist::RecalculateRitualStartTime()
 	//At timescale=140 and movespeed=200, gremlins will travel ~15.3 degrees per hour 
 	constexpr float AngularSpeed = 15.3f;
 	
-	RitualStartHour = WorldClockSubsystem->GetNightStartHour() - AngleToWall/AngularSpeed + 2;
+	RitualStartHour = WorldClockSubsystem->GetNightStartHour() - AngleToWall/AngularSpeed + 3;
 	
 	//UE_LOG(LogTemp, Warning, TEXT("Spawn hour = %i"), RitualStartHour)
 }
