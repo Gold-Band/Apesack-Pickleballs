@@ -62,6 +62,8 @@ public:
 	bool DoVacantTowersExist(EOriginSide Side) const;
 	bool WallsExist(EOriginSide Side) const;
 	
+	bool DoVacantRitualZonesExist(const EOriginSide Side) const;
+	
 	TSubclassOf<AActor> GetPlotClass() const {return PlotClass;}
 	
 private:

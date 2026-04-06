@@ -105,6 +105,8 @@ void UNpcManager::OnWorldBeginPlay(UWorld& InWorld)
 	
 	
 	if (bDrawDebug_SafeZoneBounds) ReDrawSafeZoneBounds();
+	
+	UWorldClockSubsystem::Get(this)->OnDayTickedDelegate.AddUniqueDynamic(this, &ThisClass::OnDayTicked);
 }
 
 void UNpcManager::AddNpc(AActor* Npc, ENpcTag Tag, EOriginSide Side)
@@ -319,7 +321,7 @@ float UNpcManager::GetMaxSafeAngle(const EOriginSide Side) const
 
 void UNpcManager::OnCultistDied(const EOriginSide Side)
 {
-	if (Side == EOriginSide::Any) return;
+	if (Side == EOriginSide::Any || !BuildingsManager->DoVacantRitualZonesExist(Side)) return;
 	
 	// spawn a new cultist
 	const FVector Axis = Side == EOriginSide::Left ? FVector::UpVector : FVector::DownVector;
@@ -327,6 +329,16 @@ void UNpcManager::OnCultistDied(const EOriginSide Side)
 	const FVector SpawnLocation = ADefaultGameMode::WorldOriginNormal.RotateAngleAxis(179, Axis).GetClampedToSize2D(Radius, Radius) + FVector::UpVector * 60.0f;
 
 	GetWorld()->SpawnActor(CultistClass.Get(), &SpawnLocation);
+}
+
+void UNpcManager::OnDayTicked(uint8 Day)
+{
+	if (Day > 1)
+	{
+		OnCultistDied(EOriginSide::Left);
+		OnCultistDied(EOriginSide::Right);
+	}
+	
 }
 
 AActor* UNpcManager::GetAttackable(const EOriginSide Side, const FVector& RefLocation)

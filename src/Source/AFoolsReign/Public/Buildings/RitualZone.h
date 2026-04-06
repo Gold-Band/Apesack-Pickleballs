@@ -42,19 +42,19 @@ protected:
 	
 	virtual void BeginPlay() override;
 	
-	UFUNCTION()
-	void OnDayTicked(uint8 Day);
+	//UFUNCTION()
+	//void OnDayTicked(uint8 Day);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBoxComponent> OverlapArea = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int MaxOccupants = 1;
+	int MaxOccupants = 10;
 	UPROPERTY(VisibleAnywhere)
 	int OccupantCount = 0;
 	
-	const int MaxSpots = 10;
+	//const int MaxSpots = 10;
 	
-	UPROPERTY(VisibleAnywhere)
-	TArray<USceneComponent*> Spots;
+	//UPROPERTY(VisibleAnywhere)
+	//TArray<USceneComponent*> Spots;
 };

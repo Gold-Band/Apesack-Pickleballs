@@ -202,19 +202,24 @@ void APlayerCharacter::OnDamaged(float DamageRecieved, float UpdatedHealth, int 
 	const FVector End = Start - GetActorForwardVector() * KnockbackDistance * InstigatorDirection;
 	const float Duration = 0.3f; 
 	
-	FCTween::Play(
-	Start,
-	End,
-	[&](const FVector& t)
+	//const bool bIsGoingInBoundary = bInWorldBoundary && ((InstigatorDirection == -1 && MainSide == EOriginSide::Right) || (InstigatorDirection == 1 && MainSide == EOriginSide::Left)); 
+	
+	if (!bInWorldBoundary)
 	{
-		if (!this) return;
-		SetActorLocation(t);
-	},
-	Duration,
-	EFCEase::OutQuad)->SetOnComplete([&]()
-	{
-		bWasHit = false;
-	})->SetAutoDestroy(true);
+		FCTween::Play(
+		Start,
+		End,
+		[&](const FVector& t)
+		{
+			if (!this) return;
+			SetActorLocation(t);
+		},
+		Duration,
+		EFCEase::OutQuad)->SetOnComplete([&]()
+		{
+			bWasHit = false;
+		})->SetAutoDestroy(true);
+	}
 	
 	FCTween::Play(
 	Start,
