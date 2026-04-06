@@ -338,7 +338,6 @@ void UNpcManager::OnDayTicked(uint8 Day)
 		OnCultistDied(EOriginSide::Left);
 		OnCultistDied(EOriginSide::Right);
 	}
-	
 }
 
 AActor* UNpcManager::GetAttackable(const EOriginSide Side, const FVector& RefLocation)
