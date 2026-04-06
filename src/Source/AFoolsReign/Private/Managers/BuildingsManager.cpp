@@ -156,7 +156,6 @@ bool UBuildingsManager::DoVacantTowersExist(EOriginSide Side) const
 {
 	const TArray<ABuilding*>* SearchArray = GetArrayConst(EBuildingType::Tower, Side);
 	
-	
 	for (const auto Tower: *SearchArray)
 	{
 		if (Cast<AArcherTower>(Tower)->HasRoom()) return true;
@@ -169,6 +168,18 @@ bool UBuildingsManager::WallsExist(EOriginSide Side) const
 {
 	if (Side == EOriginSide::Left) return !LeftWalls.IsEmpty();
 	return !RightWalls.IsEmpty();
+}
+
+bool UBuildingsManager::DoVacantRitualZonesExist(const EOriginSide Side) const
+{
+	const TArray<ABuilding*>* SearchArray = GetArrayConst(EBuildingType::Ritual, Side);
+
+	for (const auto Zone : *SearchArray)
+	{
+		if (Cast<ARitualZone>(Zone)->HasRoom()) return true;
+	}
+	
+	return false;
 }
 
 const TArray<ABuilding*>* UBuildingsManager::GetArrayConst(EBuildingType Type, EOriginSide Side) const

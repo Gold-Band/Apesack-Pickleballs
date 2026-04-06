@@ -35,11 +35,11 @@ void ARitualZone::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UWorldClockSubsystem::Get(GetWorld())->OnDayTickedDelegate.AddUniqueDynamic(this, &ThisClass::OnDayTicked);
+	//UWorldClockSubsystem::Get(GetWorld())->OnDayTickedDelegate.AddUniqueDynamic(this, &ThisClass::OnDayTicked);
 }
 
-void ARitualZone::OnDayTicked(uint8 Day)
+/*void ARitualZone::OnDayTicked(uint8 Day)
 {
-	MaxOccupants = FMath::Min(MaxOccupants + Day%2, MaxSpots); // cap it a 10
+	//MaxOccupants = FMath::Min(MaxOccupants + Day%2, MaxSpots); // cap it a 10
 	//UE_LOG(LogTemp, Warning, TEXT("Max occupants = %i"), MaxOccupants);
-}
+}*/
