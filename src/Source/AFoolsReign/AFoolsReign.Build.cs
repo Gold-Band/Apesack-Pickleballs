@@ -16,6 +16,7 @@ public class AFoolsReign : ModuleRules {
 			"UMG",
 			"Paper2D",
 			"GameplayTags",
+			"FMODStudio",
 		});
 
 		if (Target.bBuildEditor)

@@ -5,7 +5,7 @@
 			<value>Chest Nearby</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{cb2ed25d-1781-4474-a5a6-7d353640db56}</destination>
@@ -67,6 +67,9 @@
 		</relationship>
 	</object>
 	<object class="EventMixerMaster" id="{72b341ee-6c0a-4a58-b8e6-50f0f0cb66ec}">
+		<property name="volume">
+			<value>-10</value>
+		</property>
 		<relationship name="effectChain">
 			<destination>{4fa39249-0e98-4962-9b71-f88a2d068149}</destination>
 		</relationship>
@@ -108,9 +111,11 @@
 	<object class="MixerBusEffectChain" id="{4fa39249-0e98-4962-9b71-f88a2d068149}">
 		<relationship name="effects">
 			<destination>{99227747-177e-4772-8470-69577c11a025}</destination>
+			<destination>{c9452ab7-e017-47d7-b5fa-d8139d8268ab}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{f22c2a59-c3d0-4752-80cc-ed64228d7379}" />
 	<object class="MixerBusFader" id="{fbabbf7e-88d4-4318-b9fb-c0850f2b336e}" />
 	<object class="MixerBusFader" id="{99227747-177e-4772-8470-69577c11a025}" />
+	<object class="SpatialiserEffect" id="{c9452ab7-e017-47d7-b5fa-d8139d8268ab}" />
 </objects>

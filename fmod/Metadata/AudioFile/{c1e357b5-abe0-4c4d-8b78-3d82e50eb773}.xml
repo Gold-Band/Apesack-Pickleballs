@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{c1e357b5-abe0-4c4d-8b78-3d82e50eb773}">
+		<property name="assetPath">
+			<value>villagersiteration1raw-01.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.51083900226757373</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{331af6e8-867d-4efe-9576-894b6fb57018}</destination>
+		</relationship>
+	</object>
+</objects>
