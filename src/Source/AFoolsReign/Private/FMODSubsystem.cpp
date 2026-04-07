@@ -16,6 +16,5 @@ void UFMODSubsystem::Deinitialize() {
 }
 
 void UFMODSubsystem::StopFMOD() {
-	// WARNING: THIS INTENTIONALLY FORCES THE GAME TO CRASH
-	abort();
+
 }
