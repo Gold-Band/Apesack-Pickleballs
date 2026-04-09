@@ -20,19 +20,6 @@ ANpcHostile::ANpcHostile()
 	GetSideInterval = 1;
 }
 
-TArray<UListItemObject*> ANpcHostile::GetInfo() const
-{
-	TArray<UListItemObject*> Info{};
-	
-	// hp
-	UListItemObject* HpInfo = NewObject<UListItemObject>();
-	HpInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Hp: %i/%i"), FMath::RoundToInt(Stats->GetHealth()), FMath::RoundToInt(Stats->GetMaxHealth())));
-	
-	Info.Add(HpInfo);
-	
-	return Info;
-}
-
 void ANpcHostile::BeginPlay()
 {
 	const float DistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
@@ -40,7 +27,7 @@ void ANpcHostile::BeginPlay()
 	
 	Super::BeginPlay();
 	
-	//UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
+	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -96,9 +83,11 @@ void ANpcHostile::CreateBehaviours()
 
 void ANpcHostile::OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side)
 {
-	if (!IsAttacking()) return;
+	//if (IsAttacking()) return;
 	
-	TargetAttackable(0);
+	bTargetCheck = true;
+	
+	//TargetAttackable(0);
 }
 
 EActionState ANpcHostile::Walk(float DeltaTime)
