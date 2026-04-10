@@ -100,6 +100,12 @@ EActionState ANpcHostile::Walk(float DeltaTime)
 
 EActionState ANpcHostile::MoveTo(float DeltaTime)
 {
+	if (bTargetCheck)
+	{
+		bTargetCheck = false;
+		return EActionState::Failed;
+	}
+	
 	// Is destination still valid?
 	if (bIsFirstTick)
 	{
@@ -168,7 +174,7 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 		}
 		if (DistanceSquared <= FMath::Square(StopDistance))
 		{
-			return EActionState::Succeeded;
+			if (IsFacingTarget(TargetActor)) return EActionState::Succeeded;
 		}
 	}
 	
@@ -206,11 +212,15 @@ EActionState ANpcHostile::MeleeAnimation(float DeltaTime)
 
 EActionState ANpcHostile::CheckHit(float DeltaTime)
 {
-	const int MeshDirection = SkMesh? SkMesh->GetComponentScale().X >0? -1 : 1 : 0;
-	const int ActorDirection = GetDirectionTo(TargetActor->GetActorLocation());
-	const bool bIsInFront = ActorDirection == MeshDirection; 
 	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
-	if (FastDist > FMath::Square(Reach) || !bIsInFront) return EActionState::Succeeded;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), FastDist)
+	if (FastDist < FMath::Square(Reach))
+	{
+		if (FastDist > 10 && !IsFacingTarget(TargetActor))
+		{
+			return EActionState::Succeeded;
+		}
+	}
 	
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();

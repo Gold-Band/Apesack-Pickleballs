@@ -69,6 +69,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	virtual bool IsAttacking() const {return false;}
+	
+	UFUNCTION(BlueprintPure)
+	bool IsFacingTarget(const AActor* Target) const;
 private:
 	FVector GetProjectileSpawnLocation_Implementation() const;
 	

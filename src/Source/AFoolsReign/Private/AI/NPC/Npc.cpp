@@ -40,7 +40,7 @@ void ANpc::Tick(float DeltaSeconds)
 
 float ANpc::GetDirectionTo(const FVector& Location) const
 {
-	return FVector::DotProduct(Location - GetActorLocation(), GetActorForwardVector()) > 0 ? 1.0f : -1.0f;
+	return FVector::DotProduct(Location - GetActorLocation(), GetActorForwardVector()) > 0.0f ? 1.0f : -1.0f;
 }
 
 float ANpc::GetSpeed() const
@@ -53,6 +53,13 @@ float ANpc::GetSpeed() const
 UStatsComponent* ANpc::GetStats()
 {
 	return Stats;
+}
+
+bool ANpc::IsFacingTarget(const AActor* Target) const
+{
+	const int MeshDirection = SkMesh? SkMesh->GetComponentScale().X >0? -1 : 1 : 0;
+	const int ActorDirection = GetDirectionTo(TargetActor->GetActorLocation());
+	return ActorDirection == MeshDirection;
 }
 
 FVector ANpc::GetProjectileSpawnLocation_Implementation() const
