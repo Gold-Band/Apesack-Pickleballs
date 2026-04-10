@@ -213,10 +213,10 @@ EActionState ANpcHostile::MeleeAnimation(float DeltaTime)
 EActionState ANpcHostile::CheckHit(float DeltaTime)
 {
 	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
-	UE_LOG(LogTemp, Warning, TEXT("%f"), FastDist)
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), FastDist)
 	if (FastDist < FMath::Square(Reach))
 	{
-		if (FastDist > 10 && !IsFacingTarget(TargetActor))
+		if (FastDist > 15 && !IsFacingTarget(TargetActor))
 		{
 			return EActionState::Succeeded;
 		}
