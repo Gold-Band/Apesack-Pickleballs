@@ -17,12 +17,11 @@ class AFOOLSREIGN_API ANpcHostile : public ANpc
 public:
 	ANpcHostile();
 	
-	virtual TArray<UListItemObject*> GetInfo() const override;
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void OnMeleeAttack();
 	
 	virtual bool IsAttacking() const override {return bIsAttacking;}
+	virtual bool IsClickableActor() const override {return false;}
 	
 protected:
 	virtual void BeginPlay() override;
@@ -36,6 +35,7 @@ private:
 	// patch for a mysterious bug
 	bool bIsFirstTick = true;
 	bool bIsAttacking = false;
+	bool bTargetCheck = false;
 	
 protected:
 	

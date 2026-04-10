@@ -20,19 +20,6 @@ ANpcHostile::ANpcHostile()
 	GetSideInterval = 1;
 }
 
-TArray<UListItemObject*> ANpcHostile::GetInfo() const
-{
-	TArray<UListItemObject*> Info{};
-	
-	// hp
-	UListItemObject* HpInfo = NewObject<UListItemObject>();
-	HpInfo->DisplayText = FText::FromString(FString::Printf(TEXT("Hp: %i/%i"), FMath::RoundToInt(Stats->GetHealth()), FMath::RoundToInt(Stats->GetMaxHealth())));
-	
-	Info.Add(HpInfo);
-	
-	return Info;
-}
-
 void ANpcHostile::BeginPlay()
 {
 	const float DistanceFromOrigin = ADefaultGameMode::GetAngleToOrigin(GetActorLocation());
@@ -40,7 +27,7 @@ void ANpcHostile::BeginPlay()
 	
 	Super::BeginPlay();
 	
-	//UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
+	UNpcManager::OnMostVulnerableAssetChangedDelegate.AddUObject(this, &ThisClass::OnNearestAttackableChanged);
 }
 
 void ANpcHostile::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -96,9 +83,11 @@ void ANpcHostile::CreateBehaviours()
 
 void ANpcHostile::OnNearestAttackableChanged(AActor* NewTarget, EOriginSide Side)
 {
-	if (!IsAttacking()) return;
+	//if (IsAttacking()) return;
 	
-	TargetAttackable(0);
+	bTargetCheck = true;
+	
+	//TargetAttackable(0);
 }
 
 EActionState ANpcHostile::Walk(float DeltaTime)
@@ -111,6 +100,12 @@ EActionState ANpcHostile::Walk(float DeltaTime)
 
 EActionState ANpcHostile::MoveTo(float DeltaTime)
 {
+	if (bTargetCheck)
+	{
+		bTargetCheck = false;
+		return EActionState::Failed;
+	}
+	
 	// Is destination still valid?
 	if (bIsFirstTick)
 	{
@@ -179,7 +174,7 @@ EActionState ANpcHostile::MoveTo(float DeltaTime)
 		}
 		if (DistanceSquared <= FMath::Square(StopDistance))
 		{
-			return EActionState::Succeeded;
+			if (IsFacingTarget(TargetActor)) return EActionState::Succeeded;
 		}
 	}
 	
@@ -217,11 +212,15 @@ EActionState ANpcHostile::MeleeAnimation(float DeltaTime)
 
 EActionState ANpcHostile::CheckHit(float DeltaTime)
 {
-	const int MeshDirection = SkMesh? SkMesh->GetComponentScale().X >0? -1 : 1 : 0;
-	const int ActorDirection = GetDirectionTo(TargetActor->GetActorLocation());
-	const bool bIsInFront = ActorDirection == MeshDirection; 
 	const float FastDist = FVector::DistSquared2D(GetActorLocation(), TargetActor->GetActorLocation());
-	if (FastDist > FMath::Square(Reach) || !bIsInFront) return EActionState::Succeeded;
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), FastDist)
+	if (FastDist < FMath::Square(Reach))
+	{
+		if (FastDist > 15 && !IsFacingTarget(TargetActor))
+		{
+			return EActionState::Succeeded;
+		}
+	}
 	
 	// get target's stat component
 	UStatsComponent* TargetStatComponent = TargetActor->GetComponentByClass<UStatsComponent>();
